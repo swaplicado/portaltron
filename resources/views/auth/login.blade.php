@@ -17,6 +17,9 @@
   <link rel="stylesheet" href="{{asset('css/style.css')}}">
   <!-- endinject -->
   <link rel="shortcut icon" href="{{asset('images/favicon.png')}}" />
+
+  <script src="{{ asset('sweetalert2/dist/sweetalert2.all.min.js') }}"></script>
+  <script src="{{ asset('js/myApp/gui/SGui.js') }}"></script>
 </head>
 
 <body>
@@ -78,22 +81,15 @@
   <script src="{{asset('js/principal/template.js')}}"></script>
   <script src="{{asset('js/principal/settings.js')}}"></script>
   <script src="{{asset('js/principal/todolist.js')}}"></script>
+  <script src="{{asset('js/myApp/login/Login_js.js')}}"></script>
   <!-- endinject -->
+@if(session('message') != null)
     <script>
-        function disableSubmitButton(form) {
-            form.addEventListener('submit', function() {
-                // Disable the submit button to prevent multiple submissions
-                var submitButton = form.querySelector('[type="submit"]');
-                if (submitButton) {
-                    submitButton.disabled = true;
-                }
-            });
-        }
-
-        $(document).ready(function () {
-            var form = document.getElementById('login_form');
-            disableSubmitButton(form);
-        });
+      let Message = "<?php echo session('message') ?>";
+      $(document).ready(function () {
+          showMessage(Message);
+      });
     </script>
+@endif
 </body>
 </html>

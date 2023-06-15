@@ -1,0 +1,5 @@
+{
+    "AppLinkRoute": "127.0.0.1:9002",
+    "AppLinkRouteLogin": "login",
+    "AppLinkRouteProviderFind": "providers/find"
+}

@@ -9,6 +9,10 @@ use App\Http\Controllers\Sys\SyncController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
+use GuzzleHttp\Client;
+use GuzzleHttp\Request as GuzzleRequest;
+use GuzzleHttp\Exception\RequestException;
+use App\Utils\AppLinkUtils;
 
 class LoginController extends Controller
 {
@@ -42,6 +46,9 @@ class LoginController extends Controller
         $this->middleware('guest')->except('logout');
     }
 
+    /**
+     *  Metodo para hacer logout desde un get route
+     */
     public function logout() {
         \Auth::logout();
         return redirect('/login');
@@ -55,6 +62,11 @@ class LoginController extends Controller
         return $request->only($this->username(), 'password');
     }
 
+    /**
+     * Metodo principal para hacer login, recibe un request con:
+     * username - nombre de usuario
+     * password - contraseña de usuario
+     */
     public function login(Request $request){
         if (session()->has('key')) {
             return redirect()->route('home');
@@ -66,6 +78,31 @@ class LoginController extends Controller
         ]);
 
         $userCredentials = $request->only('username', 'password');
+
+        $oUser = \DB::table('users')
+                    ->where('username', $userCredentials['username'])
+                    ->select('rol_id')
+                    ->first();
+
+        if(is_null($oUser)){
+            return $this->sendFailedLoginResponse($request);
+        }
+
+        if($oUser->rol_id == 2){
+            $data = AppLinkUtils::checkUserInAppLink((object)$userCredentials);
+            if(!is_null($data)){
+                if($data->code != 200){
+                    return redirect()->route('login')->with('message', $data->message);
+                }
+                
+                if($data->b_del){
+                    return redirect(route('login'))->with('message', 'El proveedor no se encuentra en activo');
+                }
+
+            }else{
+                return redirect(route('login'))->with('message', 'AppLink no responde');
+            }
+        }
 
         if (Auth::attempt($userCredentials)) {
             $this->authenticated($request, Auth::user());
