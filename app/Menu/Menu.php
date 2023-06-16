@@ -17,7 +17,7 @@ class Menu {
                 $lMenus = [
                     (object) ['type' => $element, 'route' => route('home'), 'icon' => 'bx bx-home bx-sm', 'name' => 'Home'],
                     (object) ['type' => $list, 'list' => [
-                        ['route' => route('user_registry'), 'icon' => 'bx bxs-user-plus bx-sm', 'name' => 'Registrar usuario'],
+                        ['route' => route('register'), 'icon' => 'bx bxs-user-plus bx-sm', 'name' => 'Registrar usuario'],
                                                 ],
                                                 'icon' => 'bx bxs-user bx-sm', 'name' => 'Usuarios', 'id' => 'Usuarios'
                     ],

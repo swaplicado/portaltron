@@ -4,7 +4,7 @@
   <!-- Required meta tags -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>Skydash Admin</title>
+  <title>SIIE APP</title>
   <!-- plugins:css -->
   <link rel="stylesheet" href="{{asset('varios/feather/feather.css')}}">
   <link rel="stylesheet" href="{{asset('varios/ti-icons/css/themify-icons.css')}}">
@@ -25,6 +25,7 @@
   <script type="text/javascript" src="{{ asset('vue/vue.js') }}"></script>
   <script src="{{ asset('sweetalert2/dist/sweetalert2.all.min.js') }}"></script>
   <script src="{{ asset('js/myApp/gui/SGui.js') }}"></script>
+  <script src="{{ asset('datatables/dataTables.js')}}"></script>
   @yield('headJs')
 
 </head>
