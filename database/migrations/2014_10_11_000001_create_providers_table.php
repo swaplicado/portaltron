@@ -18,10 +18,10 @@ class CreateProvidersTable extends Migration
             $table->string('provider_name');
             $table->string('provider_short_name');
             $table->string('provider_rfc');
-            $table->string('provider_email');
-            $table->unsignedBigInteger('external_id');
+            $table->string('provider_email')->nullable();
+            $table->unsignedBigInteger('external_id')->nullable();
             $table->boolean('is_active')->default(1);
-            $table->boolean('is_deleted');
+            $table->boolean('is_deleted')->default(0);
             $table->timestamps();
         });
     }

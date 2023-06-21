@@ -19,15 +19,15 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('first_name');
-            $table->string('last_name');
+            $table->string('last_name1');
+            $table->string('last_name2');
             $table->string('names');
             $table->string('full_name');
             $table->unsignedBigInteger('rol_id');
             $table->unsignedBigInteger('provider_id')->nullable();
             $table->rememberToken();
             $table->boolean('is_active')->default(1);
-            $table->boolean('is_deleted');
+            $table->boolean('is_deleted')->default(0);
             $table->timestamps();
 
             $table->foreign('rol_id')->references('id_rol')->on('adm_rol');
@@ -40,8 +40,8 @@ class CreateUsersTable extends Migration
                 'username' => 'admin',
                 'email' => 'adrian.aviles@swaplicado.com.mx',
                 'password' => \Hash::make('123456'),
-                'first_name' => 'admin',
-                'last_name' => 'admin',
+                'last_name1' => 'admin',
+                'last_name2' => 'admin',
                 'names' => 'admin',
                 'full_name' => 'Admin',
                 'rol_id' => 1,

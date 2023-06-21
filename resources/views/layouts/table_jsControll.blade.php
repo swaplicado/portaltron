@@ -116,24 +116,16 @@
                 }
             });
         @endif
-    
+
         /**
-         * Editar un registro con formulario
+         * Crear un registro con vue modal
          */
-        @if(isset($edit_form))
-            $('#btn_edit').click(function () {
-                if (table['{{$table_id}}'].row('.selected').data() == undefined) {
-                    SGui.showError("Debe seleccionar un renglón");
-                    return;
-                }
-        
-                var id = table['{{$table_id}}'].row('.selected').data()[0];
-                var url = '{{route($editar, ":id")}}';
-                url = url.replace(':id',id);
-                window.location.href = url;
+        @if(isset($create_modal))
+            $('#btn_create').click(function () {        
+                app.createModal();
             });
         @endif
-    
+
         /**
          * Editar un registro con vue modal
          */
@@ -144,16 +136,7 @@
                     return;
                 }
         
-                app.showModal(table['{{$table_id}}'].row('.selected').data());
-            });
-        @endif
-
-        /**
-         * Crear un registro con vue modal
-         */
-        @if(isset($crear_modal))
-            $('#btn_crear').click(function () {        
-                app.showModal();
+                app.editModal(table['{{$table_id}}'].row('.selected').data());
             });
         @endif
 
@@ -184,31 +167,8 @@
         @endif
 
         /**
-         * Aprobar un registro con vue
+         * Abrir modal con datos de tabla 
          */
-        @if(isset($accept))
-            $('#btn_accept').click(function  () {
-                if (table['{{$table_id}}'].row('.selected').data() == undefined) {
-                    SGui.showError("Debe seleccionar un renglón");
-                    return;
-                }
-                app.showAcceptRegistry(table['{{$table_id}}'].row('.selected').data());
-            });
-        @endif
-
-        /**
-         * Rechazar un registro con vue
-         */
-        @if(isset($reject))
-            $('#btn_reject').click(function  () {
-                if (table['{{$table_id}}'].row('.selected').data() == undefined) {
-                    SGui.showError("Debe seleccionar un renglón");
-                    return;
-                }
-                app.showRejectRegistry(table['{{$table_id}}'].row('.selected').data());
-            });
-        @endif
-        
         @if(isset($show))
             $('#btn_show').click(function () {
                 if(table['{{$table_id}}'].row('.selected').data() == undefined){

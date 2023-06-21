@@ -16,11 +16,13 @@ class Menu {
             case '1':
                 $lMenus = [
                     (object) ['type' => $element, 'route' => route('home'), 'icon' => 'bx bx-home bx-sm', 'name' => 'Home'],
-                    (object) ['type' => $list, 'list' => [
-                        ['route' => route('register'), 'icon' => 'bx bxs-user-plus bx-sm', 'name' => 'Registrar usuario'],
-                                                ],
-                                                'icon' => 'bx bxs-user bx-sm', 'name' => 'Usuarios', 'id' => 'Usuarios'
-                    ],
+                    (object) ['type' => $element, 'route' => route('providers_index'), 'icon' => 'bx bxs-truck bx-sm', 'name' => 'Proveedores'],
+                    (object) ['type' => $element, 'route' => route('users_index'), 'icon' => 'bx bxs-user bx-sm', 'name' => 'Usuarios'],
+                    // (object) ['type' => $list, 'list' => [
+                    //     ['route' => route('register'), 'icon' => 'bx bxs-user-plus bx-sm', 'name' => 'Registrar usuario'],
+                    //                             ],
+                    //                             'icon' => 'bx bxs-user bx-sm', 'name' => 'Usuarios', 'id' => 'Usuarios'
+                    // ],
                 ];
                 break;
 
