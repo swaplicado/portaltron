@@ -24,7 +24,7 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::middleware(['auth', 'menu'])->group( function () {
+Route::middleware(['auth', 'menu', 'app.middleware'])->group( function () {
     Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
     Route::get('/registry', [HomeController::class, 'index'])->name('user_registry');
     Route::get('/home', [HomeController::class, 'index'])->name('home');
@@ -41,3 +41,7 @@ Route::middleware(['auth', 'menu'])->group( function () {
     Route::post('/users/update', [UsersController::class, 'updateUser'])->name('users_update');
     Route::post('/users/delete', [UsersController::class, 'deleteUser'])->name('users_delete');
 });
+
+Route::get('/unauthorized', function () {
+    return view('layouts.unauthorized');
+})->name('unauthorized');

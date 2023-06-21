@@ -51,7 +51,7 @@ class LoginController extends Controller
      */
     public function logout() {
         \Auth::logout();
-        return redirect('/login');
+        return redirect()->to('http://localhost:9091/appsmanager/public/login');
     }
 
     public function username(){
