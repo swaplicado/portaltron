@@ -30,17 +30,17 @@ class SProvidersMiddleware
                 if(!is_null($data)){
                     if($data->code != 200){
                         \Auth::logout();
-                        return redirect()->to('127.0.0.1:8000/login')->with('message', $data->message);
+                        return redirect()->to(config('myapp.appmanager_link').'/login')->with('message', $data->message);
                     }
                     
                     if($data->b_del){
                         \Auth::logout();
-                        return redirect()->to('127.0.0.1:8000/login')->with('message', 'El proveedor no se encuentra en activo');
+                        return redirect()->to(config('myapp.appmanager_link').'/login')->with('message', 'El proveedor no se encuentra en activo');
                     }
 
                 }else{
                     \Auth::logout();
-                    return redirect()->to('127.0.0.1:8000/login')->with('message', 'AppLink no responde');
+                    return redirect()->to(config('myapp.appmanager_link').'/login')->with('message', 'AppLink no responde');
                 }
             }
         }

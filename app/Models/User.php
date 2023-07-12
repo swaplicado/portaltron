@@ -58,20 +58,20 @@ class User extends Authenticatable
 
     public function type(){
         return $this->belongsToMany(AppmanagerModels\Typesuser::class, 'adm_users_typesuser', 'user_id', 'typeuser_id')
-                    ->where('adm_users_typesuser.app_id', env('APP_ID'))
+                    ->where('adm_users_typesuser.app_id', 1)
                     ->first();
     }
 
     public function roles(){
         return $this->belongsToMany(AppmanagerModels\Role::class, 'adm_user_roles','user_id', 'role_id')
-                    ->where('adm_user_roles.app_n_id', env('APP_ID'))
+                    ->where('adm_user_roles.app_n_id', config('myapp.id', 0))
                     ->get();
     }
 
     public function is_provider(){
         return !is_null(
                         $this->belongsToMany(AppmanagerModels\Role::class, 'adm_user_roles','user_id', 'role_id')
-                            ->where('adm_user_roles.app_n_id', env('APP_ID'))
+                            ->where('adm_user_roles.app_n_id', config('myapp.id', 0))
                             ->where('adm_roles.id_role', SysConst::ROL_PROVEEDOR)
                             ->first()
                         );
@@ -83,7 +83,7 @@ class User extends Authenticatable
                                 ->table('adm_roles_permissions as rp')
                                 ->join('adm_permissions as p', 'p.id_permission', '=', 'rp.permission_id')
                                 ->whereIn('role_id', $lRoles)
-                                ->where('rp.app_n_id', env('APP_ID'))
+                                ->where('rp.app_n_id', config('myapp.id', 0))
                                 ->select(
                                     'p.key_code',
                                     'p.level',
@@ -97,7 +97,7 @@ class User extends Authenticatable
         $RolePermissions = $this->permissionsByRol();
 
         $blockedPermissions = $this->belongsToMany(AppmanagerModels\Permission::class, 'adm_user_permissions', 'user_id', 'permission_id')
-                                    ->where('adm_user_permissions.app_n_id', env('APP_ID'))
+                                    ->where('adm_user_permissions.app_n_id', config('myapp.id', 0))
                                     ->where('is_blocked', 1)
                                     ->pluck('id_permission')
                                     ->toArray();
@@ -105,7 +105,7 @@ class User extends Authenticatable
         $RolePermissions = $RolePermissions->whereNotIn('permission_id', $blockedPermissions);
 
         $assignPermissions = $this->belongsToMany(AppmanagerModels\Permission::class, 'adm_user_permissions', 'user_id', 'permission_id')
-                                    ->where('adm_user_permissions.app_n_id', env('APP_ID'))
+                                    ->where('adm_user_permissions.app_n_id', config('myapp.id', 0))
                                     ->where('is_blocked', 0)
                                     ->select(
                                         'key_code',
@@ -146,7 +146,7 @@ class User extends Authenticatable
     public function accessApp(){
         return !is_null(
                             $this->belongsToMany(AppmanagerModels\SApp::class, 'adm_user_apps', 'user_id', 'app_id')
-                                ->where('app_id', env('APP_ID'))
+                                ->where('app_id', config('myapp.id', 0))
                                 ->first()
                         );
     }

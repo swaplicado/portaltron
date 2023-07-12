@@ -51,7 +51,7 @@ class LoginController extends Controller
      */
     public function logout() {
         \Auth::logout();
-        return redirect()->to('http://127.0.0.1:8000');
+        return redirect()->to(config('myapp.appmanager_link').'/login');
     }
 
     public function username(){
@@ -121,7 +121,7 @@ class LoginController extends Controller
     }
 
     public function showLoginForm($route = null, $idApp = null){
-        return redirect()->to('http://127.0.0.1:8000');
+        return redirect()->to(config('myapp.appmanager_link').'/login');
         // return view('auth.login');
     }
 }

@@ -19,7 +19,7 @@ class SProvidersController extends Controller
             if(!is_null($user_id)){
                 $oUser = User::where('users.id', $user_id)
                             ->join('adm_user_apps as ua', 'ua.user_id', '=', 'users.id')
-                            ->where('ua.app_id', env('APP_ID'))
+                            ->where('ua.app_id', config('myapp.id', 0))
                             ->select(
                                 'users.id',
                                 'users.username',
