@@ -16,21 +16,37 @@ class AppGuardMiddleware
      * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next, $key, $level)
     {
-        $aRoles = UserRole::where('user_id', \Auth::user()->id)
-                    ->pluck('role_id')
-                    ->toArray();
+        $type = \Auth::user()->type();
 
-        if (in_array(1, $aRoles)) {
+        if($type->id_typesuser == 1){
             return $next($request);
         }
 
-        $aApps = UserApp::where('user_id', \Auth::user()->id)
-                        ->pluck('app_id')
-                        ->toArray();
+        if($type->id_typesuser == 2){
+            $access = \Auth::user()->accessApp();
 
-        if (in_array(config('myapp.id', 0), $aApps)) {
+            if(!$access){
+                return redirect()->route('unauthorized');
+            }
+
+            return $next($request);
+        }
+
+        if($type->id_typesuser == 3){
+            $access = \Auth::user()->accessApp();
+
+            if(!$access){
+                return redirect()->route('unauthorized');
+            }
+
+            $havePermission = \Auth::user()->havePermission($key, $level);
+
+            if(!$havePermission){
+                return redirect()->route('unauthorized');
+            }
+
             return $next($request);
         }
         

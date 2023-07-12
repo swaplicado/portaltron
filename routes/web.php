@@ -4,8 +4,9 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\HomeController;
-use App\Http\Controllers\Providers\ProvidersController;
+use App\Http\Controllers\SProviders\SProvidersController;
 use App\Http\Controllers\Users\UsersController;
+use App\Http\Middleware\PermissionsMiddleware;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,16 +25,19 @@ Route::get('/', function () {
 
 Auth::routes();
 
-Route::middleware(['auth', 'menu', 'app.middleware'])->group( function () {
+Route::middleware(['auth', 'menu', 'app.sprovider'])->group( function () {
     Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
     Route::get('/registry', [HomeController::class, 'index'])->name('user_registry');
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 
     /** Proveedores */
-    Route::get('/providers', [ProvidersController::class, 'index'])->name('providers_index');
-    Route::post('/providers/create', [ProvidersController::class, 'createProvider'])->name('providers_create');
-    Route::post('/providers/update', [ProvidersController::class, 'updateProvider'])->name('providers_update');
-    Route::post('/providers/delete', [ProvidersController::class, 'deleteProvider'])->name('providers_delete');
+    Route::group(['as' => 'sproviders.'], function () {
+        Route::get('/sproviders/{id?}', [SProvidersController::class, 'index'])->name('index')->middleware('app.middleware:providers,view');
+        Route::post('/sproviders/create', [SProvidersController::class, 'createProvider'])->name('create')->middleware('app.middleware:providers,create');
+        Route::post('/sproviders/update', [SProvidersController::class, 'updateProvider'])->name('update')->middleware('app.middleware:providers,edit');
+        Route::post('/sproviders/delete', [SProvidersController::class, 'deleteProvider'])->name('delete')->middleware('app.middleware:providers,delete');
+        Route::post('/sproviders/getProvider', [SProvidersController::class, 'getProvider'])->name('getProvider')->middleware('app.middleware:providers,show');
+    });
     
     /** Usuarios */
     Route::get('/users', [UsersController::class, 'index'])->name('users_index');

@@ -63,15 +63,8 @@ class AppLinkUtils {
             'headers' => $headers
         ]);
 
-        $oProvider = \DB::table('users as u')
-                        ->leftJoin('providers as p', 'p.id_provider', '=', 'u.provider_id')
-                        ->where('u.username', $oUser->username)
-                        ->where('u.is_active', 1)
-                        ->where('u.is_deleted', 0)
-                        ->select(
-                            'u.username',
-                            'p.provider_rfc'
-                        )
+        $oProvider = \DB::table('providers')
+                        ->where('user_id', $oUser->id)
                         ->first();
 
         $body = '{

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Menu;
+use App\Constants\SysConst;
 use \Session;
 class Menu {
     public static function createMenu($oUser = null)
@@ -11,13 +12,23 @@ class Menu {
             return "";
         }
 
-        switch ($oUser->rol_id) {
+        $typeUser = $oUser->type()->id_typesuser;
+
+        if($typeUser == SysConst::TYPE_SUPER){
+            $rol = SysConst::ROL_ADMIN;
+        }else{
+            $roles = collect($oUser->roles()->toArray());
+            $res = $roles->where('id_role', 2)->first();
+            $rol = $res['id_role'];
+        }
+
+        switch ($rol) {
             //Admin
             case '1':
                 $lMenus = [
                     (object) ['type' => $element, 'route' => route('home'), 'icon' => 'bx bx-home bx-sm', 'name' => 'Home'],
-                    (object) ['type' => $element, 'route' => route('providers_index'), 'icon' => 'bx bxs-truck bx-sm', 'name' => 'Proveedores'],
-                    (object) ['type' => $element, 'route' => route('users_index'), 'icon' => 'bx bxs-user bx-sm', 'name' => 'Usuarios'],
+                    (object) ['type' => $element, 'route' => route('sproviders.index'), 'icon' => 'bx bxs-truck bx-sm', 'name' => 'Proveedores'],
+                    // (object) ['type' => $element, 'route' => route('users_index'), 'icon' => 'bx bxs-user bx-sm', 'name' => 'Usuarios'],
                     // (object) ['type' => $list, 'list' => [
                     //     ['route' => route('register'), 'icon' => 'bx bxs-user-plus bx-sm', 'name' => 'Registrar usuario'],
                     //                             ],
@@ -29,7 +40,9 @@ class Menu {
             //Proveedor
             case '2':
                 $lMenus = [ 
-
+                    (object) ['type' => $element, 'route' => route('home'), 'icon' => 'bx bx-home bx-sm', 'name' => 'Home'],
+                    // (object) ['type' => $element, 'route' => route('sproviders.index'), 'icon' => 'bx bxs-truck bx-sm', 'name' => 'Proveedores'],
+                    // (object) ['type' => $element, 'route' => route('users_index'), 'icon' => 'bx bxs-user bx-sm', 'name' => 'Usuarios'],
                 ];  
                 break;
 

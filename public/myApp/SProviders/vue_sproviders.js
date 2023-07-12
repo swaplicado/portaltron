@@ -1,8 +1,10 @@
+var self;
 var app = new Vue({
-    el: '#providers',
+    el: '#sproviders',
     data: {
         oData: oServerData,
         lProviders: oServerData.lProviders,
+        oUser: oServerData.oUser,
         modal_title: null,
         provider_name: null,
         provider_short_name: null,
@@ -12,7 +14,14 @@ var app = new Vue({
         is_edit: false,
     },
     mounted(){
-        
+        self = this;
+        if(this.oUser != null){
+            this.createModal();
+        }
+
+        $('#modal_providers_form').on('hidden.bs.modal', function () {
+            self.oUser = null;
+        });
     },
     methods: {
         createModal(){
@@ -25,20 +34,18 @@ var app = new Vue({
             $('#modal_providers_form').modal('show');
         },
 
-        editModal(data){
+        async editModal(data){
             this.is_edit = true;
             this.modal_title = 'Proveedor: ' + data[indexesProvidersTable.provider_short_name];
             this.id_provider = data[indexesProvidersTable.id_provider];
-            this.provider_name = data[indexesProvidersTable.provider_name];
-            this.provider_short_name = data[indexesProvidersTable.provider_short_name];
-            this.provider_rfc = data[indexesProvidersTable.provider_rfc];
-            this.provider_email = data[indexesProvidersTable.provider_email];
+            await this.getProviderData();
             $('#modal_providers_form').modal('show');
+            Swal.close();
         },
 
         saveProvider(){
             SGui.showWaiting(15000);
-
+            
             var route = null;
             if(this.is_edit){
                 route = this.oData.updateRoute;
@@ -52,6 +59,7 @@ var app = new Vue({
                 'provider_short_name': this.provider_short_name,
                 'provider_rfc': this.provider_rfc,
                 'provider_email': this.provider_email,
+                'user_id': this.oUser.id,
             })
             .then( result => {
                 let data = result.data;
@@ -105,6 +113,43 @@ var app = new Vue({
                 console.log(error);
                 SGui.showMessage('', error, 'error');
             });
+        },
+
+        getProviderData(){
+            SGui.showWaiting(15000);
+            let route = oServerData.getProviderRoute;
+
+            return new Promise((resolve, reject) => 
+                axios.post(route,{
+                    'provider_id': this.id_provider,
+                })
+                .then(result => {
+                    let data = result.data;
+                    
+                    if(data.success){
+                        this.provider_name = data.oProvider.provider_name;
+                        this.provider_short_name = data.oProvider.provider_short_name;
+                        this.provider_rfc = data.oProvider.provider_rfc;
+                        this.provider_email = data.oProvider.provider_email;
+        
+                        this.oUser = new Object();
+                        this.oUser.id = data.oProvider.user_id;
+                        this.oUser.username = data.oProvider.username;
+                        this.oUser.full_name = data.oProvider.full_name;
+                        this.oUser.email = data.oProvider.email;
+                        resolve('ok');
+                    }else{
+                        SGui.showMessage('', data.message, data.icon);
+                        reject('error');
+                    }
+
+                })
+                .catch(function(error){
+                    console.log(error);
+                    SGui.showError(error);
+                    reject('error');
+                })
+            );
         }
     }
 })

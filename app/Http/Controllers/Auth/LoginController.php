@@ -51,7 +51,7 @@ class LoginController extends Controller
      */
     public function logout() {
         \Auth::logout();
-        return redirect()->to('http://localhost:9091/appsmanager/public/login');
+        return redirect()->to('http://127.0.0.1:8000');
     }
 
     public function username(){
@@ -121,6 +121,7 @@ class LoginController extends Controller
     }
 
     public function showLoginForm($route = null, $idApp = null){
-        return view('auth.login');
+        return redirect()->to('http://127.0.0.1:8000');
+        // return view('auth.login');
     }
 }

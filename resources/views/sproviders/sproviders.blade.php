@@ -4,9 +4,11 @@
 <script>
     function GlobalData(){
         this.lProviders = <?php echo json_encode($lProviders); ?>;
-        this.createRoute = <?php echo json_encode(route('providers_create')); ?>;
-        this.updateRoute = <?php echo json_encode(route('providers_update')); ?>;
-        this.deleteRoute = <?php echo json_encode(route('providers_delete')); ?>;
+        this.oUser = <?php echo json_encode($oUser); ?>;
+        this.createRoute = <?php echo json_encode(route('sproviders.create')); ?>;
+        this.updateRoute = <?php echo json_encode(route('sproviders.update')); ?>;
+        this.deleteRoute = <?php echo json_encode(route('sproviders.delete')); ?>;
+        this.getProviderRoute = <?php echo json_encode(route('sproviders.getProvider')); ?>;
     }
     var oServerData = new GlobalData();
     var indexesProvidersTable = {
@@ -15,22 +17,21 @@
                 'provider_name': 2,
                 'provider_rfc': 3,
                 'provider_email': 4,
-                'created_by': 5,
-                'updated_by': 6,
-                'created': 7,
-                'updated': 8,
+                'user': 5,
+                'created': 6,
+                'updated': 7,
             };
 </script>
 @endsection
 
 @section('content')
-<div class="card" id="providers">
+<div class="card" id="sproviders">
     <div class="card-header">
         <h3>Proveedores</h3>
     </div>
     <div class="card-body">
 
-        @include('providers.modal_providers_form')
+        @include('sproviders.modal_providers_form')
 
         <div class="grid-margin">
             @include('layouts.buttons', ['create' => true, 'edit' => true, 'delete' => true])
@@ -44,8 +45,7 @@
                     <th>Proveedor</th>
                     <th>RFC</th>
                     <th>Email</th>
-                    <th>Creado por</th>
-                    <th>Actualizado por</th>
+                    <th>Usuario</th>
                     <th>Fecha creación</th>
                     <th>Fecha actualización</th>
                 </thead>
@@ -68,7 +68,7 @@
                                             'edit_modal' => true,
                                             'delete' => true,
                                         ] )
-    <script type="text/javascript" src="{{ asset('myApp/Providers/vue_providers.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('myApp/SProviders/vue_sproviders.js') }}"></script>
     <script type="text/javascript" src="{{ asset('myApp/Utils/datatablesUtils.js') }}"></script>
     <script type="text/javascript">
         $(document).ready(function() {

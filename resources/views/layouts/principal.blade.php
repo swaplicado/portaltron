@@ -94,8 +94,11 @@
             <!-- Panel principal-->
               <div class="main-panel">
                 <div class="content-wrapper">
-                  <!-- Panel content -->
+                  <div class="loader"></div>
+                  <div class="hiddeToLoad">
+                    <!-- Panel content -->
                     @yield('content')
+                  </div>
                   <!-- End Panel content -->
                 </div>
                 <!-- Footer -->
@@ -132,8 +135,23 @@
       <!-- JS section -->
         @yield('scripts')
       <!-- End JS section -->
-    <!-- End JS files -->
 
+      <script>
+            window.onload = function() {
+                  
+              const loader = document.querySelector('.loader');
+              loader.style.opacity = 0; /* Cambia la opacidad a 0 para que el círculo desaparezca */
+        
+              var elementos = document.getElementsByClassName("hiddeToLoad");
+              for (var i = 0; i < elementos.length; i++) {
+                // Establecer el estilo "display" de cada elemento a "block"
+                elementos[i].style.display = 'block';
+              }
+              loader.style.display = 'none'; /* Oculta el círculo después de una pequeña transición */
+        
+            };
+      </script>
+      <!-- End JS files -->
   </body>
 
 </html>

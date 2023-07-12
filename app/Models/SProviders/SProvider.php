@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Models\Providers;
+namespace App\Models\SProviders;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Provider extends Model
+class SProvider extends Model
 {
     use HasFactory;
 
