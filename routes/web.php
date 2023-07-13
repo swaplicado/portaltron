@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SProviders\SProvidersController;
+use App\Http\Controllers\Quotations\QuotationsController;
 use App\Http\Controllers\Users\UsersController;
 use App\Http\Middleware\PermissionsMiddleware;
 
@@ -44,6 +45,15 @@ Route::middleware(['auth', 'menu', 'app.sprovider'])->group( function () {
     Route::post('/users/create', [UsersController::class, 'createUser'])->name('users_create');
     Route::post('/users/update', [UsersController::class, 'updateUser'])->name('users_update');
     Route::post('/users/delete', [UsersController::class, 'deleteUser'])->name('users_delete');
+
+    /** cotizaciones */
+    Route::group(['as' => 'quotations.', 'prefix' => 'quotations'], function () {
+        Route::get('/quotations', [QuotationsController::class, 'index'])->name('index');
+        Route::post('/uploadQuotation', [QuotationsController::class, 'uploadQuotation'])->name('uploadQuotation');
+        Route::get('/showQuotation/{id?}', [QuotationsController::class, 'showQuotation'])->name('showQuotation');
+        Route::post('/update', [QuotationsController::class, 'updateQuotation'])->name('updateQuotation');
+        Route::post('/delete', [QuotationsController::class, 'deleteQuotation'])->name('delete');
+    });
 });
 
 Route::get('/unauthorized', function () {

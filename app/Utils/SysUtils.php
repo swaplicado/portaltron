@@ -1,4 +1,5 @@
 <?php namespace App\Utils;
+      use App\Constants\SysConst;
       use App\Exceptions\SMyException;
       use App\Models\User;
 
@@ -35,5 +36,15 @@ class SysUtils {
         unset($subArray);
 
         return $collection;
-    }    
+    }
+
+    public static function isAdmin(){
+        $roles = \Auth::user()->roles()->pluck('id_role')->toArray();
+        $typeUser = \Auth::user()->type();
+        if(in_array(SysConst::ROL_ADMIN, $roles) || $typeUser->id_typesuser == SysConst::TYPE_SUPER){
+            return true;
+        }
+        
+        return false;
+    }
 }

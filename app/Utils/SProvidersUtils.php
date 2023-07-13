@@ -3,6 +3,13 @@
 use App\Models\SProviders\SProvider;
 
 class SProvidersUtils {
+
+    public static function getProviderByUser($user_id){
+        $oProvider = SProvider::where('user_id', $user_id)->first();
+
+        return $oProvider;
+    }
+
     public static function getProvider($provider_id){
         $oProvider = SProvider::join(config('myapp.mngr_db').'.users as u', 'u.id', '=', 'user_id')
                             ->where('id_provider', $provider_id)

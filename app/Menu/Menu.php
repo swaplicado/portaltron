@@ -41,6 +41,7 @@ class Menu {
             case '2':
                 $lMenus = [ 
                     (object) ['type' => $element, 'route' => route('home'), 'icon' => 'bx bx-home bx-sm', 'name' => 'Home'],
+                    (object) ['type' => $element, 'route' => route('quotations.index'), 'icon' => 'bx bxs-archive bx-sm', 'name' => 'Cotizaciones'],
                     // (object) ['type' => $element, 'route' => route('sproviders.index'), 'icon' => 'bx bxs-truck bx-sm', 'name' => 'Proveedores'],
                     // (object) ['type' => $element, 'route' => route('users_index'), 'icon' => 'bx bxs-user bx-sm', 'name' => 'Usuarios'],
                 ];  
