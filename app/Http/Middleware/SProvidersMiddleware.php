@@ -44,19 +44,19 @@ class SProvidersMiddleware
                     return redirect()->to(config('myapp.appmanager_link').'/login')->with('message', 'AppLink no responde');
                 }
             }
+
+            try {
+                $oProvider = SProvidersUtils::getProviderByUser(\Auth::user()->id);
+                session()->put('provider_id', $oProvider->id_provider);
+                session()->put('provider_name', $oProvider->provider_name);
+                session()->put('provider_rfc', $oProvider->provider_rfc);
+                session()->put('provider_checked', true);
+            } catch (\Throwable $th) {
+                \Auth::logout();
+                return redirect()->to(config('myapp.appmanager_link').'/login')->with('message', 'No existe un proveedor registrado con estas credenciales');
+            }
         }
 
-        try {
-            $oProvider = SProvidersUtils::getProviderByUser(\Auth::user()->id);
-            session()->put('provider_id', $oProvider->id_provider);
-            session()->put('provider_name', $oProvider->provider_name);
-            session()->put('provider_rfc', $oProvider->provider_rfc);
-        } catch (\Throwable $th) {
-            \Auth::logout();
-            return redirect()->to(config('myapp.appmanager_link').'/login')->with('message', 'No existe un proveedor registrado con estas credenciales');
-        }
-
-        session()->put('provider_checked', true);
         
         return $next($request);
     }
