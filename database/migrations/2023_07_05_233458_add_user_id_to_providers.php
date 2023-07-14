@@ -16,7 +16,7 @@ class AddUserIdToProviders extends Migration
         Schema::table('providers', function (Blueprint $table) {
             $table->unsignedBigInteger('user_id')->unique()->after('provider_email');
 
-            $table->foreign('user_id')->references('id')->on('appsmanager.users');
+            $table->foreign('user_id')->references('id')->on(config('myapp.mngr_db').'.users');
         });
     }
 
