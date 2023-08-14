@@ -15,16 +15,16 @@ class Menu {
         $typeUser = $oUser->type()->id_typesuser;
 
         if($typeUser == SysConst::TYPE_SUPER){
-            $rol = SysConst::ROL_ADMIN;
+            $roles = [SysConst::ROL_ADMIN];
         }else{
-            $roles = collect($oUser->roles()->toArray());
-            $res = $roles->where('id_role', 2)->first();
-            $rol = $res['id_role'];
+            $roles = $oUser->roles()->pluck('id_role')->toArray();
+            // $res = $roles->where('id_role', 2)->first();
+            // $rol = $res['id_role'];
         }
 
-        switch ($rol) {
+        switch ($roles) {
             //Admin
-            case '1':
+            case in_array('1', $roles):
                 $lMenus = [
                     (object) ['type' => $element, 'route' => route('home'), 'icon' => 'bx bx-home bx-sm', 'name' => 'Home'],
                     (object) ['type' => $element, 'route' => route('sproviders.index'), 'icon' => 'bx bxs-truck bx-sm', 'name' => 'Proveedores'],
@@ -38,10 +38,19 @@ class Menu {
                 break;
 
             //Proveedor
-            case '2':
+            case in_array('2', $roles):
                 $lMenus = [ 
                     (object) ['type' => $element, 'route' => route('home'), 'icon' => 'bx bx-home bx-sm', 'name' => 'Home'],
                     (object) ['type' => $element, 'route' => route('quotations.index'), 'icon' => 'bx bxs-archive bx-sm', 'name' => 'Cotizaciones'],
+                    // (object) ['type' => $element, 'route' => route('sproviders.index'), 'icon' => 'bx bxs-truck bx-sm', 'name' => 'Proveedores'],
+                    // (object) ['type' => $element, 'route' => route('users_index'), 'icon' => 'bx bxs-user bx-sm', 'name' => 'Usuarios'],
+                ];  
+                break;
+
+            //Proveedor
+            case in_array('3', $roles):
+                $lMenus = [ 
+                    (object) ['type' => $element, 'route' => route('home'), 'icon' => 'bx bx-home bx-sm', 'name' => 'Home'],
                     // (object) ['type' => $element, 'route' => route('sproviders.index'), 'icon' => 'bx bxs-truck bx-sm', 'name' => 'Proveedores'],
                     // (object) ['type' => $element, 'route' => route('users_index'), 'icon' => 'bx bxs-user bx-sm', 'name' => 'Usuarios'],
                 ];  
