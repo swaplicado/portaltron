@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SProviders\SProvidersController;
+use App\Http\Controllers\SDocs\purchaseOrdersController;
 use App\Http\Controllers\Quotations\QuotationsController;
 use App\Http\Controllers\Users\UsersController;
 use App\Http\Middleware\PermissionsMiddleware;
@@ -22,6 +23,12 @@ use App\Http\Middleware\PermissionsMiddleware;
 
 Route::get('/', function () {
     return redirect(route('login'));
+});
+
+Route::middleware(('guest'))->group ( function (){
+    Route::group(['prefix' => 'sprovider'], function(){
+        Route::get('/registerProvider', [SProvidersController::class, 'registerProviderIndex'])->name('registerProvider');
+    });
 });
 
 Auth::routes();
@@ -53,6 +60,13 @@ Route::middleware(['auth', 'menu', 'app.sprovider'])->group( function () {
         Route::get('/showQuotation/{id?}', [QuotationsController::class, 'showQuotation'])->name('showQuotation');
         Route::post('/update', [QuotationsController::class, 'updateQuotation'])->name('updateQuotation');
         Route::post('/delete', [QuotationsController::class, 'deleteQuotation'])->name('delete');
+    });
+
+    /** OC */
+    Route::group(['as' => 'purchaseOrders.', 'prefix' => 'purchaseOrders'], function () {
+        Route::get('/purchaseOrders', [purchaseOrdersController::class, 'index'])->name('index');
+        Route::post('/purchaseOrders/getRows', [purchaseOrdersController::class, 'getRows'])->name('getRows');
+        Route::post('/purchaseOrders/update', [purchaseOrdersController::class, 'updatePurchaseOrder'])->name('update');
     });
 });
 

@@ -23,5 +23,16 @@ class SysConst {
      public const PROVIDERS_UPDATE = 'providers_update';
      public const PROVIDERS_DELETE = 'providers_delete';
      public const PROVIDERS_SHOW = 'providers_show';
+
+     /**
+      * Constantes de la tabla type_doc
+      */
+      public const DOC_TYPE_PURCHASE_ORDER = 1;
+
+      /**
+       * Constantes de la tabla status doc
+       */
+      public const DOC_STATUS_NUEVO = 1;
+      public const DOC_STATUS_ATENDIDO = 2;
 }
 ?>

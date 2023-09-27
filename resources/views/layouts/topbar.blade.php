@@ -21,7 +21,7 @@
                   <i class="icon-search"></i>
                 </span>
               </div>
-              <input type="text" class="form-control" id="navbar-search-input" placeholder="Search now" aria-label="search" aria-describedby="search">
+              <input type="text" class="form-control" id="navbar-search-input" placeholder="Buscar" aria-label="search" aria-describedby="search">
             </div>
           </li>
         </ul>
@@ -52,12 +52,15 @@
           </li>
 
           <!-- Perfil -->
+          <li class="nav-item">
+            <span style="color: white">{{ \Auth::user()->username }}</span>
+          </li>
           <li class="nav-item nav-profile dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown">
-              <img src="{{asset('images/faces/face28.jpg')}}" alt="profile"/>
+              <img src="{{ is_null(\Auth::user()->img_path) ? \App\Utils\Configuration::getConfigurations()->appmanagerRoute . '/ImagesProfiles/default.png' : \App\Utils\Configuration::getConfigurations()->appmanagerRoute . '/' . \Auth::user()->img_path }}" alt="profile" />
             </a>
             <div class="dropdown-menu dropdown-menu-right navbar-dropdown" aria-labelledby="profileDropdown">
-              <a class="dropdown-item">
+              <a href="{{ \App\Utils\Configuration::getConfigurations()->appmanagerProfileRoute }}" target="_blank" class="dropdown-item">
                 <i class="ti-settings text-primary"></i>
                 Mi perfil
               </a>

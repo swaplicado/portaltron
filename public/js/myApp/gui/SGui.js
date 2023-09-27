@@ -12,6 +12,16 @@ class SGui {
         });
     }
 
+    static showWaitingUnlimit() {
+        Swal.fire({
+            title: 'Espera...',
+            timerProgressBar: true,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+    }
+
     static showWaitingBlock(iTimer) {
         Swal.fire({
             title: 'Espera...',

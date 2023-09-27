@@ -176,7 +176,7 @@
                     return;
                 }
 
-                app.showDataModal(table['{{$table_id}}'].row('.selected').data());
+                app.showModal(table['{{$table_id}}'].row('.selected').data());
             });
         @endif
     });
