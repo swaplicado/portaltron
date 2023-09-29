@@ -35,8 +35,15 @@ Route::middleware(('guest'))->group ( function (){
 
 Auth::routes();
 
-Route::middleware(['auth', 'menu', 'app.sprovider'])->group( function () {
+Route::middleware(['auth'])->group( function() {
+    Route::group(['as' => 'registerProvider.'], function(){
+        Route::get('/tempModifyProvider', [SProvidersController::class, 'tempModifyProvider'] )->name('tempModifyProvider');
+        Route::post('/updateTempProvider', [SProvidersController::class, 'updateTempProvider'] )->name('updateTempProvider');
+    });
     Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
+});
+
+Route::middleware(['auth', 'menu', 'app.sprovider'])->group( function () {
     Route::get('/registry', [HomeController::class, 'index'])->name('user_registry');
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 

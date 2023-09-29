@@ -87,67 +87,69 @@
                                                 </h3>
                                                 <h4>
                                                     Tu cuenta se encuentra en espera de ser validada.
-                                                </h5>
-                                                <h4>
-                                                    Se te notificará cuando el proceso concluya.
-                                                </h4>
-                                                <br>
-                                                <h2>
-                                                    <a type="button" class="btn btn-primary" href="{{ \App\Utils\Configuration::getConfigurations()->appmanagerRoute }}">Ir a la pantalla de inicio de sesión</a>
-                                                </h2>
+                                                    </h5>
+                                                    <h4>
+                                                        Se te notificará cuando el proceso concluya.
+                                                    </h4>
+                                                    <br>
+                                                    <h2>
+                                                        <a type="button" class="btn btn-primary"
+                                                            href="{{ \App\Utils\Configuration::getConfigurations()->appmanagerRoute }}">Ir
+                                                            a la pantalla de inicio de sesión</a>
+                                                    </h2>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    <!-- End Panel content -->
+                        <!-- End Panel content -->
+                    </div>
+                    <!-- Footer -->
+                    @include('layouts.footer')
+                    <!-- End Footer -->
                 </div>
-                <!-- Footer -->
-                @include('layouts.footer')
-                <!-- End Footer -->
+                <!-- End Panel principal-->
             </div>
-            <!-- End Panel principal-->
+            <!-- End Main container -->
         </div>
-        <!-- End Main container -->
-    </div>
-    <!-- End Page container -->
+        <!-- End Page container -->
 
-    <!-- JS files -->
-    <script src="{{ asset('varios/js/vendor.bundle.base.js') }}"></script>
-    <script src="{{ asset('varios/chart.js/Chart.min.js') }}"></script>
-    <!-- Datatables js -->
-    <script src="{{ asset('datatables/datatables.js') }}"></script>
-    <!-- End datatables js -->
-    <script src="{{ asset('js/principal/off-canvas.js') }}"></script>
-    <script src="{{ asset('js/principal/hoverable-collapse.js') }}"></script>
-    <script src="{{ asset('js/principal/template.js') }}"></script>
-    <script src="{{ asset('js/principal/settings.js') }}"></script>
-    <script src="{{ asset('js/principal/todolist.js') }}"></script>
-    <script src="{{ asset('js/principal/Chart.roundedBarCharts.js') }}"></script>
-    <script src="{{ asset('axios/axios.min.js') }}"></script>
-    <script src="{{ asset('varios/select2/select2.min.js') }}"></script>
-    <script src="{{ asset('myApp/SProviders/vue_guestRegister.js') }}"></script>
-    <!-- JS section -->
-    @yield('scripts')
-    <!-- End JS section -->
+        <!-- JS files -->
+        <script src="{{ asset('varios/js/vendor.bundle.base.js') }}"></script>
+        <script src="{{ asset('varios/chart.js/Chart.min.js') }}"></script>
+        <!-- Datatables js -->
+        <script src="{{ asset('datatables/datatables.js') }}"></script>
+        <!-- End datatables js -->
+        <script src="{{ asset('js/principal/off-canvas.js') }}"></script>
+        <script src="{{ asset('js/principal/hoverable-collapse.js') }}"></script>
+        <script src="{{ asset('js/principal/template.js') }}"></script>
+        <script src="{{ asset('js/principal/settings.js') }}"></script>
+        <script src="{{ asset('js/principal/todolist.js') }}"></script>
+        <script src="{{ asset('js/principal/Chart.roundedBarCharts.js') }}"></script>
+        <script src="{{ asset('axios/axios.min.js') }}"></script>
+        <script src="{{ asset('varios/select2/select2.min.js') }}"></script>
+        <script src="{{ asset('myApp/SProviders/vue_guestRegister.js') }}"></script>
+        <!-- JS section -->
+        @yield('scripts')
+        <!-- End JS section -->
 
-    <script>
-        window.onload = function() {
+        <script>
+            window.onload = function() {
 
-            const loader = document.querySelector('.loader');
-            loader.style.opacity = 0; /* Cambia la opacidad a 0 para que el círculo desaparezca */
+                const loader = document.querySelector('.loader');
+                loader.style.opacity = 0; /* Cambia la opacidad a 0 para que el círculo desaparezca */
 
-            var elementos = document.getElementsByClassName("hiddeToLoad");
-            for (var i = 0; i < elementos.length; i++) {
-                // Establecer el estilo "display" de cada elemento a "block"
-                elementos[i].style.display = 'block';
-            }
-            loader.style.display = 'none'; /* Oculta el círculo después de una pequeña transición */
+                var elementos = document.getElementsByClassName("hiddeToLoad");
+                for (var i = 0; i < elementos.length; i++) {
+                    // Establecer el estilo "display" de cada elemento a "block"
+                    elementos[i].style.display = 'block';
+                }
+                loader.style.display = 'none'; /* Oculta el círculo después de una pequeña transición */
 
-        };
-    </script>
-    <!-- End JS files -->
+            };
+        </script>
+        <!-- End JS files -->
 </body>
 
 </html>

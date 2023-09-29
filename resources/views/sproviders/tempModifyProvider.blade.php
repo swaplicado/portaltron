@@ -43,7 +43,8 @@
     <!-- Header scripts section -->
     <script>
         function GlobalData() {
-            this.registerRoute = <?php echo json_encode(route('registerProvider.saveRegister')); ?>;
+            this.oProvider = <?php echo json_encode($oProvider); ?>;
+            this.updateRoute = <?php echo json_encode(route('registerProvider.updateTempProvider')); ?>;
         }
         var oServerData = new GlobalData();
     </script>
@@ -58,6 +59,7 @@
 
         <!-- Topbar -->
         <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row navbar-dark">
+
             <!-- logo -->
             <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
                 <a class="navbar-brand brand-logo mr-5" href="index.html"><img src="{{ asset('images/aeth.png') }}"
@@ -67,6 +69,26 @@
             </div>
             <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
 
+                <ul class="navbar-nav navbar-nav-right">
+
+                    <!-- Perfil -->
+                    <li class="nav-item">
+                        <span style="color: white">{{ \Auth::user()->username }}</span>
+                    </li>
+                    <li class="nav-item nav-profile dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown">
+                            <img src="{{ is_null(\Auth::user()->img_path) ? \App\Utils\Configuration::getConfigurations()->appmanagerRoute . '/ImagesProfiles/default.png' : \App\Utils\Configuration::getConfigurations()->appmanagerRoute . '/' . \Auth::user()->img_path }}"
+                                alt="profile" />
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right navbar-dropdown"
+                            aria-labelledby="profileDropdown">
+                            <a href="{{ route('logout') }}" class="dropdown-item">
+                                <i class="ti-power-off text-primary"></i>
+                                Salir
+                            </a>
+                        </div>
+                    </li>
+                </ul>
             </div>
         </nav>
         <!-- End Topbar -->
@@ -79,7 +101,7 @@
                     <div class="loader"></div>
                     <div class="hiddeToLoad">
                         <!-- Panel content -->
-                        <div class="container-scroller" v-if="!successRegister">
+                        <div class="container-scroller" v-if="!successUpdate">
                             <div class="container-fluid page-body-wrapper full-page-wrapper">
                                 <div class="content-wrapper d-flex align-items-center auth px-0">
                                     <div class="row w-100 mx-0">
@@ -88,9 +110,10 @@
                                                 <div class="brand-logo">
                                                     <img src="{{ asset('images/aeth.png') }}" alt="logo">
                                                 </div>
-                                                <h4>Hola! vamos a comenzar</h4>
-                                                <h6 class="font-weight-light">Ingresa todos los datos para registrarte
-                                                    como proveedor.</h6>
+                                                <h4>Hola! @{{ name }}</h4>
+                                                <h6 class="font-weight-light">
+                                                    Debes modificar tus datos para nueva revisión
+                                                </h6>
                                                 <br>
                                                 <form action="#">
                                                     <div class="row">
@@ -144,45 +167,6 @@
                                                     </div>
                                                     <div class="row">
                                                         <div class="col-md-6">
-                                                            <div class="form-group sm-form-group row">
-                                                                <label
-                                                                    class="col-sm-3 my-col-sm-3 col-form-label ">Contraseña</label>
-                                                                <div class="col-sm-9">
-                                                                    <div class="input-group">
-                                                                        <input :type="typeInputPass"
-                                                                            class="form-control"
-                                                                            placeholder="Contraseña" id="password"
-                                                                            v-model="password">
-                                                                        <div class="input-group-append">
-                                                                            <button class="btn btn-sm btn-inverse-dark"
-                                                                                type="button"
-                                                                                v-on:click="showPass()">
-                                                                                <i
-                                                                                    :class="[showPassword ? 'bx bx-show bx-sm' :
-                                                                                        'bx bx-hide bx-sm'
-                                                                                    ]"></i>
-                                                                            </button>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-md-6">
-                                                            <div class="form-group sm-form-group row">
-                                                                <label
-                                                                    class="col-sm-3 my-col-sm-3 col-form-label ">Confirmar
-                                                                    contraseña</label>
-                                                                <div class="col-sm-9">
-                                                                    <input :type="typeInputPass" class="form-control"
-                                                                        id="confirmPassword"
-                                                                        placeholder="confirmPassword"
-                                                                        v-model="confirmPassword">
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="row">
-                                                        <div class="col-md-6">
 
                                                         </div>
                                                         <div class="col-md-6 text-right">
@@ -217,8 +201,7 @@
                                                 <br>
                                                 <h2>
                                                     <a type="button" class="btn btn-primary"
-                                                        href="{{ \App\Utils\Configuration::getConfigurations()->appmanagerRoute }}">Ir
-                                                        a la pantalla de inicio de sesión</a>
+                                                        href="{{ route('logout') }}">Ir a la pantalla de inicio de sesión</a>
                                                 </h2>
                                             </div>
                                         </div>
@@ -236,43 +219,43 @@
             </div>
             <!-- End Main container -->
         </div>
-        <!-- End Page container -->
+    <!-- End Page container -->
 
-        <!-- JS files -->
-        <script src="{{ asset('varios/js/vendor.bundle.base.js') }}"></script>
-        <script src="{{ asset('varios/chart.js/Chart.min.js') }}"></script>
-        <!-- Datatables js -->
-        <script src="{{ asset('datatables/datatables.js') }}"></script>
-        <!-- End datatables js -->
-        <script src="{{ asset('js/principal/off-canvas.js') }}"></script>
-        <script src="{{ asset('js/principal/hoverable-collapse.js') }}"></script>
-        <script src="{{ asset('js/principal/template.js') }}"></script>
-        <script src="{{ asset('js/principal/settings.js') }}"></script>
-        <script src="{{ asset('js/principal/todolist.js') }}"></script>
-        <script src="{{ asset('js/principal/Chart.roundedBarCharts.js') }}"></script>
-        <script src="{{ asset('axios/axios.min.js') }}"></script>
-        <script src="{{ asset('varios/select2/select2.min.js') }}"></script>
-        <script src="{{ asset('myApp/SProviders/vue_guestRegister.js') }}"></script>
-        <!-- JS section -->
-        @yield('scripts')
-        <!-- End JS section -->
+    <!-- JS files -->
+    <script src="{{ asset('varios/js/vendor.bundle.base.js') }}"></script>
+    <script src="{{ asset('varios/chart.js/Chart.min.js') }}"></script>
+    <!-- Datatables js -->
+    <script src="{{ asset('datatables/datatables.js') }}"></script>
+    <!-- End datatables js -->
+    <script src="{{ asset('js/principal/off-canvas.js') }}"></script>
+    <script src="{{ asset('js/principal/hoverable-collapse.js') }}"></script>
+    <script src="{{ asset('js/principal/template.js') }}"></script>
+    <script src="{{ asset('js/principal/settings.js') }}"></script>
+    <script src="{{ asset('js/principal/todolist.js') }}"></script>
+    <script src="{{ asset('js/principal/Chart.roundedBarCharts.js') }}"></script>
+    <script src="{{ asset('axios/axios.min.js') }}"></script>
+    <script src="{{ asset('varios/select2/select2.min.js') }}"></script>
+    <script src="{{ asset('myApp/SProviders/vue_tempModifyProvider.js') }}"></script>
+    <!-- JS section -->
+    @yield('scripts')
+    <!-- End JS section -->
 
-        <script>
-            window.onload = function() {
+    <script>
+        window.onload = function() {
 
-                const loader = document.querySelector('.loader');
-                loader.style.opacity = 0; /* Cambia la opacidad a 0 para que el círculo desaparezca */
+            const loader = document.querySelector('.loader');
+            loader.style.opacity = 0; /* Cambia la opacidad a 0 para que el círculo desaparezca */
 
-                var elementos = document.getElementsByClassName("hiddeToLoad");
-                for (var i = 0; i < elementos.length; i++) {
-                    // Establecer el estilo "display" de cada elemento a "block"
-                    elementos[i].style.display = 'block';
-                }
-                loader.style.display = 'none'; /* Oculta el círculo después de una pequeña transición */
+            var elementos = document.getElementsByClassName("hiddeToLoad");
+            for (var i = 0; i < elementos.length; i++) {
+                // Establecer el estilo "display" de cada elemento a "block"
+                elementos[i].style.display = 'block';
+            }
+            loader.style.display = 'none'; /* Oculta el círculo después de una pequeña transición */
 
-            };
-        </script>
-        <!-- End JS files -->
+        };
+    </script>
+    <!-- End JS files -->
 </body>
 
 </html>

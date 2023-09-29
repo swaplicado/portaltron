@@ -19,12 +19,6 @@ class SProvidersMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        // if(session()->get('is_provider')){
-        //     if(session()->get('provider_checked')){
-        //         return $next($request);
-        //     }
-        // }
-        
         $type = \Auth::user()->type();
 
         if($type->id_typesuser == 3){
@@ -59,23 +53,11 @@ class SProvidersMiddleware
                         \Auth::logout();
                         return redirect()->to(route('registerProvider.tempProvider', ['name' => $oProvider->provider_name]));
                     case SysConst::PROVIDER_PENDIENTE_MODIFICAR:
-                        \Auth::logout();
-                        return redirect()->to(route('registerProvider.tempProvider', ['name' => $oProvider->provider_name]));
+                        return redirect()->to(route('registerProvider.tempModifyProvider'));
                     default:
                         return redirect()->to(config('myapp.appmanager_link').'/login')->with('message', 'No se encontró al proveedor');
                 }
-
-                // try {
-                //     session()->put('provider_id', $oProvider->id_provider);
-                //     session()->put('provider_name', $oProvider->provider_name);
-                //     session()->put('provider_rfc', $oProvider->provider_rfc);
-                //     session()->put('provider_checked', true);
-                // } catch (\Throwable $th) {
-                //     \Auth::logout();
-                //     return redirect()->to(config('myapp.appmanager_link').'/login')->with('message', 'No existe un proveedor registrado con estas credenciales');
-                // }
             }
-
         }
 
         return $next($request);

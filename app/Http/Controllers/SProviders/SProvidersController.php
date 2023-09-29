@@ -225,4 +225,91 @@ class SProvidersController extends Controller
 
         return json_encode(['success' => true, 'lProviders' => $lProviders]);
     }
+
+    public function tempModifyProvider(){
+        $oProvider = \Auth::user()->getProviderData();
+        return view('sproviders.tempModifyProvider')->with('oProvider', $oProvider);
+    }
+
+    /**
+     * Metodo para actualizar los datos del proveedor cuando este tiene status pendiente de modificar
+     */
+    public function updateTempProvider(Request $request){
+        try {
+            $name = $request->name;
+            $shortName = $request->shortName;
+            $rfc = $request->rfc;
+            $email = $request->email;
+
+            if($name == null || $name == ''){
+                $message = 'Debe introducir su razón social';
+                return json_encode(['success' => false, 'message' => $message, 'icon' => 'info']);
+            }
+    
+            if($shortName == null || $shortName == ''){
+                $message = 'Debe introducir su nombre comercial';
+                return json_encode(['success' => false, 'message' => $message, 'icon' => 'info']);
+            }
+    
+            if($rfc == null || $rfc == ''){
+                $message = 'Debe introducir su RFC';
+                return json_encode(['success' => false, 'message' => $message, 'icon' => 'info']);
+            }
+    
+            if(strlen($rfc) < 12){
+                $message = 'Debe introducir un RFC valido';
+                return json_encode(['success' => false, 'message' => $message, 'icon' => 'info']);
+            }
+    
+            if($email == null || $email == ''){
+                $message = 'Debe introducir su Email';
+                return json_encode(['success' => false, 'message' => $message, 'icon' => 'info']);
+            }
+
+            try {
+                $oProvider = SProvider::findOrFail(\Auth::user()->getProviderData()->id_provider);
+                \DB::connection('mysqlmngr')->beginTransaction();
+                try {
+                    $oUser = User::findOrFail($oProvider->user_id);
+                    $oUser->username = $rfc;
+                    $oUser->email = $email;
+                    $oUser->first_name = $rfc;
+                    $oUser->last_name = $rfc;
+                    $oUser->names = $rfc;
+                    $oUser->full_name = $rfc;
+                    $oUser->updated_by = \Auth::user()->id;
+                    $oUser->update();
+    
+                    \DB::connection('mysqlmngr')->commit();
+                } catch (\Throwable $th) {
+                    \DB::connection('mysqlmngr')->rollBack();
+                    throw $th;
+                }
+        
+                \DB::connection('mysql')->beginTransaction();
+                try {
+                    $oProvider->provider_name = $name;
+                    $oProvider->provider_short_name = $shortName;
+                    $oProvider->provider_rfc = $rfc;
+                    $oProvider->provider_email = $email;
+                    $oProvider->user_id = $oUser->id;
+                    $oProvider->status_provider_id = SysConst::PROVIDER_PENDIENTE;
+                    $oProvider->updated_by = \Auth::user()->id;
+                    $oProvider->update();
+    
+                    \DB::connection('mysql')->commit();
+                } catch (\Throwable $th) {
+                    \DB::connection('mysql')->rollBack();
+                    throw $th;
+                }
+            } catch (\Throwable $th) {
+                return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
+            }
+
+        } catch (\Throwable $th) {
+            return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
+        }
+
+        return json_encode(['success' => true]);
+    }
 }
