@@ -46,3 +46,14 @@ function searchIndex(table_name, columns, values){
 
     return indice;
 }
+
+function addClassToColumn(nameTable, rows, index, className){
+    for (let i = 1; i < rows; i++) {
+        let row = table[nameTable].row(i).column(index).nodes().to$();
+        $(row).addClass(className);
+    }
+}
+
+function addClassToRow(nameTable, index, className){
+    table[nameTable].row(index).node().classList.add(className);
+}

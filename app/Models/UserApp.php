@@ -29,4 +29,9 @@ class UserApp extends Model
      * @var bool
      */
     public $timestamps = false;
+
+    protected $fillable = [
+        'user_id',
+        'app_id'
+    ];
 }

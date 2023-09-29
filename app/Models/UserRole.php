@@ -29,4 +29,10 @@ class UserRole extends Model
      * @var bool
      */
     public $timestamps = false;
+
+    protected $fillable = [
+        'app_n_id',
+        'user_id',
+        'role_id'
+    ];
 }

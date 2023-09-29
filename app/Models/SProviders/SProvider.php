@@ -16,6 +16,7 @@ class SProvider extends Model
         'provider_short_name',
         'provider_rfc',
         'provider_email',
+        'status_provider_id',
         'external_id',
         'is_active',
         'is_deleted',

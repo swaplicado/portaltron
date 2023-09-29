@@ -34,5 +34,13 @@ class SysConst {
        */
       public const DOC_STATUS_NUEVO = 1;
       public const DOC_STATUS_ATENDIDO = 2;
+
+      /**
+       * Constantes de la tabla status provider
+       */
+      public const PROVIDER_PENDIENTE = 1;
+      public const PROVIDER_APROBADO = 2;
+      public const PROVIDER_RECHAZADO = 3;
+      public const PROVIDER_PENDIENTE_MODIFICAR = 4;
 }
 ?>

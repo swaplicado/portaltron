@@ -9,6 +9,8 @@ use App\Models\SDocs\PurchaseOrders;
 use App\Models\SDocs\StatusDps;
 use App\Utils\AppLinkUtils;
 use App\Utils\dateUtils;
+use App\Utils\PurchaseOrdersUtils;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -18,6 +20,8 @@ class purchaseOrdersController extends Controller
         // \Auth::user()->authorizedPermission([['key' => 'proveedores.oc', 'level' => 'vista']]);
 
         // $oProvider = \Auth::user()->getProviderData();
+
+        $idYear = Carbon::now()->format('Y');
 
         $lStatus = StatusDps::where('is_deleted', 0)
                             ->select(
@@ -29,48 +33,21 @@ class purchaseOrdersController extends Controller
 
         array_unshift($lStatus, ['id' => 0, 'text' => 'Todos']);
         
-        $res = json_decode($this->getPurchaseOrders());
+        $res = json_decode($this->getPurchaseOrders($idYear));
 
         $lPurchaseOrders = $res->lRows;
 
-        try {
-            \DB::beginTransaction();
-            foreach($lPurchaseOrders as $oc){
-                $oDps = Dps::where('ext_id_year', $oc->idYear)->where('ext_id_doc', $oc->idDoc)->first();
+        $result = PurchaseOrdersUtils::insertPurchaseOrders($lPurchaseOrders);
 
-                if(is_null($oDps)){
-                    $oDps = new Dps();
-                    $oDps->type_doc_id = SysConst::DOC_TYPE_PURCHASE_ORDER;
-                    $oDps->ext_id_year = $oc->idYear;
-                    $oDps->ext_id_doc = $oc->idDoc;
-                    $oDps->status_id = SysConst::DOC_STATUS_NUEVO;
-                    $oDps->is_deleted = 0;
-                    $oDps->created_by = \Auth::user()->id;
-                    $oDps->updated_by = \Auth::user()->id;
-                    $oDps->save();
-        
-                    $oPurchaseOrder = new PurchaseOrders();
-                    $oPurchaseOrder->dps_id = $oDps->id_dps;
-                    $oPurchaseOrder->is_opened = 0;
-                    $oPurchaseOrder->is_deleted = 0;
-                    $oPurchaseOrder->created_by = \Auth::user()->id;
-                    $oPurchaseOrder->updated_by = \Auth::user()->id;
-                    $oPurchaseOrder->save();
-                }
-            }
-            \DB::commit();
-        } catch (\Throwable $th) {
-            \Log::error($th);
-            \DB::rollBack();
-        }
-
-        return view('purchaseOrders.purchase_orders')->with('lPurchaseOrders', $lPurchaseOrders)->with('lStatus', $lStatus);
+        return view('purchaseOrders.purchase_orders')->with('lPurchaseOrders', $lPurchaseOrders)
+                                                    ->with('lStatus', $lStatus)
+                                                    ->with('idYear', $idYear);
     }
 
-    public function getPurchaseOrders(){
+    public function getPurchaseOrders($year){
         try {
-            $idProvider = 887;
-            $year = 2023;
+            $oProvider = \Auth::user()->getProviderData();
+            $idProvider = $oProvider->external_id;
 
             $config = \App\Utils\Configuration::getConfigurations();
             $body = '{
@@ -91,6 +68,10 @@ class purchaseOrdersController extends Controller
             $data = json_decode($result->data);
             $lRows = $data->lPOData;
 
+            if($year > $config->dpsLimitYearToSaveInDB){
+                $result = PurchaseOrdersUtils::insertPurchaseOrders($lRows);
+            }
+            
             foreach($lRows as $row){
                 $oPurchaseOrder = \DB::table('dps as d')
                                 ->join('purchase_orders as oc', 'oc.dps_id', '=', 'id_dps')
@@ -105,10 +86,17 @@ class purchaseOrdersController extends Controller
                                 )
                                 ->first();
 
-                $row->dateStartCred = !is_null($row->dateStartCred) ? dateUtils::formatDate($row->dateStartCred, 'd-m-Y') : null;
-                $row->delivery_date = !is_null($oPurchaseOrder->provider_date_n) ? dateUtils::formatDate($oPurchaseOrder->provider_date_n, 'd-m-Y') : null;
-                $row->id_status = $oPurchaseOrder->id_status;
-                $row->status = $oPurchaseOrder->status;
+                if(!is_null($oPurchaseOrder)){
+                    $row->dateStartCred = !is_null($row->dateStartCred) ? dateUtils::formatDate($row->dateStartCred, 'd-m-Y') : null;
+                    $row->delivery_date = !is_null($oPurchaseOrder->provider_date_n) ? dateUtils::formatDate($oPurchaseOrder->provider_date_n, 'd-m-Y') : null;
+                    $row->id_status = $oPurchaseOrder->id_status;
+                    $row->status = $oPurchaseOrder->status;
+                }else{
+                    $row->dateStartCred = !is_null($row->dateStartCred) ? dateUtils::formatDate($row->dateStartCred, 'd-m-Y') : null;
+                    $row->delivery_date = null;
+                    $row->id_status = SysConst::DOC_STATUS_ATENDIDO;
+                    $row->status = "";
+                }
             }
 
         } catch (\Throwable $th) {

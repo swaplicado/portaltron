@@ -11,6 +11,8 @@
         this.lStatus = <?php echo json_encode($lStatus) ?>;
         this.getRowsRoute = <?php echo json_encode(route('purchaseOrders.getRows')) ?>;
         this.updateRoute = <?php echo json_encode(route('purchaseOrders.update')) ?>;
+        this.getPurchaseOrdersRoute = <?php echo json_encode(route('purchaseOrders.getPurchaseOrders')) ?>;
+        this.idYear = <?php echo json_encode($idYear) ?>;
     }
     var oServerData = new GlobalData();
     var indexesPurchaseOrdersTable = {
@@ -68,7 +70,22 @@
                 <select class="select2-class form-control" name="status_filter" id="status_filter"></select>
             </span>
         </div>
-
+        <div class="input-group" style="display: inline-flex; width: auto">
+            <div class="input-group-prepend">
+                <button type="button" class="btn btn-secondary" v-on:click="idYear--">
+                    <span class="bx bx-minus"></span>
+                </button>
+            </div>
+            <input type="number" class="form-control" style="max-width: 7rem;" readonly v-model="idYear">
+            <div class="input-group-append">
+                <button type="button" class="btn btn-secondary" v-on:click="idYear++">
+                    <span class="bx bx-plus"></span>
+                </button>
+            </div>
+        </div>
+        <button class="btn btn-primary" v-on:click="getPurcharseOrders()"><span class="bx bx-search"></span></button>
+        <br>
+        <br>
         <div class="table-responsive">
             <table class="display expandable-table dataTable no-footer" id="table_purchase_orders" width="100%" cellspacing="0">
                 <thead>

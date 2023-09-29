@@ -80,8 +80,12 @@
                             "orderable": false,
                         },
                         {
-                            "orderable": false,
-                            "targets": "no-sort",
+                            @if(isset($colTargetsNoOrder))
+                                "targets": <?php echo json_encode($colTargetsNoOrder) ?>,
+                                "visible": true,
+                                "orderable": false,
+                                // "targets": "no-sort",
+                            @endif
                         }
                     ],
                     "buttons": [

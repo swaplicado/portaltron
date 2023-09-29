@@ -26,8 +26,10 @@ Route::get('/', function () {
 });
 
 Route::middleware(('guest'))->group ( function (){
-    Route::group(['prefix' => 'sprovider'], function(){
+    Route::group(['prefix' => 'sprovider', 'as' => 'registerProvider.'], function(){
         Route::get('/registerProvider', [SProvidersController::class, 'registerProviderIndex'])->name('registerProvider');
+        Route::post('/registerProvider/save', [SProvidersController::class, 'saveRegisterProvider'])->name('saveRegister');
+        Route::get('/tempProvider/{name}', [SProvidersController::class, 'tempProviderIndex'])->name('tempProvider');
     });
 });
 
@@ -41,10 +43,10 @@ Route::middleware(['auth', 'menu', 'app.sprovider'])->group( function () {
     /** Proveedores */
     Route::group(['as' => 'sproviders.'], function () {
         Route::get('/sproviders/{id?}', [SProvidersController::class, 'index'])->name('index')->middleware('app.middleware:providers,view');
-        Route::post('/sproviders/create', [SProvidersController::class, 'createProvider'])->name('create')->middleware('app.middleware:providers,create');
-        Route::post('/sproviders/update', [SProvidersController::class, 'updateProvider'])->name('update')->middleware('app.middleware:providers,edit');
-        Route::post('/sproviders/delete', [SProvidersController::class, 'deleteProvider'])->name('delete')->middleware('app.middleware:providers,delete');
         Route::post('/sproviders/getProvider', [SProvidersController::class, 'getProvider'])->name('getProvider')->middleware('app.middleware:providers,show');
+        Route::post('/sproviders/approve', [SProvidersController::class, 'approveProvider'])->name('approve');
+        Route::post('/sproviders/reject', [SProvidersController::class, 'rejectProvider'])->name('reject');
+        Route::post('/sproviders/requireModifyProvider', [SProvidersController::class, 'requireModifyProvider'])->name('requireModify');
     });
     
     /** Usuarios */
@@ -67,6 +69,7 @@ Route::middleware(['auth', 'menu', 'app.sprovider'])->group( function () {
         Route::get('/purchaseOrders', [purchaseOrdersController::class, 'index'])->name('index');
         Route::post('/purchaseOrders/getRows', [purchaseOrdersController::class, 'getRows'])->name('getRows');
         Route::post('/purchaseOrders/update', [purchaseOrdersController::class, 'updatePurchaseOrder'])->name('update');
+        Route::get('/getPurchaseOrders/{year?}', [purchaseOrdersController::class, 'getPurchaseOrders'])->name('getPurchaseOrders');
     });
 });
 

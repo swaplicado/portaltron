@@ -21,16 +21,15 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
+        'external_id_n',
         'username',
         'email',
         'password',
-        'last_name1',
-        'last_name2',
+        'first_name',
+        'last_name',
         'names',
         'full_name',
-        'rol_id',
-        'provider_id',
-        'remember_token',
+        'img_path',
         'is_active',
         'is_deleted',
         'created_by',
@@ -56,18 +55,27 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    /**
+     * Regresa el tipo de usuario, la información la obtiene desde appmanager
+     */
     public function type(){
         return $this->belongsToMany(AppmanagerModels\Typesuser::class, 'adm_users_typesuser', 'user_id', 'typeuser_id')
-                    ->where('adm_users_typesuser.app_id', 1)
+                    ->where('adm_users_typesuser.app_id', config('myapp.id', 0))
                     ->first();
     }
 
+    /**
+     * Regresa los roles de usuario, la información la obtiene desde appmanager
+     */
     public function roles(){
         return $this->belongsToMany(AppmanagerModels\Role::class, 'adm_user_roles','user_id', 'role_id')
                     ->where('adm_user_roles.app_n_id', config('myapp.id', 0))
                     ->get();
     }
 
+    /**
+     * Regresa si el usuario tiene rol proveedor, la información la obtiene desde appmanager, la informacion se obtiene de appmanager
+     */
     public function is_provider(){
         return !is_null(
                         $this->belongsToMany(AppmanagerModels\Role::class, 'adm_user_roles','user_id', 'role_id')
@@ -77,6 +85,10 @@ class User extends Authenticatable
                         );
     }
 
+    /**
+     * Obtiene los permisos del usuario asignados unicamente por el rol de usuario, no obtiene los permisos
+     * asignados individualmente. la informacion se obtiene de appmanager
+     */
     public function permissionsByRol(){
         $lRoles = $this->roles()->pluck('id_role');
         $RolePermissions = \DB::connection('mysqlmngr')
@@ -93,6 +105,10 @@ class User extends Authenticatable
         return $RolePermissions;
     }
 
+    /**
+     * Obtiene todos los permisos asignados al usuario, los permisos por rol y los permisos
+     * asignados individualmente, la informacion se obtiene de appmanager
+     */
     public function permissions(){
         $RolePermissions = $this->permissionsByRol();
 
@@ -118,6 +134,10 @@ class User extends Authenticatable
         return $lPermissions;
     }
 
+    /**
+     * Regresa true si el usuario tiene el permiso solicitado, si no, regresa false
+     * el metodo recibe la key del permiso y el level del permisos, la informacion se obtiene de appmanager
+     */
     public function havePermission($key, $level){
         $lRoles = $this->roles()->pluck('id_role')->toArray();
 
@@ -143,11 +163,44 @@ class User extends Authenticatable
         return !is_null($rolePermission);
     }
 
+    /**
+     * Regresa true si el usuario tiene acceso a la app, false si no lo tiene, informacion se obtiene de appmanager
+     */
     public function accessApp(){
         return !is_null(
                             $this->belongsToMany(AppmanagerModels\SApp::class, 'adm_user_apps', 'user_id', 'app_id')
                                 ->where('app_id', config('myapp.id', 0))
                                 ->first()
                         );
+    }
+
+    /**
+     * Metodo que comprueba si el usuario tiene asigando los permisos
+     * que se le piden, el metodo recibe un array de los permisos de la forma
+     * [['key': key, 'level': level], [...]]
+     */
+    public function authorizedPermission($lPermission){
+        $continue = false;
+        foreach($lPermission as $permission){
+            if($this->havePermission($permission->key, $permission->level)){
+                $continue = true;
+                break;
+            }
+        }
+        abort_unless($continue, 401);
+    }
+
+    public function getProviderData(){
+        $oProvider = \DB::connection('mysql')
+                        ->table('providers as p')
+                        ->join('status_providers as sp', 'sp.id_status_providers', '=', 'p.status_provider_id')
+                        ->where('p.user_id', $this->id)
+                        ->select(
+                            'p.*',
+                            'sp.name as status_name'
+                        )
+                        ->first();
+
+        return $oProvider;
     }
 }

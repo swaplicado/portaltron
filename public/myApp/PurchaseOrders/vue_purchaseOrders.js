@@ -5,7 +5,7 @@ var app = new Vue({
         lPurchaseOrders: oServerData.lPurchaseOrders,
         lStatus: oServerData.lStatus,
         idDoc: null,
-        idYear: null,
+        idYear: oServerData.idYear,
         lRows: null,
         modal_title: "",
         rowDeliveryIsVisible: 0,
@@ -243,6 +243,28 @@ var app = new Vue({
             this.stot = null;
             this.deliveryDate = null;
             this.comments = null;
+        },
+
+        getPurcharseOrders(){
+            SGui.showWaitingUnlimit();
+
+            let route = this.oData.getPurchaseOrdersRoute;
+            const year = this.idYear;
+            axios.get(route  + '/' + year)
+            .then( result => {
+                let data = result.data;
+                if(data.success){
+                    this.lPurchaseOrders = data.lRows;
+                    drawTablePurchaseOrders(this.lPurchaseOrders);
+                    SGui.showOk();
+                }else{
+                    SGui.showMessage('', data.message, data.icon);
+                }
+            })
+            .catch( function(error){
+                console.log(error);
+                SGui.showError(error);
+            });
         }
     }
 });

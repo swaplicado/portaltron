@@ -27,6 +27,11 @@ class SysUtils {
         }
     }
 
+    /**
+     * Metodo para pasar de una colecciona un array,
+     * el array que devuelve solo contiene los valores de la coleccion
+     * eliminando las keys
+     */
     public static function collectToArray($collection){
         $collection = $collection->toArray();
         
