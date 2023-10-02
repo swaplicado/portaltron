@@ -78,6 +78,9 @@ Route::middleware(['auth', 'menu', 'app.sprovider'])->group( function () {
         Route::post('/purchaseOrders/getRows', [purchaseOrdersController::class, 'getRows'])->name('getRows');
         Route::post('/purchaseOrders/update', [purchaseOrdersController::class, 'updatePurchaseOrder'])->name('update');
         Route::get('/getPurchaseOrders/{year?}', [purchaseOrdersController::class, 'getPurchaseOrders'])->name('getPurchaseOrders');
+
+        Route::get('/purchaseOrdersManager', [purchaseOrdersController::class, 'purcharseOrdersManager'])->name('indexManager');
+        Route::post('/purchaseOrdersManager/getPurchaseOrders', [purchaseOrdersController::class, 'getPurchaseOrdersByProvider'])->name('getPurchaseOrdersManager');
     });
 
     /** Account States */

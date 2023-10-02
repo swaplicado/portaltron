@@ -7,9 +7,11 @@ use App\Http\Controllers\Controller;
 use App\Models\SDocs\Dps;
 use App\Models\SDocs\PurchaseOrders;
 use App\Models\SDocs\StatusDps;
+use App\Models\SProviders\SProvider;
 use App\Utils\AppLinkUtils;
 use App\Utils\dateUtils;
 use App\Utils\PurchaseOrdersUtils;
+use App\Utils\SProvidersUtils;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -44,10 +46,14 @@ class purchaseOrdersController extends Controller
                                                     ->with('idYear', $idYear);
     }
 
-    public function getPurchaseOrders($year){
+    public function getPurchaseOrders($year, $providerId = null){
         try {
-            $oProvider = \Auth::user()->getProviderData();
-            $idProvider = $oProvider->external_id;
+            if(\Auth::user()->type()->id_typesuser != SysConst::TYPE_ESTANDAR){
+                $idProvider = $providerId;
+            }else{
+                $oProvider = \Auth::user()->getProviderData();
+                $idProvider = $oProvider->external_id;
+            }
 
             $config = \App\Utils\Configuration::getConfigurations();
             $body = '{
@@ -191,5 +197,49 @@ class purchaseOrdersController extends Controller
         }
 
         return json_encode(['success' => true, 'deliveryDate' => $deliveryDate, 'comments' => $oPurchaseOrder->provider_comment_n, 'idStatus' => $oDps->status_id, 'status' =>  $status]);
+    }
+
+    public function purcharseOrdersManager(){
+        $olProviders = SProvidersUtils::getlProviders();
+
+        $lProviders = [];
+        foreach ($olProviders as $value) {
+            array_push($lProviders, ['id' => $value->id_provider, 'text' => $value->provider_name]);
+        }
+
+        $lStatus = StatusDps::where('is_deleted', 0)
+                                ->select(
+                                    'id_status_dps as id',
+                                    'name as text'
+                                )
+                                ->get()
+                                ->toArray();
+
+        array_unshift($lStatus, ['id' => 0, 'text' => 'Todos']);
+
+        $year = Carbon::now()->format('Y');
+
+        return view('purchaseOrders.purchase_orders_manager')->with('lProviders', $lProviders)
+                                                            ->with('lStatus', $lStatus)
+                                                            ->with('year', $year);
+    }
+
+    public function getPurchaseOrdersByProvider(Request $request){
+        try {
+            $providerId = $request->providerId;
+            $year = $request->year;
+
+            $oProvider = SProvider::findOrFail($providerId);
+
+            $result = json_decode($this->getPurchaseOrders($year, $oProvider->external_id));
+
+            $lPurchaseOrders = $result->lRows;
+
+        } catch (\Throwable $th) {
+            \Log::error($th);
+            return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
+        }
+
+        return json_encode(['success' => true, 'lPurchaseOrders' => $lPurchaseOrders]);
     }
 }

@@ -18,7 +18,7 @@ class Menu {
             $lMenus = [
                 (object) ['type' => $element, 'route' => route('home'), 'icon' => 'bx bx-home bx-sm', 'name' => 'Inicio'],
                 (object) ['type' => $element, 'route' => route('sproviders.index'), 'icon' => 'bx bxs-truck bx-sm', 'name' => 'Proveedores'],
-                (object) ['type' => $element, 'route' => route('purchaseOrders.index'), 'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Ordenes compras'],
+                (object) ['type' => $element, 'route' => route('purchaseOrders.indexManager'), 'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Ordenes compras'],
                 (object) ['type' => $element, 'route' => route('accountStates.index'), 'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Estados de cuenta']
             ];
         }else{
@@ -40,7 +40,11 @@ class Menu {
                     
                     case 'proveedor.estadoscuentas':
                         $lMenus[] = (object) ['type' => $element, 'route' => route('accountStates.index'), 'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Estados de cuenta'];
-                        break;   
+                        break;
+
+                    case 'manager.proveedores.oc':
+                        $lMenus[] = (object) ['type' => $element, 'route' => route('purchaseOrders.indexManager'), 'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Ordenes compras'];
+                        break;
                     default:
                         # code...
                         break;
