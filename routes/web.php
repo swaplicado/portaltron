@@ -87,6 +87,8 @@ Route::middleware(['auth', 'menu', 'app.sprovider'])->group( function () {
     Route::group(['as' => 'accountStates.'], function () {
         Route::get('/accountStates', [accountStatesController::class, 'index'])->name('index');
         Route::post('/updateAccountState', [accountStatesController::class, 'updateAccountState'])->name('updateAccount');
+        Route::get('/accountStatesManager', [accountStatesController::class, 'managerIndex'])->name('managerIndex');
+        Route::post('/updateAccountStateManager', [accountStatesController::class, 'updateAccountStateManager'])->name('updateAccountManager');
     });
 });
 

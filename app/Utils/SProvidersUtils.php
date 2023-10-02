@@ -47,6 +47,7 @@ class SProvidersUtils {
                                 'status_provider_id',
                                 'u.username',
                                 'sp.name as status',
+                                'providers.external_id as ext_id',
                                 \DB::raw('DATE_FORMAT(providers.created_at, "%Y-%m-%d") as created'),
                                 \DB::raw('DATE_FORMAT(providers.updated_at, "%Y-%m-%d") as updated'),
                             )

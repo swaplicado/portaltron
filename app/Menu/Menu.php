@@ -19,7 +19,8 @@ class Menu {
                 (object) ['type' => $element, 'route' => route('home'), 'icon' => 'bx bx-home bx-sm', 'name' => 'Inicio'],
                 (object) ['type' => $element, 'route' => route('sproviders.index'), 'icon' => 'bx bxs-truck bx-sm', 'name' => 'Proveedores'],
                 (object) ['type' => $element, 'route' => route('purchaseOrders.indexManager'), 'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Ordenes compras'],
-                (object) ['type' => $element, 'route' => route('accountStates.index'), 'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Estados de cuenta']
+                (object) ['type' => $element, 'route' => route('accountStates.index'), 'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Estados de cuenta'],
+                (object) ['type' => $element, 'route' => route('accountStates.managerIndex'), 'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Estados de cuenta']
             ];
         }else{
             $lPermissions = collect($oUser->permissionsByRol());
@@ -44,6 +45,9 @@ class Menu {
 
                     case 'manager.proveedores.oc':
                         $lMenus[] = (object) ['type' => $element, 'route' => route('purchaseOrders.indexManager'), 'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Ordenes compras'];
+                        break;
+                    case 'manager.proveedor.estadoscuentas':
+                        $lMenus[] = (object) ['type' => $element, 'route' => route('accountStates.managerIndex'), 'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Estados de cuenta'];
                         break;
                     default:
                         # code...
