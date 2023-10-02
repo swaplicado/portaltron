@@ -9,6 +9,7 @@ use App\Http\Controllers\SDocs\purchaseOrdersController;
 use App\Http\Controllers\Quotations\QuotationsController;
 use App\Http\Controllers\Users\UsersController;
 use App\Http\Middleware\PermissionsMiddleware;
+use App\Http\Controllers\SAccountStates\accountStatesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -77,6 +78,12 @@ Route::middleware(['auth', 'menu', 'app.sprovider'])->group( function () {
         Route::post('/purchaseOrders/getRows', [purchaseOrdersController::class, 'getRows'])->name('getRows');
         Route::post('/purchaseOrders/update', [purchaseOrdersController::class, 'updatePurchaseOrder'])->name('update');
         Route::get('/getPurchaseOrders/{year?}', [purchaseOrdersController::class, 'getPurchaseOrders'])->name('getPurchaseOrders');
+    });
+
+    /** Account States */
+    Route::group(['as' => 'accountStates.'], function () {
+        Route::get('/accountStates', [accountStatesController::class, 'index'])->name('index');
+        Route::post('/updateAccountState', [accountStatesController::class, 'updateAccountState'])->name('updateAccount');
     });
 });
 

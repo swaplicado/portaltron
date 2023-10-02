@@ -18,7 +18,8 @@ class Menu {
             $lMenus = [
                 (object) ['type' => $element, 'route' => route('home'), 'icon' => 'bx bx-home bx-sm', 'name' => 'Inicio'],
                 (object) ['type' => $element, 'route' => route('sproviders.index'), 'icon' => 'bx bxs-truck bx-sm', 'name' => 'Proveedores'],
-                (object) ['type' => $element, 'route' => route('purchaseOrders.index'), 'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Ordenes compras']
+                (object) ['type' => $element, 'route' => route('purchaseOrders.index'), 'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Ordenes compras'],
+                (object) ['type' => $element, 'route' => route('accountStates.index'), 'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Estados de cuenta']
             ];
         }else{
             $lPermissions = collect($oUser->permissionsByRol());
@@ -37,6 +38,9 @@ class Menu {
                     case 'proveedor.cotizaciones':
                         //$lMenu[] = (object) ['type' => $element, 'route' => route('quotations.index'), 'icon' => 'bx bxs-archive bx-sm', 'name' => 'Cotizaciones'];
                     
+                    case 'proveedor.estadoscuentas':
+                        $lMenus[] = (object) ['type' => $element, 'route' => route('accountStates.index'), 'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Estados de cuenta'];
+                        break;   
                     default:
                         # code...
                         break;
