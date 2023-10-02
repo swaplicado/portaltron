@@ -208,11 +208,13 @@ class SProvidersController extends Controller
     public function requireModifyProvider(Request $request){
         try {
             $id_provider = $request->id_provider;
+            $comments = $request->comments;
 
             \DB::beginTransaction();
 
             $oProvider = SProvider::find($id_provider);
             $oProvider->status_provider_id = SysConst::PROVIDER_PENDIENTE_MODIFICAR;
+            $oProvider->comments_n = $comments;
             $oProvider->save();
 
             $lProviders = SProvidersUtils::getlProviders();

@@ -13,6 +13,7 @@ var app = new Vue({
         provider_email: null,
         id_provider: null,
         user_id: null,
+        comments: null,
     },
     mounted(){
         self = this;
@@ -27,6 +28,7 @@ var app = new Vue({
     },
     methods: {
         async showModal(data){
+            this.clean();
             this.id_provider = data[indexesProvidersTable.id_provider];
             this.modal_title = 'Autorización de proveedor: ' + data[indexesProvidersTable.provider_name]
             await this.getProviderData();
@@ -81,6 +83,12 @@ var app = new Vue({
                     route = this.oData.rejectRoute;
                     break;
                 case this.lConstants.PROVIDER_PENDIENTE_MODIFICAR:
+
+                    if(this.comments == null || this.comments == ""){
+                        SGui.showMessage('', 'Debes ingresara un comentario', 'info');
+                        return;
+                    }
+
                     route = this.oData.requireModifyRoute;    
                     break;
             
@@ -90,6 +98,7 @@ var app = new Vue({
 
             axios.post(route, {
                 'id_provider': this.id_provider,
+                'comments': this.comments,
             })
             .then( result => {
                 let data = result.data;
@@ -109,6 +118,7 @@ var app = new Vue({
                     );
                     SGui.showOk();
                     $('#modal_authorize_provider').modal('hide');
+                    $('#modal_comments_provider').modal('hide');
                 }else{
                     SGui.showMessage('', data.message, data.icon);
                 }
@@ -117,6 +127,28 @@ var app = new Vue({
                 console.log(error)
                 SGui.showError(error);
             });
+        },
+
+        commentsProvider(){
+            $('#modal_authorize_provider').modal('hide');
+            $('#modal_comments_provider').modal('show');
+        },
+
+        cancelComments(){
+            $('#modal_comments_provider').modal('hide');
+            $('#modal_authorize_provider').modal('show');
+            this.comments = null;
+        },
+
+        clean(){
+            this.modal_title = null
+            this.provider_name = null
+            this.provider_short_name = null
+            this.provider_rfc = null
+            this.provider_email = null
+            this.id_provider = null
+            this.user_id = null
+            this.comments = null
         }
     }
 })
