@@ -17,9 +17,9 @@ class VoboDocsTable extends Migration
             $table->id('id_vobo');
             $table->unsignedBigInteger('doc_url_id');
             $table->unsignedBigInteger('area_id');
-            $table->unsignedBigInteger('user_id');
-            $table->boolean('is_accept');
-            $table->boolean('is_reject');
+            $table->unsignedBigInteger('user_id')->nullable();
+            $table->boolean('is_accept')->default(0);
+            $table->boolean('is_reject')->default(0);
             $table->date('date_accept_n')->nullable();
             $table->date('date_rej_n')->nullable();
             $table->integer('order');
