@@ -1,5 +1,6 @@
 <?php namespace App\Utils;
 
+use App\Models\SDocs\RequestTypeDocs;
 use App\Models\SProviders\SProvider;
 
 class SProvidersUtils {
@@ -65,6 +66,7 @@ class SProvidersUtils {
         $email = $oData->email;
         $password = $oData->password;
         $confirmPassword = $oData->confirmPassword;
+        $area_id = $oData->area_id;
 
         if($name == null || $name == ''){
             $message = 'Debe introducir su razón social';
@@ -109,6 +111,28 @@ class SProvidersUtils {
         if($password != $confirmPassword){
             $message = 'La contraseña y la confirmación de la contraseña deben ser iguales';
             return [false, $message];
+        }
+
+        if($area_id == null){
+            $message = 'Debe seleccionar un área';
+            return [false, $message];
+        }
+
+        $lDocs = RequestTypeDocs::where('is_default', 1)
+                                ->where('is_deleted', 0)
+                                ->select(
+                                    'id_request_type_doc',
+                                    'name'
+                                )
+                                ->get();
+
+        foreach ($lDocs as $doc) {
+            $docType = 'doc_'.$doc->id_request_type_doc;
+            $pdf = $oData->file($docType);
+            if(is_null($pdf)){
+                $message = 'Faltó cargar '.$doc->name;
+                return [false, $message];
+            }
         }
 
         return [true, $message];

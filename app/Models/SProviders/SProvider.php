@@ -19,6 +19,7 @@ class SProvider extends Model
         'status_provider_id',
         'comments_n',
         'external_id',
+        'area_id',
         'is_active',
         'is_deleted',
         'created_by',
