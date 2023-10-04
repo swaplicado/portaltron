@@ -23,6 +23,7 @@ class VoboDocsTable extends Migration
             $table->date('date_accept_n')->nullable();
             $table->date('date_rej_n')->nullable();
             $table->integer('order');
+            $table->integer('check_status');
             $table->boolean('is_deleted')->default(0);
 
             $table->unsignedBigInteger('created_by');
