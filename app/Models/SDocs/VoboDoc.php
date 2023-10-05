@@ -1,5 +1,5 @@
 <?php
-namespace App\Models\Vobos;
+namespace App\Models\SDocs;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,6 +17,7 @@ class VoboDoc extends Model
         'date_accept_n',
         'date_rej_n',
         'order',
+        'check_status',
         'is_deleted',
         'created_by',
         'updated_by',

@@ -10,6 +10,7 @@ use App\Http\Controllers\Quotations\QuotationsController;
 use App\Http\Controllers\Users\UsersController;
 use App\Http\Middleware\PermissionsMiddleware;
 use App\Http\Controllers\SAccountStates\accountStatesController;
+use App\Http\Controllers\SDocs\voboDocsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -89,6 +90,13 @@ Route::middleware(['auth', 'menu', 'app.sprovider'])->group( function () {
         Route::post('/updateAccountState', [accountStatesController::class, 'updateAccountState'])->name('updateAccount');
         Route::get('/accountStatesManager', [accountStatesController::class, 'managerIndex'])->name('managerIndex');
         Route::post('/updateAccountStateManager', [accountStatesController::class, 'updateAccountStateManager'])->name('updateAccountManager');
+    });
+
+    /**
+     * Vistos buenos documentos
+     */
+    Route::group(['as' => 'voboDocs.'], function() {
+        Route::post('voboDoc', [voboDocsController::class, 'voboDocument'])->name('voboDoc');
     });
 });
 

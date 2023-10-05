@@ -12,9 +12,10 @@ use App\Models\User;
 use App\Models\UserApp;
 use App\Models\UserRole;
 use App\Models\UserType;
-use App\Models\Vobos\VoboDoc;
+use App\Models\SDocs\VoboDoc;
 use App\Utils\AppLinkUtils;
 use App\Utils\FilesUtils;
+use App\Utils\ordersVobosUtils;
 use App\Utils\SProvidersUtils;
 use App\Utils\SysUtils;
 use Illuminate\Http\Request;
@@ -26,13 +27,17 @@ class SProvidersController extends Controller
 {
     public function index(){
         try {
-            $lProviders = SProvidersUtils::getlProviders();
-            
+            $oArea = \Auth::user()->getArea();
+            $lProviders = SProvidersUtils::getProvidersToVobo($oArea);
+
             $lConstants = [
                 'PROVIDER_PENDIENTE' => SysConst::PROVIDER_PENDIENTE,
                 'PROVIDER_APROBADO' => SysConst::PROVIDER_APROBADO,
                 'PROVIDER_RECHAZADO' => SysConst::PROVIDER_RECHAZADO,
                 'PROVIDER_PENDIENTE_MODIFICAR' => SysConst::PROVIDER_PENDIENTE_MODIFICAR,
+                'VOBO_NO_REVISION' => SysConst::VOBO_NO_REVISION,
+                'VOBO_REVISION' => SysConst::VOBO_REVISION,
+                'VOBO_REVISADO' => SysConst::VOBO_REVISADO,
             ];
 
             $lStatus = \DB::table('status_providers')
@@ -41,26 +46,32 @@ class SProvidersController extends Controller
                             'name as text'
                         )
                         ->get();
-
-        // array_unshift($lStatus, ['id' => 0, 'text' => 'Todos']);
             
         } catch (\Throwable $th) {
             \Log::error($th);
             return view('errorPages.serverError');
         }
 
-        return view('sproviders.sproviders')->with('lProviders', $lProviders)->with('lConstants', $lConstants)->with('lStatus', $lStatus);
+        return view('sproviders.sproviders')->with('lProviders', $lProviders)
+                                            ->with('lConstants', $lConstants)
+                                            ->with('lStatus', $lStatus)
+                                            ->with('oArea', $oArea);
     }
 
     public function getProvider(Request $request){
         try {
             $oProvider = SProvidersUtils::getProvider($request->provider_id);
+            $oArea = \Auth::user()->getArea();
+            $lDocuments = SProvidersUtils::getDocumentsProvider($request->provider_id, $oArea->id_area);
+            foreach ($lDocuments as $doc) {
+                $doc->status = $doc->is_accept == true ? 'Aprobado' : ($doc->is_reject == true ? 'Rechazado' : 'Pendiente');
+            }
         } catch (\Throwable $th) {
             \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => false]);
         }
 
-        return json_encode(['success' => true, 'oProvider' => $oProvider]);
+        return json_encode(['success' => true, 'oProvider' => $oProvider, 'lDocuments' => $lDocuments]);
     }
 
     public function registerProviderIndex(){
@@ -213,6 +224,7 @@ class SProvidersController extends Controller
                         $oVoboDoc->is_accept = 0;
                         $oVoboDoc->is_reject = 0;
                         $oVoboDoc->order = $order->order;
+                        $oVoboDoc->check_status = $order->order == 1 ? SysConst::VOBO_REVISION : SysConst::VOBO_NO_REVISION;
                         $oVoboDoc->is_deleted = 0;
                         $oVoboDoc->created_by = 1;
                         $oVoboDoc->updated_by = 1;
@@ -237,23 +249,49 @@ class SProvidersController extends Controller
         try {
             $id_provider = $request->id_provider;
 
-            $oProvider = SProvider::find($id_provider);
-            $oUser = User::find($oProvider->user_id);
+            $oProvider = SProvider::findOrFail($id_provider);
+            $oUser = User::findOrFail($oProvider->user_id);
 
-            $result = AppLinkUtils::checkUserInAppLink($oUser);
-
+            $config = \App\Utils\Configuration::getConfigurations();
+            $oArea = \Auth::user()->getArea();
             \DB::beginTransaction();
 
-            $oProvider->status_provider_id = SysConst::PROVIDER_APROBADO;
-            if(!is_null($result)){
-                if($result->code == 200){
-                    $oProvider->external_id = $result->id_bp;
+            if($oArea->id_area != $config->fatherArea){
+                $child_area_id = ordersVobosUtils::getProviderDocsChildArea($oProvider->area_id, $oArea->id_area);
+
+                $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $oArea->id_area);
+                foreach ($lDocuments as $doc) {
+                    $oVoboDoc = VoboDoc::findOrFail($doc->id_vobo);
+                    $oVoboDoc->check_status = SysConst::VOBO_REVISADO;
+                    $oVoboDoc->update();
                 }
+
+                $lChildDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $child_area_id, [SysConst::VOBO_NO_REVISION]);
+                foreach ($lChildDocuments as $doc) {
+                    $oVoboDoc = VoboDoc::findOrFail($doc->id_vobo);
+                    $oVoboDoc->check_status = SysConst::VOBO_REVISION;
+                    $oVoboDoc->update();
+                }
+            }else{
+                $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $oArea->id_area);
+                foreach ($lDocuments as $doc) {
+                    $oVoboDoc = VoboDoc::findOrFail($doc->id_vobo);
+                    $oVoboDoc->check_status = SysConst::VOBO_REVISADO;
+                    $oVoboDoc->update();
+                }
+
+                $result = AppLinkUtils::checkUserInAppLink($oUser);
+                $oProvider->status_provider_id = SysConst::PROVIDER_APROBADO;
+                if(!is_null($result)){
+                    if($result->code == 200){
+                        $oProvider->external_id = $result->id_bp;
+                    }
+                }
+                $oProvider->save();
             }
-            $oProvider->save();
-
-            $lProviders = SProvidersUtils::getlProviders();
-
+            
+            $lProviders = SProvidersUtils::getProvidersToVobo($oArea);
+            
             \DB::commit();
         } catch (\Throwable $th) {
             \DB::rollBack();
@@ -267,13 +305,24 @@ class SProvidersController extends Controller
         try {
             $id_provider = $request->id_provider;
 
+            $oProvider = SProvider::findOrFail($id_provider);
+            $oUser = User::findOrFail($oProvider->user_id);
+            $config = \App\Utils\Configuration::getConfigurations();
+            $oArea = \Auth::user()->getArea();
+
             \DB::beginTransaction();
+            $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $oArea->id_area);
+            foreach ($lDocuments as $doc) {
+                $oVoboDoc = VoboDoc::findOrFail($doc->id_vobo);
+                $oVoboDoc->check_status = SysConst::VOBO_REVISADO;
+                $oVoboDoc->update();
+            }
 
             $oProvider = SProvider::find($id_provider);
             $oProvider->status_provider_id = SysConst::PROVIDER_RECHAZADO;
             $oProvider->save();
 
-            $lProviders = SProvidersUtils::getlProviders();
+            $lProviders = SProvidersUtils::getProvidersToVobo($oArea);
 
             \DB::commit();
         } catch (\Throwable $th) {
@@ -289,14 +338,25 @@ class SProvidersController extends Controller
             $id_provider = $request->id_provider;
             $comments = $request->comments;
 
+            $oProvider = SProvider::findOrFail($id_provider);
+            $oUser = User::findOrFail($oProvider->user_id);
+            $config = \App\Utils\Configuration::getConfigurations();
+            $oArea = \Auth::user()->getArea();
+
             \DB::beginTransaction();
+            $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $oArea->id_area);
+            foreach ($lDocuments as $doc) {
+                $oVoboDoc = VoboDoc::findOrFail($doc->id_vobo);
+                $oVoboDoc->check_status = SysConst::VOBO_REVISADO;
+                $oVoboDoc->update();
+            }
 
             $oProvider = SProvider::find($id_provider);
             $oProvider->status_provider_id = SysConst::PROVIDER_PENDIENTE_MODIFICAR;
             $oProvider->comments_n = $comments;
             $oProvider->save();
 
-            $lProviders = SProvidersUtils::getlProviders();
+            $lProviders = SProvidersUtils::getProvidersToVobo($oArea);
 
             \DB::commit();
         } catch (\Throwable $th) {

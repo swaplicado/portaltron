@@ -1,16 +1,23 @@
 <?php namespace App\Utils;
 
+use App\Constants\SysConst;
 use App\Models\SDocs\RequestTypeDocs;
 use App\Models\SProviders\SProvider;
 
 class SProvidersUtils {
 
+    /**
+     * Metodo para obtener un proveedor por el id de usuario
+     */
     public static function getProviderByUser($user_id){
         $oProvider = SProvider::where('user_id', $user_id)->first();
 
         return $oProvider;
     }
 
+    /**
+     * Metodo para obtener un proveedor por el id de proveedor
+     */
     public static function getProvider($provider_id){
         $oProvider = SProvider::join(config('myapp.mngr_db').'.users as u', 'u.id', '=', 'user_id')
                             ->join('status_providers as sp', 'sp.id_status_providers', '=', 'providers.status_provider_id')
@@ -33,6 +40,9 @@ class SProvidersUtils {
         return $oProvider;
     }
 
+    /**
+     * Metodo que obtiene todos los proveedores
+     */
     public static function getlProviders(){
         $lProviders = SProvider::where('providers.is_active', 1)
                             ->where('providers.is_deleted', 0)
@@ -49,6 +59,7 @@ class SProvidersUtils {
                                 'u.username',
                                 'sp.name as status',
                                 'providers.external_id as ext_id',
+                                'providers.area_id',
                                 \DB::raw('DATE_FORMAT(providers.created_at, "%Y-%m-%d") as created'),
                                 \DB::raw('DATE_FORMAT(providers.updated_at, "%Y-%m-%d") as updated'),
                             )
@@ -57,6 +68,9 @@ class SProvidersUtils {
         return $lProviders;
     }
 
+    /**
+     * Metodo que valida los campos de un proveedor
+     */
     public static function validateDataRegisterProvider($oData){
         $message = "";
 
@@ -136,5 +150,111 @@ class SProvidersUtils {
         }
 
         return [true, $message];
+    }
+
+    /**
+     * Metodo que regresa los proveedores por area y por el estatus del vobo doc
+     */
+    public static function filterProviderToVobo(){
+        $oArea = \Auth::user()->getArea();
+        $config = \App\Utils\Configuration::getConfigurations();
+
+        $lProvidersVobos = \DB::table('providers as p')
+                            ->join(config('myapp.mngr_db').'.users as u', 'u.id', '=', 'user_id')
+                            ->join('status_providers as sp', 'sp.id_status_providers', '=', 'p.status_provider_id')
+                            ->join('prov_docs as pd', 'pd.prov_id', '=', 'p.id_provider')
+                            ->join('docs_url as du', 'du.prov_doc_id', '=', 'pd.id_prov_doc')
+                            ->join('vobo_docs as vd', 'vd.doc_url_id', '=', 'du.id_doc_url')
+                            ->where(function($query){
+                                $query->where('vd.check_status', SysConst::VOBO_REVISION)
+                                    ->orWhere('vd.check_status', SysConst::VOBO_REVISADO);
+
+                            })
+                            ->where('vd.is_deleted', 0)
+                            ->where('vd.area_id', $oArea->id_area)
+                            ->where('p.status_provider_id', SysConst::PROVIDER_PENDIENTE)
+                            ->select(
+                                'p.id_provider',
+                                'p.user_id',
+                                'p.provider_short_name',
+                                'p.provider_name',
+                                'p.provider_rfc',
+                                'p.provider_email',
+                                'p.status_provider_id',
+                                'u.username',
+                                'sp.name as status',
+                                'p.external_id as ext_id',
+                                'p.area_id',
+                                \DB::raw('DATE_FORMAT(p.created_at, "%Y-%m-%d") as created'),
+                                \DB::raw('DATE_FORMAT(p.updated_at, "%Y-%m-%d") as updated')
+                            )
+                            ->groupBy([
+                                'p.id_provider',
+                                'p.user_id',
+                                'p.provider_short_name',
+                                'p.provider_name',
+                                'p.provider_rfc',
+                                'p.provider_email',
+                                'p.status_provider_id',
+                                'u.username',
+                                'status',
+                                'ext_id',
+                                'p.area_id',
+                                'created',
+                                'updated'
+                            ])
+                            ->get();
+
+        return $lProvidersVobos;
+    }
+
+    /**
+     * Metodo que obtiene los documentos de un proveedor,
+     * recibe el id del proveedor, el area del proveedor y el array de los estatus de los vobos de los documentos,
+     * por defecto obtiene los docs en revision y revisados,
+     */
+    public static function getDocumentsProvider($provider_id, $area_id, $lCheckstatus = [SysConst::VOBO_REVISION, SysConst::VOBO_REVISADO]){
+        $lDocuments = \DB::table('vobo_docs as vd')
+                        ->join('docs_url as du', 'du.id_doc_url', '=', 'vd.doc_url_id')
+                        ->join('prov_docs as pd', 'pd.id_prov_doc', '=', 'du.prov_doc_id')
+                        ->join('request_type_docs as rtd', 'rtd.id_request_type_doc', '=', 'pd.request_type_doc_id')
+                        ->where('pd.prov_id', $provider_id)
+                        ->where('vd.area_id', $area_id)
+                        ->where('vd.is_deleted', 0)
+                        ->whereIn('vd.check_status', $lCheckstatus)
+                        ->select(
+                            'vd.id_vobo',
+                            'vd.is_accept',
+                            'vd.is_reject',
+                            'vd.check_status',
+                            'rtd.name',
+                            'du.url'
+                        )
+                        ->get();
+
+        return $lDocuments;
+    }
+
+    /**
+     * metodo que mezcla el resultado de los proveedores pendientes de vobo y el resto de proveedores
+     */
+    public static function getProvidersToVobo($oArea){
+        $lAllProviders = SProvidersUtils::getlProviders();
+
+        $lProvidersToVobo = SProvidersUtils::filterProviderToVobo();
+
+        $config = \App\Utils\Configuration::getConfigurations();
+
+        if($oArea->id_area != $config->fatherArea){
+            $lProviders = $lAllProviders->where('area_id', $oArea->id_area)->where('status_provider_id', '!=', SysConst::PROVIDER_PENDIENTE);
+        }else{
+            $lProviders = $lAllProviders->where('status_provider_id', '!=', SysConst::PROVIDER_PENDIENTE);
+        }
+        
+        $arr = $lProviders->toArray();
+
+        $lProvidersToVobo = $lProvidersToVobo->concat($arr);
+
+        return $lProvidersToVobo;
     }
 }

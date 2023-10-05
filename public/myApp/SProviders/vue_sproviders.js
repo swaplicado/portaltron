@@ -12,13 +12,42 @@ var app = new Vue({
         provider_rfc: null,
         provider_email: null,
         id_provider: null,
+        oArea: oServerData.oArea,
         user_id: null,
         comments: null,
+        lDocuments: [],
+        rowClass: null,
+        showWaitinIcon: false,
+        enableAuthorize: false,
+        canAuthorize: false,
+    },
+    watch: {
+        lDocuments:function(val){
+            if(this.lDocuments.length > 0){
+                for(let doc of this.lDocuments){
+                    if(doc.check_status == this.lConstants.VOBO_REVISION){
+                        this.canAuthorize = true;
+                    }else{
+                        this.canAuthorize = false;
+                        break;
+                    }
+
+                    if(doc.is_accept){
+                        this.enableAuthorize = true;
+                    }else{
+                        this.enableAuthorize = false;
+                        break;
+                    }
+                }
+            }else{
+                this.enableAuthorize = false;
+            }
+        }
     },
     mounted(){
         self = this;
 
-        $('.select2-class').select2({})
+        $('.select2-class').select2({});
 
         $('#status_filter').select2({
             data: self.lStatus,
@@ -33,7 +62,11 @@ var app = new Vue({
             this.modal_title = 'Autorización de proveedor: ' + data[indexesProvidersTable.provider_name]
             await this.getProviderData();
 
-            $('#modal_authorize_provider').modal('show');
+            if(this.canAuthorize){
+                $('#modal_authorize_provider').modal('show');
+            }else{
+                $('#modal_noAuthorize_provider').modal('show');
+            }
         },
 
         getProviderData(){
@@ -53,6 +86,7 @@ var app = new Vue({
                         this.provider_rfc = data.oProvider.provider_rfc;
                         this.provider_email = data.oProvider.provider_email;
                         this.user_id = data.oProvider.user_id;
+                        this.lDocuments = data.lDocuments;
                         Swal.close();
                         resolve('ok');
                     }else{
@@ -141,14 +175,69 @@ var app = new Vue({
         },
 
         clean(){
-            this.modal_title = null
-            this.provider_name = null
-            this.provider_short_name = null
-            this.provider_rfc = null
-            this.provider_email = null
-            this.id_provider = null
-            this.user_id = null
-            this.comments = null
+            this.modal_title = null;
+            this.provider_name = null;
+            this.provider_short_name = null;
+            this.provider_rfc = null;
+            this.provider_email = null;
+            this.id_provider = null;
+            this.user_id = null;
+            this.comments = null;
+            this.showWaitinIcon = false;
+        },
+
+        approveDoc(id_vobo){
+            this.showWaitinIcon = true;
+            let route = this.oData.voboDocRoute;
+            axios.post(route, {
+                'id_vobo': id_vobo,
+                'is_accept': true,
+                'is_reject': false,
+                'id_provider': this.id_provider,
+                'id_area': this.oArea.id_area,
+            })
+            .then( result =>  {
+                let data = result.data;
+                if(data.success){
+                    this.lDocuments = data.lDocuments;
+                    this.showWaitinIcon = false;
+                }else{
+                    SGui.showMessage('', data.message, data.icon);
+                    this.showWaitinIcon = false;
+                }
+            })
+            .catch( function(error){
+                this.showWaitinIcon = false;
+                console.log(error);
+                SGui.showError(error);
+            });
+        },
+
+        rejectDoc(id_vobo){
+            this.showWaitinIcon = true;
+            let route = this.oData.voboDocRoute;
+            axios.post(route, {
+                'id_vobo': id_vobo,
+                'is_accept': false,
+                'is_reject': true,
+                'id_provider': this.id_provider,
+                'id_area': this.oArea.id_area,
+            })
+            .then( result =>  {
+                let data = result.data;
+                if(data.success){
+                    this.lDocuments = data.lDocuments;
+                    this.showWaitinIcon = false;
+                }else{
+                    SGui.showMessage('', data.message, data.icon);
+                    this.showWaitinIcon = false;
+                }
+            })
+            .catch( function(error){
+                this.showWaitinIcon = false;
+                console.log(error);
+                SGui.showError(error);
+            });
         }
     }
 })
