@@ -51,6 +51,7 @@ Route::middleware(['auth', 'menu', 'app.sprovider'])->group( function () {
     /** Proveedores */
     Route::group(['as' => 'sproviders.'], function () {
         Route::get('/sproviders/{id?}', [SProvidersController::class, 'index'])->name('index')->middleware('app.middleware:providers,view');
+        Route::get('/documentsProviders', [SProvidersController::class, 'documentsProviders'])->name('documentsProv');
         Route::post('/sproviders/getProvider', [SProvidersController::class, 'getProvider'])->name('getProvider')->middleware('app.middleware:providers,show');
         Route::post('/sproviders/approve', [SProvidersController::class, 'approveProvider'])->name('approve');
         Route::post('/sproviders/reject', [SProvidersController::class, 'rejectProvider'])->name('reject');

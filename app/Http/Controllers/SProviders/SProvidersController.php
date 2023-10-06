@@ -9,6 +9,7 @@ use App\Models\UserApp;
 use App\Models\UserRole;
 use App\Models\UserType;
 use App\Utils\AppLinkUtils;
+use App\Utils\DocumentsUtils;
 use App\Utils\SProvidersUtils;
 use App\Utils\SysUtils;
 use Illuminate\Http\Request;
@@ -313,5 +314,21 @@ class SProvidersController extends Controller
         }
 
         return json_encode(['success' => true]);
+    }
+
+    public function documentsProviders(){
+        try {
+            $lProviders = SProvidersUtils::getlProviders();
+            $lProviders = $lProviders->where('status_provider_id',2);
+
+            $lProviders = DocumentsUtils::getNumberPendigDocs($lProviders,1);
+            $lProviders = DocumentsUtils::havePendigDocs($lProviders,1);
+            
+        } catch (\Throwable $th) {
+            \Log::error($th);
+            return view('errorPages.serverError');
+        }
+
+        return view('sproviders.documents_providers')->with('lProviders', $lProviders);    
     }
 }
