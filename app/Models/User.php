@@ -203,4 +203,19 @@ class User extends Authenticatable
 
         return $oProvider;
     }
+
+    public function getArea(){
+        $oArea = \DB::connection('mysql')
+                    ->table('users_areas as ua')
+                    ->join('areas as a', 'a.id_area', '=', 'ua.area_id')
+                    ->where('ua.user_id', $this->id)
+                    ->where('ua.is_deleted', 0)
+                    ->select(
+                        'a.id_area',
+                        'a.name_area'
+                    )
+                    ->first();
+
+    return $oArea;
+    }
 }

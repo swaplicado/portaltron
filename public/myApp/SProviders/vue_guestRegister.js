@@ -1,6 +1,7 @@
 var app = new Vue({
     el: '#registerProvider',
     data: {
+        lDocs: oServerData.lDocs,
         name: null,
         shortName: null,
         rfc: null,
@@ -10,6 +11,7 @@ var app = new Vue({
         showPassword: false,
         confirmPassword: null,
         successRegister: false,
+        area_id: "",
     },
     mounted(){
 
@@ -20,16 +22,31 @@ var app = new Vue({
                 return;
             }
 
+            const formData = new FormData();
+
+            let inputFile = null;
+            for(let doc of this.lDocs){
+                inputFile = document.getElementById('doc_'+doc.id_request_type_doc);
+                let file = inputFile.files[0];
+                formData.append('doc_'+doc.id_request_type_doc, file);
+            }
+
+            formData.append('name', this.name);
+            formData.append('shortName', this.shortName);
+            formData.append('rfc', this.rfc);
+            formData.append('email', this.email);
+            formData.append('password', this.password);
+            formData.append('confirmPassword', this.confirmPassword);
+            formData.append('area_id', this.area_id);
+
             SGui.showWaitingUnlimit();
 
             let route = oServerData.registerRoute;
-            axios.post(route, {
-                'name': this.name,
-                'shortName': this.shortName,
-                'rfc': this.rfc,
-                'email': this.email,
-                'password': this.password,
-                'confirmPassword': this.confirmPassword,
+
+            axios.post(route, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                },
             })
             .then( result => {
                 let data = result.data;
@@ -89,6 +106,11 @@ var app = new Vue({
 
             if(this.password != this.confirmPassword){
                 SGui.showMessage('', 'La contraseña y la confirmación de la contraseña deben ser iguales');
+                return false;
+            }
+
+            if(this.area_id == null || this.area_id == ""){
+                SGui.showMessage('', 'Debe seleccionar un área');
                 return false;
             }
 

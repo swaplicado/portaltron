@@ -45,6 +45,7 @@
         function GlobalData() {
             this.oProvider = <?php echo json_encode($oProvider); ?>;
             this.updateRoute = <?php echo json_encode(route('registerProvider.updateTempProvider')); ?>;
+            this.lDocs = <?php echo json_encode($lDocs); ?>;
         }
         var oServerData = new GlobalData();
     </script>
@@ -111,9 +112,15 @@
                                                     <img src="{{ asset('images/aeth.png') }}" alt="logo">
                                                 </div>
                                                 <h4>Hola! @{{ name }}</h4>
-                                                <h6 class="font-weight-light">
-                                                    Debes modificar tus datos para nueva revisión
+                                                <br>
+                                                <h6 class="font-weight-light" style="color: red">
+                                                    <ul>
+                                                        <li>
+                                                            @{{ comments }}
+                                                        </li>
+                                                    </ul>
                                                 </h6>
+                                                <br>
                                                 <br>
                                                 <form action="#">
                                                     <div class="row">
@@ -165,6 +172,53 @@
                                                             </div>
                                                         </div>
                                                     </div>
+
+                                                    <div class="row">
+                                                        <div class="col-md-6">
+                                                            <div class="form-group sm-form-group row">
+                                                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Área</label>
+                                                                <div class="col-sm-9">
+                                                                    <select class="form-control" v-model="area_id"
+                                                                    style="color: black">
+                                                                    <option value="" disabled selected hidden>Selecciona área</option>
+                                                                        @foreach($lAreas as $area)
+                                                                            <option value="{{$area->id_area}}">{{$area->name_area}}</option>
+                                                                        @endforeach
+                                                                    </select>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                            @foreach($lDocs as $doc)
+                                            @if($doc->is_reject)
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group sm-form-group row">
+                                                            <label class="col-sm-3 my-col-sm-3 col-form-label ">
+                                                                {{$doc->name}}
+                                                            </label>
+                                                            <div class="col-sm-9">
+                                                                <input type="file" id="doc_{{$doc->id_request_type_doc}}" name="doc_{{$doc->id_request_type_doc}}"
+                                                                    class="file-upload-default" accept=".pdf">
+                                                                <div class="input-group col-xs-12">
+                                                                    <input type="text"
+                                                                        class="form-control file-upload-info" disabled
+                                                                        placeholder="Cargar archivo">
+                                                                    <span class="input-group-append">
+                                                                        <button
+                                                                            class="file-upload-browse btn btn-info"
+                                                                            type="button">Cargar</button>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            @endif
+                                            @endforeach
+
+
                                                     <div class="row">
                                                         <div class="col-md-6">
 
@@ -236,6 +290,7 @@
     <script src="{{ asset('axios/axios.min.js') }}"></script>
     <script src="{{ asset('varios/select2/select2.min.js') }}"></script>
     <script src="{{ asset('myApp/SProviders/vue_tempModifyProvider.js') }}"></script>
+    <script src="{{ asset('js/principal/file-upload.js') }}"></script>
     <!-- JS section -->
     @yield('scripts')
     <!-- End JS section -->

@@ -18,29 +18,44 @@ class SysConst {
     /**
      * Keys de permisos
      */
-     public const PROVIDERS = 'providers';
-     public const PROVIDERS_CREATE = 'providers_create';
-     public const PROVIDERS_UPDATE = 'providers_update';
-     public const PROVIDERS_DELETE = 'providers_delete';
-     public const PROVIDERS_SHOW = 'providers_show';
+    public const PROVIDERS = 'providers';
+    public const PROVIDERS_CREATE = 'providers_create';
+    public const PROVIDERS_UPDATE = 'providers_update';
+    public const PROVIDERS_DELETE = 'providers_delete';
+    public const PROVIDERS_SHOW = 'providers_show';
 
-     /**
-      * Constantes de la tabla type_doc
-      */
-      public const DOC_TYPE_PURCHASE_ORDER = 1;
+    /**
+     * Constantes de la tabla type_doc
+    */
+    public const DOC_TYPE_PURCHASE_ORDER = 1;
 
-      /**
-       * Constantes de la tabla status doc
-       */
-      public const DOC_STATUS_NUEVO = 1;
-      public const DOC_STATUS_ATENDIDO = 2;
+    /**
+     * Constantes de la tabla status doc
+     */
+    public const DOC_STATUS_NUEVO = 1;
+    public const DOC_STATUS_ATENDIDO = 2;
 
-      /**
-       * Constantes de la tabla status provider
-       */
-      public const PROVIDER_PENDIENTE = 1;
-      public const PROVIDER_APROBADO = 2;
-      public const PROVIDER_RECHAZADO = 3;
-      public const PROVIDER_PENDIENTE_MODIFICAR = 4;
+    /**
+     * Constantes de la tabla status provider
+     */
+    public const PROVIDER_PENDIENTE = 1;
+    public const PROVIDER_APROBADO = 2;
+    public const PROVIDER_RECHAZADO = 3;
+    public const PROVIDER_PENDIENTE_MODIFICAR = 4;
+
+    /**
+     * Constantes de check status
+     */
+    public const VOBO_NO_REVISION = 0;
+    public const VOBO_REVISION = 1;
+    public const VOBO_REVISADO = 2;
+
+    /**
+     * Areas de usuarios
+     */
+    public const AREA_COMPRAS = 1;
+    public const AREA_MANTENIMIENTO = 2;
+    public const AREA_PROYECTOS = 3;
+    public const AREA_CONTABILIDAD = 4;
 }
 ?>

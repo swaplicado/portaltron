@@ -32,6 +32,9 @@ class Menu {
             ];
             foreach($viewsAccess as $view){
                 switch ($view->key_code) {
+                    case 'manager.proveedores':
+                        $lMenus[] = (object) ['type' => $element, 'route' => route('sproviders.index'), 'icon' => 'bx bxs-truck bx-sm', 'name' => 'Proveedores'];
+                        break;
                     case 'proveedores.oc':
                         $lMenus[] = (object) ['type' => $element, 'route' => route('purchaseOrders.index'), 'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Ordenes compras'];
                         break;

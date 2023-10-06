@@ -4,12 +4,14 @@
 <script>
     function GlobalData(){
         this.lProviders = <?php echo json_encode($lProviders); ?>;
+        this.oArea = <?php echo json_encode($oArea); ?>;
         this.getProviderRoute = <?php echo json_encode(route('sproviders.getProvider')); ?>;
         this.lConstants = <?php echo json_encode($lConstants); ?>;
         this.approveRoute = <?php echo json_encode(route('sproviders.approve')); ?>;
         this.rejectRoute = <?php echo json_encode(route('sproviders.reject')); ?>;
         this.requireModifyRoute = <?php echo json_encode(route('sproviders.requireModify')); ?>;
         this.lStatus = <?php echo json_encode($lStatus); ?>;
+        this.voboDocRoute = <?php echo json_encode(route('voboDocs.voboDoc')); ?>;
     }
     var oServerData = new GlobalData();
     var indexesProvidersTable = {

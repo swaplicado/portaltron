@@ -34,6 +34,9 @@ var app = new Vue({
             
         });
 
+        /**
+         * Mueve el renglon de fecha de entrega a arriba o abajo dependiendo si es visible en pantalla o no
+         */
         //obtener el elemento a observar
         const rowDelevery = this.$refs.rowDelevery;
         // Crea una nueva instancia de IntersectionObserver
@@ -228,7 +231,7 @@ var app = new Vue({
 
         cleanData(){
             this.idDoc = null;
-            this.idYear = null;
+            // this.idYear = null;
             this.purchase_order_id = null;
             this.modal_title = null;
             this.reference = null;
