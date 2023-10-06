@@ -2,7 +2,26 @@
     <div class="modal-dialog" style="max-width: 50rem">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modal_authorize_provider">@{{ modal_title }}</h5>
+                <h5 class="modal-title" id="modal_authorize_provider">
+                    <div class="myTooltip">
+                        <span class="bx bx-info-circle" style="color: aqua"></span>
+                        <div class="bottom-right">
+                            <div class="text-content">
+                                <ul>
+                                    <li>
+                                        El botón "Sol. modif." Permanecerá inhabilitado hasta 
+                                        que todos los tengan estatus autorizado o rechazado.
+                                    </li>
+                                    <li>
+                                        El botón "Autorizar" solo se habilitará hasta que todos los documentos tengan estatus aprobado.
+                                    </li>
+                                </ul>
+                            </div>
+                            <i></i>
+                        </div>
+                    </div>
+                    @{{ modal_title }}
+                </h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -115,7 +134,7 @@
                         <div class="col-md-3">
                             <label class="col-form-label "></label>
                             <button type="button" class="btn btn-warning btn-icon-text form-control" id="btn_modif"
-                            v-on:click="commentsProvider()">
+                            v-on:click="commentsProvider()" :disabled="!enableModify">
                                 <b>Sol. modif.</b>
                                 <i class="bx bxs-message-square-edit"></i>
                             </button>
@@ -135,7 +154,7 @@
     </div>
 </div>
 
-<div class="modal fade" id="modal_comments_provider" tabindex="-1" aria-labelledby="modal_comments_provider" aria-hidden="true">
+<div class="modal fade" id="modal_comments_provider" data-backdrop="static" data-keyboard="false" tabindex="-1" aria-labelledby="modal_comments_provider" aria-hidden="true">
     <div class="modal-dialog" style="max-width: 50rem">
         <div class="modal-content">
             <div class="modal-header">

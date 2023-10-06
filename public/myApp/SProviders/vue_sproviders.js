@@ -20,6 +20,7 @@ var app = new Vue({
         showWaitinIcon: false,
         enableAuthorize: false,
         canAuthorize: false,
+        enableModify: false,
     },
     watch: {
         lDocuments:function(val){
@@ -27,11 +28,22 @@ var app = new Vue({
                 for(let doc of this.lDocuments){
                     if(doc.check_status == this.lConstants.VOBO_REVISION){
                         this.canAuthorize = true;
+                        break;
                     }else{
                         this.canAuthorize = false;
+                    }
+                }
+
+                for(let doc of this.lDocuments){
+                    if(doc.is_accept || doc.is_reject){
+                        this.enableModify = true;
+                    }else{
+                        this.enableModify = false;
                         break;
                     }
+                }
 
+                for(let doc of this.lDocuments){
                     if(doc.is_accept){
                         this.enableAuthorize = true;
                     }else{

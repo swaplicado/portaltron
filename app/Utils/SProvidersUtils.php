@@ -162,9 +162,9 @@ class SProvidersUtils {
         $lProvidersVobos = \DB::table('providers as p')
                             ->join(config('myapp.mngr_db').'.users as u', 'u.id', '=', 'user_id')
                             ->join('status_providers as sp', 'sp.id_status_providers', '=', 'p.status_provider_id')
-                            ->join('prov_docs as pd', 'pd.prov_id', '=', 'p.id_provider')
-                            ->join('docs_url as du', 'du.prov_doc_id', '=', 'pd.id_prov_doc')
-                            ->join('vobo_docs as vd', 'vd.doc_url_id', '=', 'du.id_doc_url')
+                            ->join('prov_docs', 'prov_docs.prov_id', '=', 'p.id_provider')
+                            ->join('docs_url', 'docs_url.prov_doc_id', '=', 'prov_docs.id_prov_doc')
+                            ->join('vobo_docs as vd', 'vd.doc_url_id', '=', 'docs_url.id_doc_url')
                             ->where(function($query){
                                 $query->where('vd.check_status', SysConst::VOBO_REVISION)
                                     ->orWhere('vd.check_status', SysConst::VOBO_REVISADO);
@@ -173,6 +173,9 @@ class SProvidersUtils {
                             ->where('vd.is_deleted', 0)
                             ->where('vd.area_id', $oArea->id_area)
                             ->where('p.status_provider_id', SysConst::PROVIDER_PENDIENTE)
+                            ->whereRaw('(docs_url.id_doc_url, prov_docs.id_prov_doc) IN (SELECT MAX(docs_url.id_doc_url), 
+                            prov_docs.id_prov_doc FROM prov_docs INNER JOIN docs_url 
+                            ON prov_docs.id_prov_doc = docs_url.prov_doc_id GROUP BY prov_docs.id_prov_doc)')
                             ->select(
                                 'p.id_provider',
                                 'p.user_id',
@@ -211,28 +214,51 @@ class SProvidersUtils {
     /**
      * Metodo que obtiene los documentos de un proveedor,
      * recibe el id del proveedor, el area del proveedor y el array de los estatus de los vobos de los documentos,
-     * por defecto obtiene los docs en revision y revisados,
+     * por defecto obtiene los docs en revision y revisados.
+     * 
+     * con whereRaw obtenemos solo los renglones mas nuevos de la tabla docs_url
      */
     public static function getDocumentsProvider($provider_id, $area_id, $lCheckstatus = [SysConst::VOBO_REVISION, SysConst::VOBO_REVISADO]){
         $lDocuments = \DB::table('vobo_docs as vd')
-                        ->join('docs_url as du', 'du.id_doc_url', '=', 'vd.doc_url_id')
-                        ->join('prov_docs as pd', 'pd.id_prov_doc', '=', 'du.prov_doc_id')
-                        ->join('request_type_docs as rtd', 'rtd.id_request_type_doc', '=', 'pd.request_type_doc_id')
-                        ->where('pd.prov_id', $provider_id)
+                        ->join('docs_url', 'docs_url.id_doc_url', '=', 'vd.doc_url_id')
+                        ->join('prov_docs', 'prov_docs.id_prov_doc', '=', 'docs_url.prov_doc_id')
+                        ->join('request_type_docs as rtd', 'rtd.id_request_type_doc', '=', 'prov_docs.request_type_doc_id')
+                        ->where('prov_docs.prov_id', $provider_id)
                         ->where('vd.area_id', $area_id)
                         ->where('vd.is_deleted', 0)
                         ->whereIn('vd.check_status', $lCheckstatus)
+                        ->whereRaw('(docs_url.id_doc_url, prov_docs.id_prov_doc) IN (SELECT MAX(docs_url.id_doc_url), 
+                        prov_docs.id_prov_doc FROM prov_docs INNER JOIN docs_url 
+                        ON prov_docs.id_prov_doc = docs_url.prov_doc_id GROUP BY prov_docs.id_prov_doc)')
                         ->select(
                             'vd.id_vobo',
                             'vd.is_accept',
                             'vd.is_reject',
                             'vd.check_status',
                             'rtd.name',
-                            'du.url'
+                            'docs_url.url',
+                            'rtd.id_request_type_doc'
                         )
                         ->get();
 
         return $lDocuments;
+    }
+
+    public static function getDocumentsProviderByLastVobo($provider_id, $lCheckstatus = [SysConst::VOBO_REVISION, SysConst::VOBO_REVISADO]){
+        $oProvider = SProvider::find($provider_id);
+        $lOrders = ordersVobosUtils::getProviderDocsOrderToVobo($oProvider->area_id);
+        // $lOrders = $lOrders->sortByDesc('order');
+
+        $lDocs = [];
+        foreach($lOrders as $order){
+            $lDocs = SProvidersUtils::getDocumentsProvider($provider_id, $order->area, [SysConst::VOBO_REVISADO]);
+            $rejectDocs = $lDocs->where('is_reject', 1);
+            if(count($rejectDocs) > 0){
+                break;
+            }
+        }
+        
+        return $lDocs;
     }
 
     /**

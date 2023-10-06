@@ -367,9 +367,22 @@ class SProvidersController extends Controller
         return json_encode(['success' => true, 'lProviders' => $lProviders]);
     }
 
+    /**
+     * Metodo que regresa la vista para que el proveedor modifique sus datos
+     */
     public function tempModifyProvider(){
         $oProvider = \Auth::user()->getProviderData();
-        return view('sproviders.tempModifyProvider')->with('oProvider', $oProvider);
+
+        $lAreas = Areas::where('is_active', 1)->where('is_deleted', 0)->get();
+
+        // $lDocuments = SProvidersUtils::getDocumentsProvider($oProvider->id_provider, $oProvider->area_id);
+        $lDocuments = SProvidersUtils::getDocumentsProviderByLastVobo($oProvider->id_provider);
+        $lDocs = $lDocuments->where('is_reject', 1);
+        // $lDocs = $lDocs->toArray();
+
+        return view('sproviders.tempModifyProvider')->with('oProvider', $oProvider)
+                                                    ->with('lAreas', $lAreas)
+                                                    ->with('lDocs', $lDocs);
     }
 
     /**
@@ -381,6 +394,18 @@ class SProvidersController extends Controller
             $shortName = $request->shortName;
             $rfc = $request->rfc;
             $email = $request->email;
+            $area_id = $request->area_id;
+            $config = \App\Utils\Configuration::getConfigurations();
+            $sOrders =  json_encode($config->orders);
+            $lOrders = collect(json_decode($sOrders));
+            $oOrder = $lOrders->where('id', $area_id)->first();
+            $orders = $oOrder->orders;
+
+            $oProvider = \Auth::user()->getProviderData();
+
+            // $lDocuments = SProvidersUtils::getDocumentsProvider($oProvider->id_provider, $oProvider->area_id);
+            $lDocuments = SProvidersUtils::getDocumentsProviderByLastVobo($oProvider->id_provider);
+            $lDocs = $lDocuments->where('is_reject', 1);
 
             if($name == null || $name == ''){
                 $message = 'Debe introducir su razón social';
@@ -437,6 +462,48 @@ class SProvidersController extends Controller
                     $oProvider->status_provider_id = SysConst::PROVIDER_PENDIENTE;
                     $oProvider->updated_by = \Auth::user()->id;
                     $oProvider->update();
+
+                    foreach($lDocs as $doc){
+                        $docType = 'doc_'.$doc->id_request_type_doc;
+                        $pdf = $request->file($docType);
+                        $result = FilesUtils::validateFile($pdf, 'pdf', '5 MB');
+                        if(!$result[0]){
+                            return json_encode(['success' => false, 'message' => $result[1], 'icon' => 'error']);
+                        }
+        
+                        $fileName = $docType.'_'.$rfc.'_'.time().'.'.$pdf->extension();
+        
+                        $rutaArchivo = Storage::disk('documents')->putFileAs('/', $pdf, $fileName);
+
+                        $oProvDoc = ProvDocs::where('prov_id', $oProvider->id_provider)
+                                            ->where('request_type_doc_id', $doc->id_request_type_doc)
+                                            ->first();
+    
+                        $docUrl = Storage::disk('documents')->url($fileName);
+    
+                        $oDocsUrl = new DocsUrl();
+                        $oDocsUrl->prov_doc_id = $oProvDoc->id_prov_doc;
+                        $oDocsUrl->url = $docUrl;
+                        $oDocsUrl->date_ini_n = Carbon::now()->toDateString();
+                        $oDocsUrl->is_deleted = 0;
+                        $oDocsUrl->created_by = 1;
+                        $oDocsUrl->updated_by = 1;
+                        $oDocsUrl->save();
+    
+                        foreach($orders as $order){
+                            $oVoboDoc = new VoboDoc();
+                            $oVoboDoc->doc_url_id = $oDocsUrl->id_doc_url;
+                            $oVoboDoc->area_id = $order->area;
+                            $oVoboDoc->is_accept = 0;
+                            $oVoboDoc->is_reject = 0;
+                            $oVoboDoc->order = $order->order;
+                            $oVoboDoc->check_status = $order->order == 1 ? SysConst::VOBO_REVISION : SysConst::VOBO_NO_REVISION;
+                            $oVoboDoc->is_deleted = 0;
+                            $oVoboDoc->created_by = 1;
+                            $oVoboDoc->updated_by = 1;
+                            $oVoboDoc->save();
+                        }
+                    }
     
                     \DB::connection('mysql')->commit();
                 } catch (\Throwable $th) {
