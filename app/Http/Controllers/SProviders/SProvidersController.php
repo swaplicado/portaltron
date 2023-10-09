@@ -550,4 +550,14 @@ class SProvidersController extends Controller
                                                     ->with('lConstants', $lConstants)
                                                     ->with('area_id', $oArea->id_area);
     }
+
+    public static function providerProfile(){
+        $oProvider = \Auth::user()->getProviderData();
+
+        $lDocuments = SProvidersUtils::getDocumentsProviderByLastVobo($oProvider->id_provider);
+        $lDocs = $lDocuments->where('is_reject', 1);
+
+        return view('sproviders.provider_profile')->with('oProvider', $oProvider)
+                                                    ->with('lDocs', $lDocs);
+    }
 }

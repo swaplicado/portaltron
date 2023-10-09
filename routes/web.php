@@ -57,6 +57,7 @@ Route::middleware(['auth', 'menu', 'app.sprovider'])->group( function () {
         Route::post('/sproviders/approve', [SProvidersController::class, 'approveProvider'])->name('approve');
         Route::post('/sproviders/reject', [SProvidersController::class, 'rejectProvider'])->name('reject');
         Route::post('/sproviders/requireModifyProvider', [SProvidersController::class, 'requireModifyProvider'])->name('requireModify');
+        Route::get('/providerProfile', [SProvidersController::class, 'providerProfile'])->name('profile');
     });
     
     /** Usuarios */
