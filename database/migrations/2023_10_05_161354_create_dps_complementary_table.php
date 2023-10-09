@@ -28,7 +28,7 @@ class CreateDpsComplementaryTable extends Migration
             $table->timestamps();
 
             $table->foreign('dps_id')->references('id_dps')->on('dps');
-            $table->foreign('reference_doc_id')->references('id_dps')->on('dps');
+            $table->foreign('reference_doc_n')->references('id_dps')->on('dps');
         });
     }
 

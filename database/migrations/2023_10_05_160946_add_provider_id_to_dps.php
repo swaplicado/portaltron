@@ -14,9 +14,9 @@ class AddProviderIdToDps extends Migration
     public function up()
     {
         Schema::table('dps', function (Blueprint $table) {
-            $table->unsignedBigInteger('provider_id')->after('ext_id_doc');
+            $table->unsignedBigInteger('provider_id_n')->nullable()->after('ext_id_doc');
 
-            $table->foreign('provider_id')->references('id_provider')->on('providers');
+            $table->foreign('provider_id_n')->references('id_provider')->on('providers');
         });
     }
 
@@ -28,8 +28,8 @@ class AddProviderIdToDps extends Migration
     public function down()
     {
         Schema::table('dps', function (Blueprint $table) {
-            $table->dropForeign(['provider_id']);
-            $table->dropColumn('provider_id');
+            $table->dropForeign(['provider_id_n']);
+            $table->dropColumn('provider_id_n');
         });
     }
 }
