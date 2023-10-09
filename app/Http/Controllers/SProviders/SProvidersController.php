@@ -525,16 +525,29 @@ class SProvidersController extends Controller
     public function documentsProviders(){
         try {
             $lProviders = SProvidersUtils::getlProviders();
-            $lProviders = $lProviders->where('status_provider_id',2);
+            $lProviders = $lProviders->where('status_provider_id', SysConst::PROVIDER_APROBADO)->values();
 
-            $lProviders = DocumentsUtils::getNumberPendigDocs($lProviders,1);
-            $lProviders = DocumentsUtils::havePendigDocs($lProviders,1);
+            $oArea = \Auth::user()->getArea();
+            $lProviders = DocumentsUtils::getNumberPendigDocs($lProviders, $oArea->id_area);
+            $lProviders = DocumentsUtils::havePendigDocs($lProviders, $oArea->id_area);
+
+            $lConstants = [
+                'PROVIDER_PENDIENTE' => SysConst::PROVIDER_PENDIENTE,
+                'PROVIDER_APROBADO' => SysConst::PROVIDER_APROBADO,
+                'PROVIDER_RECHAZADO' => SysConst::PROVIDER_RECHAZADO,
+                'PROVIDER_PENDIENTE_MODIFICAR' => SysConst::PROVIDER_PENDIENTE_MODIFICAR,
+                'VOBO_NO_REVISION' => SysConst::VOBO_NO_REVISION,
+                'VOBO_REVISION' => SysConst::VOBO_REVISION,
+                'VOBO_REVISADO' => SysConst::VOBO_REVISADO,
+            ];
             
         } catch (\Throwable $th) {
             \Log::error($th);
             return view('errorPages.serverError');
         }
 
-        return view('sproviders.documents_providers')->with('lProviders', $lProviders);    
+        return view('sproviders.documents_providers')->with('lProviders', $lProviders)
+                                                    ->with('lConstants', $lConstants)
+                                                    ->with('area_id', $oArea->id_area);
     }
 }

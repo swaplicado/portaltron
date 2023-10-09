@@ -98,6 +98,7 @@ Route::middleware(['auth', 'menu', 'app.sprovider'])->group( function () {
      */
     Route::group(['as' => 'voboDocs.'], function() {
         Route::post('voboDoc', [voboDocsController::class, 'voboDocument'])->name('voboDoc');
+        Route::post('voboDoc/update', [voboDocsController::class, 'updateVoboDocument'])->name('updateVoboDoc');
     });
 });
 

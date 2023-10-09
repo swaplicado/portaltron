@@ -4,10 +4,14 @@
 <script>
     function GlobalData(){
         this.lProviders = <?php echo json_encode($lProviders); ?>;
+        this.lConstants = <?php echo json_encode($lConstants); ?>;
         this.getProviderRoute = <?php echo json_encode(route('sproviders.getProvider')); ?>;
         this.approveRoute = <?php echo json_encode(route('sproviders.approve')); ?>;
         this.rejectRoute = <?php echo json_encode(route('sproviders.reject')); ?>;
         this.requireModifyRoute = <?php echo json_encode(route('sproviders.requireModify')); ?>;
+        this.area_id = <?php echo json_encode($area_id); ?>;
+        this.voboDocRoute = <?php echo json_encode(route('voboDocs.voboDoc')); ?>;
+        this.updateVoboDocRoute = <?php echo json_encode(route('voboDocs.updateVoboDoc')); ?>;
     }
     var oServerData = new GlobalData();
     var indexesProvidersTable = {
@@ -29,7 +33,7 @@
     </div>
     <div class="card-body">
 
-        @include('sproviders.modal_authorize_provider')
+        @include('sproviders.modal_documents_authorize_provider')
 
         <div class="grid-margin">
             @include('layouts.buttons', ['show' => true])
