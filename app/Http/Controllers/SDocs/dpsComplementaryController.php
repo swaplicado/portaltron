@@ -105,10 +105,13 @@ class dpsComplementaryController extends Controller
                 $resXml = Storage::disk('facturas')->putFileAs('/', $xml, $fileXmlName);
                 $rutaXml = Storage::disk('facturas')->url($fileXmlName);
             }else if($type_id == SysConst::DOC_TYPE_NOTA_CREDITO){
-                $filePdfName = 'FAC_'.$reference.'_'.$oProvider->provider_rfc.'_'.time().'.'.$pdf->extension();
-                $rutaPdf = Storage::disk('notas_credito')->putFileAs('/', $pdf, $filePdfName);
+                $filePdfName = 'NC_'.$reference.'_'.$oProvider->provider_rfc.'_'.time().'.'.$pdf->extension();
+                $resPdf = Storage::disk('notas_credito')->putFileAs('/', $pdf, $filePdfName);
+                $rutaPdf = Storage::disk('notas_credito')->url($filePdfName);
+
                 $fileXmlName = 'XML_'.$reference.'_'.$oProvider->provider_rfc.'_'.time().'.'.$xml->extension();
-                $rutaXml = Storage::disk('notas_credito')->putFileAs('/', $xml, $fileXmlName);
+                $resXml = Storage::disk('notas_credito')->putFileAs('/', $xml, $fileXmlName);
+                $rutaXml = Storage::disk('notas_credito')->url($fileXmlName);
             }
 
             $oDps = new Dps();

@@ -65,6 +65,13 @@ return [
             'root' => storage_path('app/facturas'),
             'url' => env('APP_URL').'/facturas',
             'visibility' => 'public'
+        ],
+
+        'notas_credito' => [
+            'driver' => 'local',
+            'root' => storage_path('app/notas_credito'),
+            'url' => env('APP_URL').'/notas_credito',
+            'visibility' => 'public'
         ]
 
     ],
@@ -84,6 +91,7 @@ return [
         public_path('storage') => storage_path('app/public'),
         public_path('documents') => storage_path('app/documents'),
         public_path('facturas') => storage_path('app/facturas'),
+        public_path('notas_credito') => storage_path('app/notas_credito'),
     ],
 
 ];
