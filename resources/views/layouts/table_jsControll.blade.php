@@ -183,5 +183,19 @@
                 app.showModal(table['{{$table_id}}'].row('.selected').data());
             });
         @endif
+
+        /**
+         * funcion del boton upload
+         */
+        @if(isset($upload))
+            $('#btn_upload').click(function () {
+                // if(table['{{$table_id}}'].row('.selected').data() == undefined){
+                //     SGui.showError("Debe seleccionar un renglón");
+                //     return;
+                // }
+
+                app.upload(table['{{$table_id}}'].row('.selected').data());
+            });
+        @endif
     });
 </script>

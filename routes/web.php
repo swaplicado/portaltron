@@ -11,6 +11,7 @@ use App\Http\Controllers\Users\UsersController;
 use App\Http\Middleware\PermissionsMiddleware;
 use App\Http\Controllers\SAccountStates\accountStatesController;
 use App\Http\Controllers\SDocs\voboDocsController;
+use App\Http\Controllers\SDocs\dpsComplementaryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -100,6 +101,16 @@ Route::middleware(['auth', 'menu', 'app.sprovider'])->group( function () {
     Route::group(['as' => 'voboDocs.'], function() {
         Route::post('voboDoc', [voboDocsController::class, 'voboDocument'])->name('voboDoc');
         Route::post('voboDoc/update', [voboDocsController::class, 'updateVoboDocument'])->name('updateVoboDoc');
+    });
+
+    /**
+     * Rutas de complementos de dps
+     */
+    Route::group(['as' => 'dpsComplementary.'], function() {
+        Route::get('complements', [dpsComplementaryController::class, 'providerIndex'])->name('complements');
+        Route::post('complements/save', [dpsComplementaryController::class, 'saveComplementary'])->name('SaveComplements');
+        Route::post('complements/getDpsComplement', [dpsComplementaryController::class, 'getDpsComplement'])->name('GetComplements');
+        Route::post('complements/getlDpsCompByYear', [dpsComplementaryController::class, 'getlDpsCompByYear'])->name('getCompByYear');
     });
 });
 

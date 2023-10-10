@@ -1,10 +1,11 @@
 <?php namespace App\Utils;
 
+use App\Constants\SysConst;
 use App\Models\SDocs\Dps;
 use App\Models\SDocs\PurchaseOrders;
 
 class PurchaseOrdersUtils {
-    public static function insertPurchaseOrders($lPurchaseOrders){
+    public static function insertPurchaseOrders($lPurchaseOrders, $provider_id){
         try {
             \DB::beginTransaction();
             foreach($lPurchaseOrders as $oc){
@@ -15,6 +16,8 @@ class PurchaseOrdersUtils {
                     $oDps->type_doc_id = SysConst::DOC_TYPE_PURCHASE_ORDER;
                     $oDps->ext_id_year = $oc->idYear;
                     $oDps->ext_id_doc = $oc->idDoc;
+                    $oDps->provider_id_n = $provider_id;
+                    $oDps->folio_n = $oc->numRef;
                     $oDps->status_id = SysConst::DOC_STATUS_NUEVO;
                     $oDps->is_deleted = 0;
                     $oDps->created_by = \Auth::user()->id;

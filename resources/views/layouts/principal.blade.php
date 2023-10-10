@@ -130,6 +130,7 @@
     <script src="{{ asset('js/principal/Chart.roundedBarCharts.js') }}"></script>
     <script src="{{ asset('axios/axios.min.js') }}"></script>
     <script src="{{ asset('varios/select2/select2.min.js') }}"></script>
+    <script src="{{ asset('js/principal/file-upload.js') }}"></script>
     <!-- JS section -->
     @yield('scripts')
     <!-- End JS section -->

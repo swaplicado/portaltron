@@ -137,3 +137,38 @@
         </button>
     @endif
 @endif
+
+@if (isset($upload))
+    @if (isset($upload_type))
+        @switch($upload_type)
+            @case('principal')
+                <button type="button" class="btn btn-dark btn-rounded btn-icon" id="btn_upload">
+                    <i class="bx bx-upload"></i>
+                </button>
+                @break
+
+            @case('inverse')
+                <button type="button" class="btn btn-inverse-dark btn-rounded btn-icon" id="btn_upload_inverse">
+                    <i class="bx bx-upload"></i>
+                </button>
+                @break
+                
+            @case('outline')
+                <button type="button" class="btn btn-outline-dark btn-rounded btn-icon" id="btn_upload_outline">
+                    <i class="bx bx-upload"></i>
+                </button>
+                @break
+                
+            @default
+                <button type="button" class="btn btn-dark btn-rounded btn-icon" id="btn_upload">
+                    <i class="bx bx-upload"></i>
+                </button>
+                @break
+
+        @endswitch
+    @else
+        <button type="button" class="btn btn-dark btn-rounded btn-icon" id="btn_upload">
+            <i class="bx bx-upload"></i>
+        </button>
+    @endif
+@endif

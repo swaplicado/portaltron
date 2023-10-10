@@ -31,7 +31,8 @@ class FilesUtils {
 
         if ($file->isValid()) {
             // Validamos el tipo de archivo
-            if ($file->getMimeType() !== 'application/'.$fileType) {
+            $aux = $file->getMimeType();
+            if ($file->getMimeType() !== 'application/'.$fileType && $file->getMimeType() !== 'text/'.$fileType) {
                 return [false, 'El archivo debe ser un '.$fileType];
             }
             // Validamos el tamaño del archivo en bytes

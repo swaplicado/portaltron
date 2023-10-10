@@ -26,6 +26,7 @@ class purchaseOrdersController extends Controller
         $idYear = Carbon::now()->format('Y');
 
         $lStatus = StatusDps::where('is_deleted', 0)
+                            ->where('type_doc_id', SysConst::DOC_TYPE_PURCHASE_ORDER)
                             ->select(
                                 'id_status_dps as id',
                                 'name as text'
@@ -39,7 +40,9 @@ class purchaseOrdersController extends Controller
 
         $lPurchaseOrders = $res->lRows;
 
-        $result = PurchaseOrdersUtils::insertPurchaseOrders($lPurchaseOrders);
+        $oProvider = \Auth::user()->getProviderData();
+
+        $result = PurchaseOrdersUtils::insertPurchaseOrders($lPurchaseOrders, $oProvider->id_provider);
 
         return view('purchaseOrders.purchase_orders')->with('lPurchaseOrders', $lPurchaseOrders)
                                                     ->with('lStatus', $lStatus)
@@ -75,7 +78,7 @@ class purchaseOrdersController extends Controller
             $lRows = $data->lPOData;
 
             if($year > $config->dpsLimitYearToSaveInDB){
-                $result = PurchaseOrdersUtils::insertPurchaseOrders($lRows);
+                $result = PurchaseOrdersUtils::insertPurchaseOrders($lRows, $idProvider);
             }
             
             foreach($lRows as $row){
@@ -208,12 +211,13 @@ class purchaseOrdersController extends Controller
         }
 
         $lStatus = StatusDps::where('is_deleted', 0)
-                                ->select(
-                                    'id_status_dps as id',
-                                    'name as text'
-                                )
-                                ->get()
-                                ->toArray();
+                            ->where('type_doc_id', SysConst::DOC_TYPE_PURCHASE_ORDER)
+                            ->select(
+                                'id_status_dps as id',
+                                'name as text'
+                            )
+                            ->get()
+                            ->toArray();
 
         array_unshift($lStatus, ['id' => 0, 'text' => 'Todos']);
 

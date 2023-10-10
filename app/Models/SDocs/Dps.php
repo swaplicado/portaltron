@@ -16,6 +16,7 @@ class Dps extends Model
         'type_doc_id',
         'ext_id_year',
         'ext_id_doc',
+        'provider_id',
         'pdf_url_n',
         'xml_url_n',
         'status_id',

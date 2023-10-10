@@ -58,6 +58,13 @@ return [
             'root' => storage_path('app/documents'),
             'url' => env('APP_URL').'/documents',
             'visibility' => 'public'
+        ],
+
+        'facturas' => [
+            'driver' => 'local',
+            'root' => storage_path('app/facturas'),
+            'url' => env('APP_URL').'/facturas',
+            'visibility' => 'public'
         ]
 
     ],
@@ -76,6 +83,7 @@ return [
     'links' => [
         public_path('storage') => storage_path('app/public'),
         public_path('documents') => storage_path('app/documents'),
+        public_path('facturas') => storage_path('app/facturas'),
     ],
 
 ];

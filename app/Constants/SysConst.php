@@ -28,12 +28,22 @@ class SysConst {
      * Constantes de la tabla type_doc
     */
     public const DOC_TYPE_PURCHASE_ORDER = 1;
+    public const DOC_TYPE_FACTURA = 2;
+    public const DOC_TYPE_NOTA_CREDITO = 3;
 
     /**
      * Constantes de la tabla status doc
      */
     public const DOC_STATUS_NUEVO = 1;
     public const DOC_STATUS_ATENDIDO = 2;
+    public const FACTURA_STATUS_NUEVO = 3;
+    public const FACTURA_STATUS_APROBADO = 4;
+    public const FACTURA_STATUS_RECHAZADO = 5;
+    public const FACTURA_STATUS_PENDIENTE = 6;
+    public const NOTA_CREDITO_STATUS_NUEVO = 7;
+    public const NOTA_CREDITO_STATUS_APROBADO = 8;
+    public const NOTA_CREDITO_STATUS_RECHAZADO = 9;
+    public const NOTA_CREDITO_STATUS_PENDIENTE = 10;
 
     /**
      * Constantes de la tabla status provider

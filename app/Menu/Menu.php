@@ -42,9 +42,13 @@ class Menu {
 
                     case 'proveedor.cotizaciones':
                         //$lMenu[] = (object) ['type' => $element, 'route' => route('quotations.index'), 'icon' => 'bx bxs-archive bx-sm', 'name' => 'Cotizaciones'];
-                    
+                        break;
+                    case 'proveedor.complementos':
+                        $lMenus[] = (object) ['type' => $element, 'route' => route('dpsComplementary.complements'), 'icon' => 'bx bxs-file-blank bx-sm', 'name' => 'Complementos'];
+                        break;
                     case 'proveedor.estadoscuentas':
                         $lMenus[] = (object) ['type' => $element, 'route' => route('accountStates.index'), 'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Estados de cuenta'];
+                        $lMenus[] = (object) ['type' => $element, 'route' => route('sproviders.profile'), 'icon' => 'bx bxs-user-detail bx-sm', 'name' => 'Mis datos proveedor'];
                         break;
 
                     case 'manager.proveedores.oc':
@@ -53,6 +57,7 @@ class Menu {
                     case 'manager.proveedor.estadoscuentas':
                         $lMenus[] = (object) ['type' => $element, 'route' => route('accountStates.managerIndex'), 'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Estados de cuenta'];
                         break;
+                        
                     default:
                         # code...
                         break;
