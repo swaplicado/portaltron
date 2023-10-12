@@ -36,6 +36,7 @@ class Menu {
                         $lMenus[] = (object) ['type' => $element, 'route' => route('sproviders.index'), 'icon' => 'bx bxs-truck bx-sm', 'name' => 'Proveedores'];
                         $lMenus[] = (object) ['type' => $element, 'route' => route('sproviders.documentsProv'), 'icon' => 'bx bxs-archive bx-sm', 'name' => 'Documentos'];
                         $lMenus[] = (object) ['type' => $element, 'route' => route('dpsComplementary.complementsManager'), 'icon' => 'bx bxs-file-blank bx-sm', 'name' => 'CFDI'];
+                        $lMenus[] = (object) ['type' => $element, 'route' => route('payComplement.payComplementsManager'), 'icon' => 'bx bx bx-receipt bx-sm', 'name' => 'Comp. pago'];
                         break;
                     case 'proveedores.oc':
                         $lMenus[] = (object) ['type' => $element, 'route' => route('purchaseOrders.index'), 'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Ordenes compras'];

@@ -264,8 +264,6 @@ class dpsComplementaryController extends Controller
             $oProvider = SProvider::findOrFail($provider_id);
             $year = Carbon::now()->format('Y');
 
-            // $lDpsComp = DpsComplementsUtils::getlDpsComplements($year, $oProvider->id_provider, [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO]);
-            // $lDpsComp = $lDpsComp->where('area_id', $oArea->id_area);
             $lDpsComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $oProvider->id_provider, 
             [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->id_area);
         } catch (\Throwable $th) {
@@ -337,7 +335,7 @@ class dpsComplementaryController extends Controller
             $oVobo->update();
 
             $childAreaId = ordersVobosUtils::getDpsChildArea($oDps->type_doc_id, $oArea->id_area);
-            if($childAreaId != 0){
+            if($childAreaId != 0 && $is_accept == true){
                 $oDpsChild = VoboDps::where('dps_id', $id_dps)->where('area_id', $childAreaId)->first();
                 $oDpsChild->check_status = SysConst::VOBO_REVISION;
                 $oDpsChild->update();

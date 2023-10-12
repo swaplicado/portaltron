@@ -123,11 +123,15 @@ Route::middleware(['auth', 'menu', 'app.sprovider'])->group( function () {
      * Rutas de complementos de pago
      */
     Route::group(['as' => 'payComplement.'], function() {
+        Route::get('payComplementManager', [payComplementController::class, 'payComplementsManager'])->name('payComplementsManager');
+        Route::post('payComplementManager/getPayComplementsProvider', [payComplementController::class, 'getPayComplementsProvider'])->name('getPayComplementsProvider');
+        Route::post('payComplementManager/getPayComplementManager', [payComplementController::class, 'getPayComplementManager'])->name('getPayComplementManager');
+        Route::post('payComplementManager/setVoboPayComplement', [payComplementController::class, 'setVoboPayComplement'])->name('setVoboPayComplement');
+
         Route::get('payComplement', [payComplementController::class, 'payComplement'])->name('payComplement');
         Route::post('payComplement/savePayComplement', [payComplementController::class, 'savePayComplement'])->name('savePayComplement');
         Route::post('payComplement/getPayComplement', [payComplementController::class, 'getPayComplement'])->name('getPayComplement');
         Route::post('payComplement/getlPayCompByYear', [payComplementController::class, 'getlPayCompByYear'])->name('getlPayCompByYear');
-
     });
 });
 
