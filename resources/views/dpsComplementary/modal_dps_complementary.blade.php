@@ -10,7 +10,16 @@
             <div class="modal-body">
                 <form class="forms-sample" action="#">
                     <div class="row">
-                        <div class="col-md-12">
+                        <div class="col-md-6">
+                            <div class="form-group sm-form-group row">
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Area</label>
+                                <div class="col-sm-9">
+                                    <select class="select2-class form-control" style="width: 100%"
+                                    name="select_area" id="select_area"></select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
                             <div class="form-group sm-form-group row">
                                 <label class="col-sm-3 my-col-sm-3 col-form-label ">Referencia</label>
                                 <div class="col-sm-9">
@@ -92,17 +101,20 @@
                                 <table class="display expandable-table dataTable no-footer" id="table_provider_documents" width="100%" cellspacing="0">
                                     <thead>
                                         <th>Orden compra</th>
+                                        <th>Area</th>
                                         <th>Documento</th>
                                         <th></th>
                                     </thead>
                                     <tbody>
                                         <tr>
                                             <td>@{{reference}}</td>
+                                            <td>@{{name_area}}</td>
                                             <td>PDF</td>
                                             <td><a :href="pdf_url" target="_blank" class="btn btn-primary">Ver</a></td>
                                         </tr>
                                         <tr>
                                             <td>@{{reference}}</td>
+                                            <td>@{{name_area}}</td>
                                             <td>XML</td>
                                             <td><a :href="xml_url" target="_blank" class="btn btn-primary">Ver</a></td>
                                         </tr>

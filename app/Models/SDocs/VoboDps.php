@@ -10,7 +10,7 @@ class VoboDps extends Model
     use HasFactory;
 
     protected $table = "vobo_dps";
-    protected $primaryKey = "id_provider";
+    protected $primaryKey = "id_vobo";
     protected $fillable = [
         'dps_id',
         'area_id',

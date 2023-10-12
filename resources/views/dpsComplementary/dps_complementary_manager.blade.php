@@ -7,16 +7,14 @@
 @section('headJs')
 <script>
     function GlobalData(){
-        this.lDpsComp = <?php echo json_encode($lDpsComp) ?>;
-        this.lStatus = <?php echo json_encode($lStatus) ?>;
         this.year = <?php echo json_encode($year) ?>;
         this.lStatus = <?php echo json_encode($lStatus) ?>;
         this.lTypes = <?php echo json_encode($lTypes) ?>;
-        this.lAreas = <?php echo json_encode($lAreas) ?>;
-        this.default_area_id = <?php echo json_encode($default_area_id) ?>;
-        this.saveComplementsRoute = <?php echo json_encode(route('dpsComplementary.SaveComplements')) ?>;
+        this.lProviders = <?php echo json_encode($lProviders) ?>;
+        this.getcomplementsManagerRoute = <?php echo json_encode(route('dpsComplementary.getComplementsManager')) ?>;
         this.GetComplementsRoute = <?php echo json_encode(route('dpsComplementary.GetComplements')) ?>;
-        this.getCompByYearRoute = <?php echo json_encode(route('dpsComplementary.getCompByYear')) ?>;
+        this.getDpsComplementManagerRoute = <?php echo json_encode(route('dpsComplementary.getDpsComplementManager')) ?>;
+        this.setVoboComplementRoute = <?php echo json_encode(route('dpsComplementary.setVoboComplement')) ?>;
     }
     var oServerData = new GlobalData();
     var indexesDpsCompTable = {
@@ -40,18 +38,28 @@
 
 @section('content')
   
-<div class="card" id="dpsComplementary">
+<div class="card" id="dpsComplementaryManager">
     <div class="card-header">
         <h3>Complementos</h3>
     </div>
     <div class="card-body">
+        <div class="grid-margin">
+            <span class="nobreak">
+                <label for="provider_filter">Seleccione proveedor: </label>
+                <select class="select2-class form-control" style="min-width: 20rem;" name="provider_filter" id="provider_filter"></select>
+            </span>
+            <button type="button" class="btn btn-primary" v-on:click="getComplementsProvider()">
+                Consultar
+            </button>
+        </div>
 
+    <div v-show="showProvider">
         <template style="overflow-y: scroll;">
-            @include('dpsComplementary.modal_dps_complementary')
+            @include('dpsComplementary.modal_dps_complementary_manager')
         </template>
 
         <div class="grid-margin">
-            @include('layouts.buttons', ['show' => true, 'upload' => true])
+            @include('layouts.buttons', ['show' => true])
             <span class="nobreak">
                 <label for="status_filter">Filtrar Tipo: </label>
                 <select class="select2-class form-control" name="type_filter" id="type_filter"></select>
@@ -100,6 +108,8 @@
                 </tbody>
             </table>
         </div>
+    </div>
+
     </div>
 </div>
 
@@ -153,12 +163,12 @@
                                         ] )
 
     <script type="text/javascript" src="{{ asset('myApp/Utils/datatablesUtils.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('myApp/DpsComplementary/vue_dpsComplementary.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('myApp/DpsComplementary/vue_dpsComplementaryManager.js') }}"></script>
     <script type="text/javascript">
         function drawTableDpsComplementary(lDpsComp){
-            var arrDpcComp = [];
+            var arrDpsComp = [];
             for (let dps of lDpsComp) {
-                arrDpcComp.push(
+                arrDpsComp.push(
                     [
                         dps.id_dps,
                         dps.ext_id_year,
@@ -177,11 +187,7 @@
                     ]
                 )
             }
-            drawTable('table_dps_complementary', arrDpcComp);
+            drawTable('table_dps_complementary', arrDpsComp);
         };
-
-        $(document).ready(function() {
-            drawTableDpsComplementary(oServerData.lDpsComp);
-        })
     </script>
 @endsection

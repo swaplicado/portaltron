@@ -107,6 +107,11 @@ Route::middleware(['auth', 'menu', 'app.sprovider'])->group( function () {
      * Rutas de complementos de dps
      */
     Route::group(['as' => 'dpsComplementary.'], function() {
+        Route::get('complementsManager', [dpsComplementaryController::class, 'complementsManager'])->name('complementsManager');
+        Route::post('complementsManager/getComplementsProvider', [dpsComplementaryController::class, 'getComplementsProvider'])->name('getComplementsManager');
+        Route::post('complementsManager/getDpsComplementManager', [dpsComplementaryController::class, 'getDpsComplementManager'])->name('getDpsComplementManager');
+        Route::post('complementsManager/setVoboComplement', [dpsComplementaryController::class, 'setVoboComplement'])->name('setVoboComplement');
+
         Route::get('complements', [dpsComplementaryController::class, 'providerIndex'])->name('complements');
         Route::post('complements/save', [dpsComplementaryController::class, 'saveComplementary'])->name('SaveComplements');
         Route::post('complements/getDpsComplement', [dpsComplementaryController::class, 'getDpsComplement'])->name('GetComplements');

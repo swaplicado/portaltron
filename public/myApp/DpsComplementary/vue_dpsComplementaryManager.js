@@ -1,5 +1,5 @@
 var app = new Vue({
-    el: '#dpsComplementary',
+    el: '#dpsComplementaryManager',
     data: {
         oData: oServerData,
         lDpsComp: oServerData.lDpsComp,
@@ -18,11 +18,25 @@ var app = new Vue({
         xml_url: null,
         oDps: null,
         id_dps: null,
+
+        provider_id: null,
+        lProviders: oServerData.lProviders,
+        showProvider: false,
+        check_status: 0,
     },
     mounted(){
         self = this;
 
         $('.select2-class').select2({});
+
+        $('#provider_filter').select2({
+            placeholder: 'Selecciona proveedor',
+            data: self.lProviders,
+        }).on('select2:select', function(e) {
+            self.provider_id = e.params.data.id;
+        });
+
+        $('#provider_filter').val('').trigger('change');
 
         $('#status_filter').select2({
             data: self.lStatus,
@@ -36,91 +50,26 @@ var app = new Vue({
             self.type_id = e.params.data.id;
             self.type_name = e.params.data.text;
         });
-        
-        $('#select_area').select2({
-            data: self.lAreas,
-            placeholder: 'Selecciona area',
-        }).on('select2:select', function(e) {
-            self.area_id =  e.params.data.id;
-        });
-
-        $('#select_area').val(self.default_area_id).trigger('change');
 
         this.type_id = $('#type_filter').val();
         this.type_name = $('#type_filter').find(':selected').text();
     },
     methods: {
-        showModal(data){
-            this.id_dps = data[indexesDpsCompTable.id_dps];
-            this.name_area = data[indexesDpsCompTable.area];
-            this.getDpsComp();
-        },
-
-        upload(){ 
-            this.modal_title = "Carga de " +this.type_name;
-            this.clean();
-            $('#select_area').val(self.default_area_id).trigger('change');
-            $('#modal_dps_complementary').modal('show');
-        },
-
-        saveComplementary(){
+        getComplementsProvider(){
             SGui.showWaitingUnlimit();
 
-            let route = this.oData.saveComplementsRoute;
+            let route = this.oData.getcomplementsManagerRoute;
 
-            const formData = new FormData();
-
-            let inputPdf = document.getElementById('pdf');
-            let filePdf = inputPdf.files[0];
-            formData.append('pdf', filePdf);
-
-            let inputXml = document.getElementById('xml');
-            let fileXml = inputXml.files[0];
-            formData.append('xml', fileXml);
-
-            formData.append('reference', this.reference);
-            formData.append('type_id', this.type_id);
-            formData.append('year', this.year);
-            formData.append('area_id', this.area_id);
-
-            axios.post(route, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                },
+            axios.post(route, {
+                'provider_id': this.provider_id,
             })
             .then( result => {
                 let data = result.data;
                 if(data.success){
                     this.lDpsComp = data.lDpsComp;
                     drawTableDpsComplementary(this.lDpsComp);
+                    this.showProvider = true;
                     SGui.showOk();
-                    $('#modal_dps_complementary').modal('hide');
-                }else{
-                    SGui.showMessage('', data.message, data.icon);
-                }
-            })
-            .catch( function(error){
-                console.log(error);
-            });
-        },
-
-        getDpsComp(){
-            SGui.showWaitingUnlimit();
-
-            let route = this.oData.GetComplementsRoute;
-
-            axios.post(route, {
-                'id_dps': this.id_dps,
-            })
-            .then( result => {
-                let data =  result.data;
-                if(data.success){
-                    this.oDps = data.oDps;
-                    this.reference = this.oDps.reference;
-                    this.pdf_url = this.oDps.pdf_url_n;
-                    this.xml_url = this.oDps.xml_url_n;
-                    Swal.close();
-                    $('#modal_get_dps_complementary').modal('show');
                 }else{
                     SGui.showMessage('', data.message, data.icon);
                 }
@@ -131,23 +80,61 @@ var app = new Vue({
             });
         },
 
-        updateComplementary(){
-
+        showModal(data){
+            this.clean();
+            this.id_dps = data[indexesDpsCompTable.id_dps];
+            this.name_area = data[indexesDpsCompTable.area];
+            this.getDpsComp();
         },
 
-        getlDpsCompByYear(){
+        getDpsComp(){
             SGui.showWaitingUnlimit();
 
-            let route = this.oData.getCompByYearRoute;
+            let route = this.oData.getDpsComplementManagerRoute;
 
             axios.post(route, {
-                'year': this.year
+                'id_dps': this.id_dps,
+            })
+            .then( result => {
+                let data =  result.data;
+                if(data.success){
+                    this.oDps = data.oDps;
+                    this.check_status = this.oDps.check_status;
+                    this.reference = this.oDps.reference;
+                    this.pdf_url = this.oDps.pdf_url_n;
+                    this.xml_url = this.oDps.xml_url_n;
+                    Swal.close();
+                    $('#modal_dps_complementary').modal('show');
+                }else{
+                    SGui.showMessage('', data.message, data.icon);
+                }
+            })
+            .catch( function(error){
+                console.log(error);
+                SGui.showError(error);
+            });
+        },
+
+        setVoboComplement(authorize){
+            SGui.showWaitingUnlimit();
+            let is_accept = authorize;
+            let is_reject = !authorize;
+
+            let route = this.oData.setVoboComplementRoute;
+
+            axios.post(route, {
+                'id_dps': this.id_dps,
+                'is_accept': is_accept,
+                'is_reject': is_reject,
+                'year': this.year,
+                'provider_id': this.provider_id,
             })
             .then( result => {
                 let data = result.data;
                 if(data.success){
                     this.lDpsComp = data.lDpsComp;
                     drawTableDpsComplementary(this.lDpsComp);
+                    $('#modal_dps_complementary').modal('hide');
                     SGui.showOk();
                 }else{
                     SGui.showMessage('', data.message, data.icon);
@@ -160,19 +147,13 @@ var app = new Vue({
         },
 
         clean(){
-            let inputPdf = document.getElementById('pdf');
-            inputPdf.value = null;
-            let inputPdfName = document.getElementById('pdfName');
-            inputPdfName.value = null;
-
-            let inputXml = document.getElementById('xml');
-            inputXml.value = null;
-            let inputXmlName = document.getElementById('xmlName');
-            inputXmlName.value = null;
-
-            this.reference = null;
-            this.area_id = null;
+            this.id_dps = null;
             this.name_area = null;
+            this.oDps = null;
+            this.check_status = 0;
+            this.reference = null;
+            this.pdf_url = null;
+            this.xml_url = null;
         }
     }
 })

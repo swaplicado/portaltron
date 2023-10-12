@@ -45,6 +45,31 @@ class SysConst {
     public const NOTA_CREDITO_STATUS_RECHAZADO = 9;
     public const NOTA_CREDITO_STATUS_PENDIENTE = 10;
 
+    public const lTypesDoc = [
+        'ORDEN_COMPRA' => 1,
+        'FACTURA' => 2,
+        'NOTA_CREDITO' => 3
+    ];
+
+    public const statusTypesDoc = [
+        'ORDEN_COMPRA' => [
+            'NUEVO' => 1,
+            'ATENDIDO' => 2
+        ],
+        'FACTURA' => [
+            'NUEVO' => 3,
+            'APROBADO' => 4,
+            'RECHAZADO' => 5,
+            'PENDIENTE' => 6,
+        ],
+        'NOTA_CREDITO' => [
+            'NUEVO' => 7,
+            'APROBADO' => 8,
+            'RECHAZADO' => 9,
+            'PENDIENTE' => 10,
+        ]
+    ];
+
     /**
      * Constantes de la tabla status provider
      */
