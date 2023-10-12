@@ -12,6 +12,7 @@ use App\Http\Middleware\PermissionsMiddleware;
 use App\Http\Controllers\SAccountStates\accountStatesController;
 use App\Http\Controllers\SDocs\voboDocsController;
 use App\Http\Controllers\SDocs\dpsComplementaryController;
+use App\Http\Controllers\SDocs\payComplementController;
 
 /*
 |--------------------------------------------------------------------------
@@ -116,6 +117,17 @@ Route::middleware(['auth', 'menu', 'app.sprovider'])->group( function () {
         Route::post('complements/save', [dpsComplementaryController::class, 'saveComplementary'])->name('SaveComplements');
         Route::post('complements/getDpsComplement', [dpsComplementaryController::class, 'getDpsComplement'])->name('GetComplements');
         Route::post('complements/getlDpsCompByYear', [dpsComplementaryController::class, 'getlDpsCompByYear'])->name('getCompByYear');
+    });
+
+    /**
+     * Rutas de complementos de pago
+     */
+    Route::group(['as' => 'payComplement.'], function() {
+        Route::get('payComplement', [payComplementController::class, 'payComplement'])->name('payComplement');
+        Route::post('payComplement/savePayComplement', [payComplementController::class, 'savePayComplement'])->name('savePayComplement');
+        Route::post('payComplement/getPayComplement', [payComplementController::class, 'getPayComplement'])->name('getPayComplement');
+        Route::post('payComplement/getlPayCompByYear', [payComplementController::class, 'getlPayCompByYear'])->name('getlPayCompByYear');
+
     });
 });
 

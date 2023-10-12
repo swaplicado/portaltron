@@ -30,6 +30,7 @@ class SysConst {
     public const DOC_TYPE_PURCHASE_ORDER = 1;
     public const DOC_TYPE_FACTURA = 2;
     public const DOC_TYPE_NOTA_CREDITO = 3;
+    public const DOC_TYPE_COMPLEMENTO_PAGO = 4;
 
     /**
      * Constantes de la tabla status doc
@@ -48,7 +49,8 @@ class SysConst {
     public const lTypesDoc = [
         'ORDEN_COMPRA' => 1,
         'FACTURA' => 2,
-        'NOTA_CREDITO' => 3
+        'NOTA_CREDITO' => 3,
+        'COMPLEMENTO_PAGO' => 4
     ];
 
     public const statusTypesDoc = [
@@ -67,6 +69,12 @@ class SysConst {
             'APROBADO' => 8,
             'RECHAZADO' => 9,
             'PENDIENTE' => 10,
+        ],
+        'COMPLEMENTO_PAGO' => [
+            'NUEVO' => 11,
+            'APROBADO' => 12,
+            'RECHAZADO' => 13,
+            'PENDIENTE' => 14,
         ]
     ];
 

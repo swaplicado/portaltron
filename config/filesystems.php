@@ -72,6 +72,13 @@ return [
             'root' => storage_path('app/notas_credito'),
             'url' => env('APP_URL').'/notas_credito',
             'visibility' => 'public'
+        ],
+
+        'complemento_pago' => [
+            'driver' => 'local',
+            'root' => storage_path('app/complemento_pago'),
+            'url' => env('APP_URL').'/complemento_pago',
+            'visibility' => 'public'
         ]
 
     ],
@@ -92,6 +99,7 @@ return [
         public_path('documents') => storage_path('app/documents'),
         public_path('facturas') => storage_path('app/facturas'),
         public_path('notas_credito') => storage_path('app/notas_credito'),
+        public_path('complemento_pago') => storage_path('app/complemento_pago'),
     ],
 
 ];

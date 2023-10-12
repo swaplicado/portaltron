@@ -7,19 +7,17 @@
 @section('headJs')
 <script>
     function GlobalData(){
-        this.lDpsComp = <?php echo json_encode($lDpsComp) ?>;
+        this.lDpsPayComp = <?php echo json_encode($lDpsPayComp) ?>;
         this.lStatus = <?php echo json_encode($lStatus) ?>;
         this.year = <?php echo json_encode($year) ?>;
-        this.lStatus = <?php echo json_encode($lStatus) ?>;
-        this.lTypes = <?php echo json_encode($lTypes) ?>;
         this.lAreas = <?php echo json_encode($lAreas) ?>;
         this.default_area_id = <?php echo json_encode($default_area_id) ?>;
-        this.saveComplementsRoute = <?php echo json_encode(route('dpsComplementary.SaveComplements')) ?>;
-        this.GetComplementsRoute = <?php echo json_encode(route('dpsComplementary.GetComplements')) ?>;
-        this.getCompByYearRoute = <?php echo json_encode(route('dpsComplementary.getCompByYear')) ?>;
+        this.savePayComplementRoute = <?php echo json_encode(route('payComplement.savePayComplement')) ?>;
+        this.getPayComplementRoute = <?php echo json_encode(route('payComplement.getPayComplement')) ?>;
+        this.getlPayCompByYearRoute = <?php echo json_encode(route('payComplement.getlPayCompByYear')) ?>;
     }
     var oServerData = new GlobalData();
-    var indexesDpsCompTable = {
+    var indexesPayCompTable = {
             'id_dps': 0,
             'ext_id_year': 1,
             'ext_id_doc': 2,
@@ -40,22 +38,18 @@
 
 @section('content')
   
-<div class="card" id="dpsComplementary">
+<div class="card" id="payComplements">
     <div class="card-header">
-        <h3>Complementos</h3>
+        <h3>Complementos de pago</h3>
     </div>
     <div class="card-body">
 
         <template style="overflow-y: scroll;">
-            @include('dpsComplementary.modal_dps_complementary')
+            @include('payComplements.modal_payComplements')
         </template>
 
         <div class="grid-margin">
             @include('layouts.buttons', ['show' => true, 'upload' => true])
-            <span class="nobreak">
-                <label for="status_filter">Filtrar Tipo: </label>
-                <select class="select2-class form-control" name="type_filter" id="type_filter"></select>
-            </span>
             <span class="nobreak">
                 <label for="status_filter">Filtrar estatus: </label>
                 <select class="select2-class form-control" name="status_filter" id="status_filter"></select>
@@ -74,11 +68,11 @@
                 </button>
             </div>
         </div>
-        <button class="btn btn-primary" v-on:click="getlDpsCompByYear()"><span class="bx bx-search"></span></button>
+        <button class="btn btn-primary" v-on:click="getlPayCompByYear()"><span class="bx bx-search"></span></button>
         <br>
         <br>
         <div class="table-responsive">
-            <table class="display expandable-table dataTable no-footer" id="table_dps_complementary" width="100%" cellspacing="0">
+            <table class="display expandable-table dataTable no-footer" id="table_pay_complements" width="100%" cellspacing="0">
                 <thead>
                     <th>id_dps</th>
                     <th>ext_id_year</th>
@@ -114,38 +108,29 @@
             $.fn.dataTable.ext.search.push(
                 function( settings, data, dataIndex ) {
                     let col_status = null;
-                    let col_type = null;
 
-                    col_status = parseInt( data[indexesDpsCompTable.status_id] );
-                    col_type = parseInt( data[indexesDpsCompTable.type_doc_id] );
+                    col_status = parseInt( data[indexesPayCompTable.status_id] );
 
-                    if(settings.nTable.id == 'table_dps_complementary'){
-                        let iType = parseInt( $('#type_filter').val(), 10 );
+                    if(settings.nTable.id == 'table_pay_complements'){
                         let iStatus = parseInt( $('#status_filter').val(), 10 );
-                        if(col_type == iType || iType == 0){
-                            return iStatus == col_status || iStatus == 0;
-                        }
+                        return iStatus == col_status || iStatus == 0;
                     }
 
                     return false;
                 }
             );
             
-            $('#type_filter').change( function() {
-                table['table_dps_complementary'].draw();
-            });
-
             $('#status_filter').change( function() {
-                table['table_dps_complementary'].draw();
+                table['table_pay_complements'].draw();
             });
 
         });
     </script>
 
     @include('layouts.table_jsControll', [
-                                            'table_id' => 'table_dps_complementary',
-                                            'colTargets' => [0,1,2,5,6,9],
-                                            'colTargetsSercheable' => [3,4],
+                                            'table_id' => 'table_pay_complements',
+                                            'colTargets' => [0,1,2,3,5,6,9,11],
+                                            'colTargetsSercheable' => [4],
                                             'select' => true,
                                             'show' => true,
                                             'upload' => true,
@@ -153,12 +138,12 @@
                                         ] )
 
     <script type="text/javascript" src="{{ asset('myApp/Utils/datatablesUtils.js') }}"></script>
-    <script type="text/javascript" src="{{ asset('myApp/DpsComplementary/vue_dpsComplementary.js') }}"></script>
+    <script type="text/javascript" src="{{ asset('myApp/payComplements/vue_payComplements.js') }}"></script>
     <script type="text/javascript">
-        function drawTableDpsComplementary(lDpsComp){
-            var arrDpcComp = [];
-            for (let dps of lDpsComp) {
-                arrDpcComp.push(
+        function drawTableDpsPaycomplement(lDpsPayComp){
+            var arrDpsPayComp = [];
+            for (let dps of lDpsPayComp) {
+                arrDpsPayComp.push(
                     [
                         dps.id_dps,
                         dps.ext_id_year,
@@ -177,11 +162,11 @@
                     ]
                 )
             }
-            drawTable('table_dps_complementary', arrDpcComp);
+            drawTable('table_pay_complements', arrDpsPayComp);
         };
 
         $(document).ready(function() {
-            drawTableDpsComplementary(oServerData.lDpsComp);
+            drawTableDpsPaycomplement(oServerData.lDpsPayComp);
         })
     </script>
 @endsection

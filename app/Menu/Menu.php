@@ -46,6 +46,7 @@ class Menu {
                         break;
                     case 'proveedor.complementos':
                         $lMenus[] = (object) ['type' => $element, 'route' => route('dpsComplementary.complements'), 'icon' => 'bx bxs-file-blank bx-sm', 'name' => 'Complementos'];
+                        $lMenus[] = (object) ['type' => $element, 'route' => route('payComplement.payComplement'), 'icon' => 'bx bx bx-receipt bx-sm', 'name' => 'Comp. pago'];
                         break;
                     case 'proveedor.estadoscuentas':
                         $lMenus[] = (object) ['type' => $element, 'route' => route('accountStates.index'), 'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Estados de cuenta'];
