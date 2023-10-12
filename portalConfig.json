@@ -1,5 +1,54 @@
 {
+    "appmanagerRoute": "http://127.0.0.1:8000",
+    "appmanagerProfileRoute": "http://127.0.0.1:8000/profile",
+    
     "AppLinkRoute": "127.0.0.1:9002",
     "AppLinkRouteLogin": "login",
-    "AppLinkRouteProviderFind": "providers/find"
+    "AppLinkRouteProviderFind": "providers/find",
+
+    "AppLinkGetPurchaseOrders": "purcharseorder/getPO",
+    "AppLinkGetPurchaseOrderRows": "purcharseorder/getRows",
+
+    "dpsLimitYearToSaveInDB": 2023,
+
+    "orders": [
+        {"id": 1, "orders": [{"area": 1, "order": 1}, {"area": 4, "order": 2}]},
+        {"id": 2, "orders": [{"area": 2, "order": 1}, {"area": 4, "order": 2}]},
+        {"id": 3, "orders": [{"area": 3, "order": 1}, {"area": 4, "order": 2}]},
+        {"id": 4, "orders": [{"area": 4, "order": 1}]}
+    ],
+
+    "ordersDps": [
+        {"type": 1, "id": 0, "orders": [{"area": 4, "order": 1}]},
+        {"type": 2, "id": 0, "orders": [{"area": 4, "order": 1}]},
+        {"type": 3, "id": 0, "orders": [{"area": 4, "order": 1}]},
+        
+        {"type": 1, "id": 1, "orders": [{"area": 1, "order": 1}, {"area": 4, "order": 2}]},
+        {"type": 1, "id": 2, "orders": [{"area": 2, "order": 1}, {"area": 4, "order": 2}]},
+        {"type": 1, "id": 3, "orders": [{"area": 3, "order": 1}, {"area": 4, "order": 2}]},
+        {"type": 1, "id": 4, "orders": [{"area": 4, "order": 1}]},
+        
+        {"type": 2, "id": 1, "orders": [{"area": 1, "order": 1}, {"area": 4, "order": 2}]},
+        {"type": 2, "id": 2, "orders": [{"area": 2, "order": 1}, {"area": 4, "order": 2}]},
+        {"type": 2, "id": 3, "orders": [{"area": 3, "order": 1}, {"area": 4, "order": 2}]},
+        {"type": 2, "id": 4, "orders": [{"area": 4, "order": 1}]},
+        
+        {"type": 3, "id": 1, "orders": [{"area": 1, "order": 1}, {"area": 4, "order": 2}]},
+        {"type": 3, "id": 2, "orders": [{"area": 2, "order": 1}, {"area": 4, "order": 2}]},
+        {"type": 3, "id": 3, "orders": [{"area": 3, "order": 1}, {"area": 4, "order": 2}]},
+        {"type": 3, "id": 4, "orders": [{"area": 4, "order": 1}]},
+
+        {"type": 4, "id": 1, "orders": [{"area": 1, "order": 1}, {"area": 4, "order": 2}]},
+        {"type": 4, "id": 2, "orders": [{"area": 2, "order": 1}, {"area": 4, "order": 2}]},
+        {"type": 4, "id": 3, "orders": [{"area": 3, "order": 1}, {"area": 4, "order": 2}]},
+        {"type": 4, "id": 4, "orders": [{"area": 4, "order": 1}]}
+    ],
+
+    "fatherArea": 4,
+
+    "AppLinkRouteAccountState": "accountstate/getAS",
+    "AppLinkGetEstimateRequest": "estimaterequest/getER",
+    "AppLinkGetEstimateRequestRows": "estimaterequest/getRows",
+    "MonthsAccountState": 6,
+    "MonthNames": ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
 }
