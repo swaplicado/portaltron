@@ -8,6 +8,7 @@ use App\Http\Controllers\SProviders\SProvidersController;
 use App\Http\Controllers\SDocs\purchaseOrdersController;
 use App\Http\Controllers\Quotations\QuotationsController;
 use App\Http\Controllers\Users\UsersController;
+use App\Http\Controllers\SDocs\estimateRequestController;
 use App\Http\Middleware\PermissionsMiddleware;
 use App\Http\Controllers\SAccountStates\accountStatesController;
 use App\Http\Controllers\SDocs\voboDocsController;
@@ -88,10 +89,21 @@ Route::middleware(['auth', 'menu', 'app.sprovider'])->group( function () {
         Route::post('/purchaseOrdersManager/getPurchaseOrders', [purchaseOrdersController::class, 'getPurchaseOrdersByProvider'])->name('getPurchaseOrdersManager');
     });
 
+    /** Estimate Request */
+    Route::group(['as' => 'estimateRequest.'], function () {
+        Route::get('/estimateRequest', [estimateRequestController::class, 'index'])->name('index');
+        Route::post('/estimateRequest/getRows', [estimateRequestController::class, 'getRows'])->name('getRows');
+        Route::get('/estimateRequest/{year?}', [estimateRequestController::class, 'getEstimateRequest'])->name('getEstimateRequest');
+
+        Route::get('/estimateRequestManager', [estimateRequestController::class, 'estimateRequestManager'])->name('indexERManager');
+        Route::post('/estimateRequestManager/getEstimateRequest', [estimateRequestController::class, 'getEstimateRequestByProvider'])->name('getEstimateRequestManager');
+    });
+
     /** Account States */
     Route::group(['as' => 'accountStates.'], function () {
         Route::get('/accountStates', [accountStatesController::class, 'index'])->name('index');
         Route::post('/updateAccountState', [accountStatesController::class, 'updateAccountState'])->name('updateAccount');
+        
         Route::get('/accountStatesManager', [accountStatesController::class, 'managerIndex'])->name('managerIndex');
         Route::post('/updateAccountStateManager', [accountStatesController::class, 'updateAccountStateManager'])->name('updateAccountManager');
     });
