@@ -89,16 +89,34 @@
                         }
                     ],
                     "buttons": [
-                            'pageLength',
+                            'pageLength', 
                             {
                                 extend: 'copy',
-                                text: 'Copiar'
+                                text: 'Copiar',
+                                exportOptions: {
+                                    columns: ':visible'
+                                }
                             }, 
-                            'csv', 
-                            'excel', 
+                            {
+                                extend: 'csv',
+                                text: 'csv',
+                                exportOptions: {
+                                    columns: ':visible'
+                                }
+                            },
+                            {
+                                extend: 'excel',
+                                text: 'Excel',
+                                exportOptions: {
+                                    columns: ':visible'
+                                }
+                            }, 
                             {
                                 extend: 'print',
-                                text: 'Imprimir'
+                                text: 'Imprimir',
+                                exportOptions: {
+                                    columns: ':visible'
+                                }
                             }
                         ],
                     "initComplete": function(){ 
