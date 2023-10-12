@@ -50,5 +50,5 @@
     "AppLinkGetEstimateRequest": "estimaterequest/getER",
     "AppLinkGetEstimateRequestRows": "estimaterequest/getRows",
     "MonthsAccountState": 6,
-    "MonthNames": ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+    "MonthNames": ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
 }
