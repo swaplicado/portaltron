@@ -59,8 +59,8 @@ var app = new Vue({
 
             this.idDoc = data[indexesPurchaseOrdersTable.idDoc];
             this.idYear = data[indexesPurchaseOrdersTable.idYear];
-            this.purchase_order_id = data[indexesPurchaseOrdersTable.id_purchase_order];
-            this.modal_title = "Orden de compra " + data[indexesPurchaseOrdersTable.folio];
+            // this.purchase_order_id = data[indexesPurchaseOrdersTable.id_purchase_order];
+            this.modal_title = "Orden de compra " + data[indexesPurchaseOrdersTable.reference];
             this.reference = data[indexesPurchaseOrdersTable.reference];
             this.status = data[indexesPurchaseOrdersTable.status];
             this.dateStartCred = data[indexesPurchaseOrdersTable.dateStartCred];

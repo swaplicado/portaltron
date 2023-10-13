@@ -77,7 +77,7 @@ var app = new Vue({
             if(this.canAuthorize){
                 $('#modal_authorize_provider').modal('show');
             }else{
-                $('#modal_noAuthorize_provider').modal('show');
+                $('#modal_documents_noAuthorize_provider').modal('show');
             }
         },
 
