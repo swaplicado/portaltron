@@ -12,7 +12,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Área destino</label>
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Área destino:</label>
                                 <div class="col-sm-9">
                                     <select class="select2-class form-control" style="width: 100%"
                                     name="select_area" id="select_area"></select>
@@ -23,7 +23,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Orden compra</label>
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Orden compra:*</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="reference" placeholder="reference" v-model="reference">
                                 </div>
@@ -33,7 +33,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Folio</label>
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Folio:</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="folio" placeholder="Folio" v-model="folio">
                                 </div>
