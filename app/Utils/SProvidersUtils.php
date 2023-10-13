@@ -29,6 +29,7 @@ class SProvidersUtils {
                                 'provider_name',
                                 'provider_rfc',
                                 'provider_email',
+                                'area_id',
                                 'status_provider_id',
                                 'u.username',
                                 'sp.name as status',

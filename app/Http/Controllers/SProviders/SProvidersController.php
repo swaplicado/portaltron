@@ -54,11 +54,14 @@ class SProvidersController extends Controller
             \Log::error($th);
             return view('errorPages.serverError');
         }
-
+        $user_area = $oArea->id_area;
+        $fatherArea = $config = \App\Utils\Configuration::getConfigurations()->fatherArea;
         return view('sproviders.sproviders')->with('lProviders', $lProviders)
                                             ->with('lConstants', $lConstants)
                                             ->with('lStatus', $lStatus)
                                             ->with('oArea', $oArea)
+                                            ->with('user_area', $user_area)
+                                            ->with('fatherArea', $fatherArea)
                                             ->with('lAreas', $lAreas);
     }
 
@@ -251,7 +254,9 @@ class SProvidersController extends Controller
 
     public function approveProvider(Request $request){
         try {
+            $config = \App\Utils\Configuration::getConfigurations();
             $id_provider = $request->id_provider;
+            $provider_area = $request->provider_area != "null" ? $request->provider_area : $config->fatherArea;
 
             $oProvider = SProvider::findOrFail($id_provider);
             $oUser = User::findOrFail($oProvider->user_id);
@@ -286,6 +291,7 @@ class SProvidersController extends Controller
 
                 $result = AppLinkUtils::checkUserInAppLink($oUser);
                 $oProvider->status_provider_id = SysConst::PROVIDER_APROBADO;
+                $oProvider->area_id = $provider_area;
                 if(!is_null($result)){
                     if($result->code == 200){
                         $oProvider->external_id = $result->id_bp;

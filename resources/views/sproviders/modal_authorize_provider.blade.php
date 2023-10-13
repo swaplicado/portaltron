@@ -31,7 +31,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Proveedor</label>
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Proveedor:</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="proveedor" placeholder="Proveedor" v-model="provider_name" readonly>
                                 </div>
@@ -39,7 +39,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Nombre comercial</label>
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Nombre comercial:</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="provider_short_name" placeholder="Nombre comercial" v-model="provider_short_name" readonly>
                                 </div>
@@ -49,7 +49,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">RFC</label>
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">RFC:</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="rfc" placeholder="RFC" v-model="provider_rfc" readonly>
                                 </div>
@@ -57,13 +57,31 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Email</label>
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Email:</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="email" placeholder="Email" v-model="provider_email" readonly>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    @if($user_area == $fatherArea)
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group sm-form-group row">
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Area:</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control" v-model="provider_area"
+                                    style="color: black">
+                                    <option value="" disabled selected hidden>Selecciona área</option>
+                                        @foreach($lAreas as $area)
+                                            <option value="{{$area->id_area}}">{{$area->name_area}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
                     <div class="row">
                         <div class="col-md-12">
                             <div class="table-responsive">
@@ -168,7 +186,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="">
-                                <label class="col-sm-12 col-form-label">Ingrese comentario</label>
+                                <label class="col-sm-12 col-form-label">Ingrese comentario:</label>
                                 <div class="col-sm-12">
                                     <textarea rows="3" v-model="comments" style="width: 100%"></textarea>
                                 </div>
@@ -218,7 +236,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Proveedor</label>
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Proveedor:</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="proveedor" placeholder="Proveedor" v-model="provider_name" readonly>
                                 </div>
@@ -226,7 +244,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Nombre comercial</label>
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Nombre comercial:</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="provider_short_name" placeholder="Nombre comercial" v-model="provider_short_name" readonly>
                                 </div>
@@ -236,7 +254,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">RFC</label>
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">RFC:</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="rfc" placeholder="RFC" v-model="provider_rfc" readonly>
                                 </div>
@@ -244,7 +262,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Email</label>
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Email:</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="email" placeholder="Email" v-model="provider_email" readonly>
                                 </div>

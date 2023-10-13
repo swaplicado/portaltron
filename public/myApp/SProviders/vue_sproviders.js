@@ -148,6 +148,7 @@ var app = new Vue({
             axios.post(route, {
                 'id_provider': this.id_provider,
                 'comments': this.comments,
+                'provider_area': this.provider_area,
             })
             .then( result => {
                 let data = result.data;
