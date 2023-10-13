@@ -81,7 +81,8 @@
                     [ -1 , 10, 25, 50, 100],
                     [ 'Mostrar todo','Mostrar 10', 'Mostrar 25', 'Mostrar 50', 'Mostrar 100' ]
                 ],
-                'colTargetsAlign' =>[3,4,5,6,7],
+                'colTargetsAlignRight' =>[3,4,5,6,7],
+                'colTargetsAlignCenter' =>[1,2],
             ] )
         @else
 
@@ -95,7 +96,8 @@
                     [ -1 , 10, 25, 50, 100],
                     [ 'Mostrar todo','Mostrar 10', 'Mostrar 25', 'Mostrar 50', 'Mostrar 100' ]
                 ],
-                'colTargetsAlign' =>[3,4,5,6,7],
+                'colTargetsAlignRight' =>[3,4,5,6,7],
+                'colTargetsAlignCenter' =>[1,2],
             ] )
         @endif
 
