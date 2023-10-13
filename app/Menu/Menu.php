@@ -18,10 +18,10 @@ class Menu {
             $lMenus = [
                 (object) ['type' => $element, 'route' => route('home'), 'icon' => 'bx bx-home bx-sm', 'name' => 'Inicio'],
                 (object) ['type' => $element, 'route' => route('sproviders.index'), 'icon' => 'bx bxs-truck bx-sm', 'name' => 'Proveedores'],
-                (object) ['type' => $element, 'route' => route('purchaseOrders.indexManager'), 'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Ordenes compras'],
+                (object) ['type' => $element, 'route' => route('purchaseOrders.indexManager'), 'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Ordenes compra'],
                 // (object) ['type' => $element, 'route' => route('accountStates.index'), 'icon' => 'bx bx-wallet bx-sm', 'name' => 'Estados de cuenta'],
                 (object) ['type' => $element, 'route' => route('accountStates.managerIndex'), 'icon' => 'bx bx-wallet bx-sm', 'name' => 'Estados de cuenta'],
-                (object) ['type' => $element, 'route' => route('estimateRequest.indexERManager'), 'icon' => 'bx bxs-dollar-circle bx-sm', 'name' => 'Sol. cotizaciones']
+                (object) ['type' => $element, 'route' => route('estimateRequest.indexERManager'), 'icon' => 'bx bxs-dollar-circle bx-sm', 'name' => 'Sol. cotización']
             ];
         }else{
             $lPermissions = collect($oUser->permissionsByRol());
@@ -37,43 +37,43 @@ class Menu {
                         $lMenus[] = (object) ['type' => $element, 'route' => route('sproviders.index'), 
                                     'icon' => 'bx bxs-truck bx-sm', 'name' => 'Proveedores', 'order' => 1];
                         $lMenus[] = (object) ['type' => $element, 'route' => route('sproviders.documentsProv'), 
-                                    'icon' => 'bx bxs-archive bx-sm', 'name' => 'Documentos','order' => 2];
+                                    'icon' => 'bx bxs-archive bx-sm', 'name' => 'Documentos prov.','order' => 2];
                         $lMenus[] = (object) ['type' => $element, 'route' => route('dpsComplementary.complementsManager'), 
-                                    'icon' => 'bx bxs-file-blank bx-sm', 'name' => 'CFDI', 'order' => 5];
+                                    'icon' => 'bx bxs-file-blank bx-sm', 'name' => 'Facturas y NC', 'order' => 5];
                         $lMenus[] = (object) ['type' => $element, 'route' => route('payComplement.payComplementsManager'), 
-                                    'icon' => 'bx bx bx-receipt bx-sm', 'name' => 'Comp. pago', 'order' => 6];
+                                    'icon' => 'bx bx bx-receipt bx-sm', 'name' => 'CFDI de pago', 'order' => 6];
                         $lMenus[] = (object) ['type' => $element, 'route' => route('estimateRequest.indexERManager'), 
-                                    'icon' => 'bx bxs-dollar-circle bx-sm', 'name' => 'Sol. cotizaciones', 'order' => 7];
+                                    'icon' => 'bx bxs-dollar-circle bx-sm', 'name' => 'Sol. cotización', 'order' => 3];
                         break;
                     case 'proveedores.oc':
                         $lMenus[] = (object) ['type' => $element, 'route' => route('purchaseOrders.index'), 
-                                    'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Ordenes compras', 'order' => 3];
+                                    'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Ordenes compra', 'order' => 4];
                         break;
 
                     case 'proveedor.cotizaciones':
                         $lMenus[] = (object) ['type' => $element, 'route' => route('estimateRequest.index'), 
-                                    'icon' => 'bx bxs-dollar-circle bx-sm', 'name' => 'Sol. cotizaciones', 'order' => 4];
+                                    'icon' => 'bx bxs-dollar-circle bx-sm', 'name' => 'Sol. cotización', 'order' => 3];
                         break;
                     case 'proveedor.complementos':
                         $lMenus[] = (object) ['type' => $element, 'route' => route('dpsComplementary.complements'), 
-                                    'icon' => 'bx bxs-file-blank bx-sm', 'name' => 'CFDI', 'order' => 5];
+                                    'icon' => 'bx bxs-file-blank bx-sm', 'name' => 'Facturas y NC', 'order' => 5];
                         $lMenus[] = (object) ['type' => $element, 'route' => route('payComplement.payComplement'), 
-                                    'icon' => 'bx bx bx-receipt bx-sm', 'name' => 'Comp. pago', 'order' => 6];
+                                    'icon' => 'bx bx bx-receipt bx-sm', 'name' => 'CFDI de pago', 'order' => 6];
                         break;
                     case 'proveedor.estadoscuentas':
                         $lMenus[] = (object) ['type' => $element, 'route' => route('accountStates.index'), 
-                                    'icon' => 'bx bx-wallet bx-sm', 'name' => 'Estados de cuenta', 'order' => 2];
+                                    'icon' => 'bx bx-wallet bx-sm', 'name' => 'Estados de cuenta', 'order' => 7];
                         $lMenus[] = (object) ['type' => $element, 'route' => route('sproviders.profile'), 
                                     'icon' => 'bx bxs-user-detail bx-sm', 'name' => 'Mis datos proveedor', 'order' => 1];
                         break;
 
                     case 'manager.proveedores.oc':
                         $lMenus[] = (object) ['type' => $element, 'route' => route('purchaseOrders.indexManager'), 
-                                    'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Ordenes compras', 'order' => 4];
+                                    'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Ordenes compra', 'order' => 4];
                         break;
                     case 'manager.proveedor.estadoscuentas':
                         $lMenus[] = (object) ['type' => $element, 'route' => route('accountStates.managerIndex'), 
-                                    'icon' => 'bx bx-wallet bx-sm', 'name' => 'Estados de cuenta', 'order' => 3];
+                                    'icon' => 'bx bx-wallet bx-sm', 'name' => 'Estados de cuenta', 'order' => 7];
                         break;
                         
                     default:

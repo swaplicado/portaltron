@@ -30,9 +30,9 @@
 
     var indexesEtyEstimateRequestTable = {
             'idEty': 0,
-            'qty': 1,
+            'item': 1,
             'idItem': 2,
-            'item': 3,
+            'qty': 3,
             'idUnit': 4,
             'unit': 5,
             'idEstimateRequest': 6,
@@ -92,7 +92,7 @@
                         <th>id_int</th>
                         <th>id_ext</th>
                         <th>Folio</th>
-                        <th>Mail</th>
+                        <th>Enviado a</th>
                         <th>Asunto</th>
                         <th>Mensaje</th>
                         <th>abierto</th>

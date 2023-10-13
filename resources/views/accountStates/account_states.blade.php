@@ -45,13 +45,13 @@
             <table class="display expandable-table dataTable no-footer" id="table_account_state" width="100%" cellspacing="0">
                 <thead>
                     <th>id_year</th>
-                    <th>Fecha</th>
-                    <th>Concepto</th>
-                    <th>Importe ME</th>
-                    <th>Tipo de cambio</th>
-                    <th>Cargo</th>
-                    <th>Abono</th>
-                    <th>Saldo</th>
+                    <th style="text-align: center">Fecha</th>
+                    <th style="text-align: center">Concepto</th>
+                    <th style="text-align: center">Importe ME</th>
+                    <th style="text-align: center">Tipo de cambio</th>
+                    <th style="text-align: center">Debe</th>
+                    <th style="text-align: center">Haber</th>
+                    <th style="text-align: center">Saldo</th>
                 </thead>
                 <tbody>
 
@@ -81,6 +81,7 @@
                     [ -1 , 10, 25, 50, 100],
                     [ 'Mostrar todo','Mostrar 10', 'Mostrar 25', 'Mostrar 50', 'Mostrar 100' ]
                 ],
+                'colTargetsAlign' =>[3,4,5,6,7],
             ] )
         @else
 
@@ -94,6 +95,7 @@
                     [ -1 , 10, 25, 50, 100],
                     [ 'Mostrar todo','Mostrar 10', 'Mostrar 25', 'Mostrar 50', 'Mostrar 100' ]
                 ],
+                'colTargetsAlign' =>[3,4,5,6,7],
             ] )
         @endif
 
@@ -106,6 +108,8 @@
                                                     [ -1 , 10, 25, 50, 100],
                                                     [ 'Mostrar todo','Mostrar 10', 'Mostrar 25', 'Mostrar 50', 'Mostrar 100' ]
                                                 ],
+                                                'colTargetsAlignRight' =>[3,4,5,6,7],
+                                                'colTargetsAlignCenter' =>[1,2],
                                             ] )
     @endif
 
@@ -123,13 +127,13 @@
                 arrAS.push(
                     [
                         as.idYear,
-                        as.date,
+                        as.dateFormat,
                         as.concept,
-                        as.importForeignCurrency.toFixed(2),
-                        as.excRate.toFixed(2),
-                        as.debit.toFixed(2),
-                        as.credit.toFixed(2),
-                        saldo.toFixed(2)
+                        as.importForeignCurrency.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })+ ' ' +as.CurrencyCode,
+                        as.excRate.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+                        as.debit.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' MXN',
+                        as.credit.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' MXN',
+                        saldo.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' MXN'
                     ]
                 )
             }
@@ -142,7 +146,7 @@
                     " ",
                     " ",
                     " ",
-                    saldo.toFixed(2)
+                    saldo.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' MXN'
                 ]
             )
             drawTable('table_account_state', arrAS);

@@ -86,6 +86,18 @@
                                 "orderable": false,
                                 // "targets": "no-sort",
                             @endif
+                        },
+                        {
+                            @if(isset($colTargetsAlignRight))
+                                "targets": <?php echo json_encode($colTargetsAlignRight) ?>,
+                                "className": "dt-body-right", 
+                            @endif  
+                        },
+                        {
+                            @if(isset($colTargetsAlignCenter))
+                                "targets": <?php echo json_encode($colTargetsAlignCenter) ?>,
+                                "className": "dt-body-center", 
+                            @endif  
                         }
                     ],
                     "buttons": [

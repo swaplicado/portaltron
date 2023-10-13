@@ -52,6 +52,10 @@ class accountStatesController extends Controller
 
         $AccountState = $res->lRows;
 
+        foreach ($AccountState as $as){
+            $as->dateFormat = dateUtils::formatDate($as->date, 'd-m-Y');
+        }
+
         return view('accountStates.account_states')->with('lAccountState', $AccountState)->with('sMonth',$sMonths)->with('idProvider',$idProvider);
 
     }
@@ -90,9 +94,14 @@ class accountStatesController extends Controller
         $Aaux = $request->sMonths[$request->filter_month_id];
         $oProvider = \Auth::user()->getProviderData();
         $idProvider = $oProvider->external_id;
+        //$idProvider = 887;
         $res = json_decode($this->getAccountState($idProvider,$Aaux["number_year"],$Aaux["date_ini"],$Aaux["date_fin"]));
 
         $AccountState = $res->lRows; 
+
+        foreach ($AccountState as $as){
+            $as->dateFormat = dateUtils::formatDate($as->date, 'd-m-Y');
+        }
         
         return json_encode(['success' => true, 'lAccountState' => $AccountState]);
     }
@@ -151,6 +160,9 @@ class accountStatesController extends Controller
         $res = json_decode($this->getAccountState($idProvider,$Aaux["number_year"],$Aaux["date_ini"],$Aaux["date_fin"]));
 
         $AccountState = $res->lRows; 
+        foreach ($AccountState as $as){
+            $as->dateFormat = dateUtils::formatDate($as->date, 'd-m-Y');
+        }
         $withoutProvider = 1;
         return json_encode(['success' => true, 'lAccountState' => $AccountState, 'withoutProvider' => $withoutProvider]);
     }
