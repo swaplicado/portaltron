@@ -118,6 +118,7 @@ var app = new Vue({
                         er.idInternal,
                         er.idEstimateRequest,
                         er.number,
+                        er.dateFormat,
                         er.mailsTo,
                         er.subject,
                         er.body,
@@ -136,11 +137,11 @@ var app = new Vue({
                 arrEty.push(
                     [
                         ety.idEty,
-                        ety.qty,
-                        ety.idItem,
                         ety.nameItem,
+                        ety.idItem,
+                        ety.qty,
                         ety.idUnit,
-                        ety.nameUnit
+                        ety.symbol
                     ]
                 )
             }

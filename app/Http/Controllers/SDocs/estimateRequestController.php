@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\SDocs;
 
 use App\Models\SProviders\SProvider;
+use App\Utils\dateUtils;
 use App\Utils\EstimateRequestUtils;
 use App\Utils\PurchaseOrdersUtils;
 use App\Models\SDocs\EstimateRequest;
@@ -27,6 +28,10 @@ class estimateRequestController extends Controller{
 
         $lEstimateRequest = $res->lRows;
 
+        foreach ($lEstimateRequest as $er) {
+            $er->dateFormat = dateUtils::formatDate($er->date, 'd-m-Y');
+        }
+
         $result = EstimateRequestUtils::insertEstimateRequest($lEstimateRequest);
 
         return view('estimateRequests.estimate_requests')->with('lEstimateRequest', $lEstimateRequest)
@@ -36,15 +41,14 @@ class estimateRequestController extends Controller{
     
     public function getEstimateRequest($year, $providerId = null){
         try {
-            /*
             if(\Auth::user()->type()->id_typesuser != SysConst::TYPE_ESTANDAR){
                 $idProvider = $providerId;
             }else{
                 $oProvider = \Auth::user()->getProviderData();
                 $idProvider = $oProvider->external_id;
             }
-            */
-            $idProvider = 6054;
+            
+            //$idProvider = 6054;
 
             $config = \App\Utils\Configuration::getConfigurations();
             $body = '{
@@ -165,13 +169,17 @@ class estimateRequestController extends Controller{
         }
 
         $Year = Carbon::now()->format('Y');
-        $lStatus[0] = ['id' => 0, 'text' => 'Todos'];
-        $lStatus[1] = ['id' => 1, 'text' => 'Abierto'];
-        $lStatus[2] = ['id' => 2, 'text' => 'Sin abrir'];
+        $lStatus[0] = ['id' => 2, 'text' => 'Todos'];
+        $lStatus[1] = ['id' => 0, 'text' => 'Abierto'];
+        $lStatus[2] = ['id' => 1, 'text' => 'Sin abrir'];
         
         $res = json_decode($this->getEstimateRequest($Year));
 
         $lEstimateRequest = $res->lRows;
+
+        foreach ($lEstimateRequest as $er) {
+            $er->dateFormat = dateUtils::formatDate($er->date, 'd-m-Y');
+        }
 
         $result = EstimateRequestUtils::insertEstimateRequest($lEstimateRequest);
 
@@ -191,6 +199,10 @@ class estimateRequestController extends Controller{
             $result = json_decode($this->getEstimateRequest($year, $oProvider->external_id));
 
             $lEstimateRequest = $result->lRows;
+
+            foreach ($lEstimateRequest as $er) {
+                $er->dateFormat = dateUtils::formatDate($er->date, 'd-m-Y');
+            }
 
         } catch (\Throwable $th) {
             \Log::error($th);

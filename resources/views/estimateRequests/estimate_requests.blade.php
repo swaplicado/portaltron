@@ -19,10 +19,11 @@
             'idInternal': 1,
             'idEstimateRequest': 2,
             'number': 3,
-            'mailsTo': 4,
-            'subject': 5,
-            'body': 6,
-            'opened': 7,
+            'fecha': 4,
+            'mailsTo': 5,
+            'subject': 6,
+            'body': 7,
+            'opened': 8,
         };
 
     var indexesEtyEstimateRequestTable = {
@@ -79,9 +80,10 @@
                     <th>id_year</th>
                     <th>id_int</th>
                     <th>id_ext</th>
-                    <th>Folio</th>
-                    <th>Enviado a</th>
-                    <th>Asunto</th>
+                    <th style="text-align: center">Folio</th>
+                    <th style="text-align: center">Fecha</th>
+                    <th style="text-align: center">Enviado a</th>
+                    <th style="text-align: center">Asunto</th>
                     <th>Mensaje</th>
                     <th>abierto</th>
                 </thead>
@@ -123,8 +125,10 @@
 
     @include('layouts.table_jsControll', [
                                             'table_id' => 'table_estimate_request',
-                                            'colTargets' => [0,1,2,6],
-                                            'colTargetsSercheable' => [7],
+                                            'colTargets' => [0,1,2,7],
+                                            'colTargetsSercheable' => [8],
+                                            'colTargetsAlignRight' =>[],
+                                            'colTargetsAlignCenter' =>[3,4,5,6],
                                             'select' => true,
                                             'show' => true,
                                         ] )
@@ -133,6 +137,7 @@
                                             'table_id' => 'table_rows',
                                             'colTargets' => [0,2,4],
                                             'colTargetsSercheable' => [],
+                                            'colTargetsAlignCenter' =>[1,3,5],
                                         ] )
 
     <script type="text/javascript" src="{{ asset('myApp/Utils/datatablesUtils.js') }}"></script>
@@ -149,6 +154,7 @@
                         er.idInternal,
                         er.idEstimateRequest,
                         er.number,
+                        er.dateFormat,
                         er.mailsTo,
                         er.subject,
                         er.body,

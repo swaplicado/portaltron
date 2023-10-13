@@ -11,7 +11,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group sm-form-group row">
-                            <label class="col-sm-2 my-col-sm-3 col-form-label ">Folio</label>
+                            <label class="col-sm-2 my-col-sm-3 col-form-label ">Folio:</label>
                             <div class="col-sm-4">
                                 <input type="text" class="form-control" id="number" placeholder="Folio" v-model="number" readonly>
                             </div>
@@ -21,7 +21,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group sm-form-group row">
-                            <label class="col-sm-2 my-col-sm-3 col-form-label ">Asunto</label>
+                            <label class="col-sm-2 my-col-sm-3 col-form-label ">Asunto:</label>
                             <div class="col-sm-10">
                                 <input type="text" class="form-control" id="subject" 
                                 placeholder="Asunto" v-model="subject" readonly>
@@ -32,7 +32,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group sm-form-group row">
-                            <label class="col-sm-2 my-col-sm-3 col-form-label ">Enviado a</label>
+                            <label class="col-sm-2 my-col-sm-3 col-form-label ">Enviado a:</label>
                             <div class="col-sm-10">
                                 <input type="text" class="form-control" id="mailsTo" 
                                 placeholder="Enviado a" v-model="mailsTo" readonly>
@@ -43,7 +43,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group sm-form-group row">
-                            <label class="col-sm-2 my-col-sm-3 col-form-label ">Cuerpo</label>
+                            <label class="col-sm-2 my-col-sm-3 col-form-label ">Mensaje:</label>
                             <div class="col-sm-10">
                                 <textarea type="text" class="form-control" id="body" 
                                 placeholder="Cuerpo" v-model="body" rows="5" readonly></textarea>
@@ -54,7 +54,7 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="form-group sm-form-group row">
-                            <label class="col-sm-2 my-col-sm-3 col-form-label ">Fecha visto</label>
+                            <label class="col-sm-2 my-col-sm-3 col-form-label ">Fecha visto:</label>
                             <div class="col-sm-10">
                                 <input type="text" class="form-control" id="dateOpen" 
                                 placeholder="Enviado a" v-model="dateOpen" readonly>
@@ -66,11 +66,11 @@
                     <table class="display expandable-table dataTable no-footer" id="table_rows" width="100%" cellspacing="0">
                         <thead>
                             <th>idEty</th>
-                            <th>Cantidad</th>
+                            <th style="text-align: center">Articulo</th>
                             <th>idItem</th>
-                            <th>Articulo</th>
+                            <th style="text-align: center">Cantidad</th>
                             <th>idUnit</th>
-                            <th>Unidad</th>
+                            <th style="text-align: center">Unidad</th>
                         </thead>
                         <tbody>
                             
