@@ -19,30 +19,31 @@ use Illuminate\Support\Facades\Storage;
 class purchaseOrdersController extends Controller
 {
     public function index(){
-        // \Auth::user()->authorizedPermission([['key' => 'proveedores.oc', 'level' => 'vista']]);
-
-        // $oProvider = \Auth::user()->getProviderData();
-
-        $idYear = Carbon::now()->format('Y');
-
-        $lStatus = StatusDps::where('is_deleted', 0)
-                            ->where('type_doc_id', SysConst::DOC_TYPE_PURCHASE_ORDER)
-                            ->select(
-                                'id_status_dps as id',
-                                'name as text'
-                            )
-                            ->get()
-                            ->toArray();
-
-        array_unshift($lStatus, ['id' => 0, 'text' => 'Todos']);
-        
-        $res = json_decode($this->getPurchaseOrders($idYear));
-
-        $lPurchaseOrders = $res->lRows;
-
-        $oProvider = \Auth::user()->getProviderData();
-
-        $result = PurchaseOrdersUtils::insertPurchaseOrders($lPurchaseOrders, $oProvider->id_provider);
+        try {
+            $idYear = Carbon::now()->format('Y');
+    
+            $lStatus = StatusDps::where('is_deleted', 0)
+                                ->where('type_doc_id', SysConst::DOC_TYPE_PURCHASE_ORDER)
+                                ->select(
+                                    'id_status_dps as id',
+                                    'name as text'
+                                )
+                                ->get()
+                                ->toArray();
+    
+            array_unshift($lStatus, ['id' => 0, 'text' => 'Todos']);
+            
+            $res = json_decode($this->getPurchaseOrders($idYear));
+    
+            $lPurchaseOrders = $res->lRows;
+    
+            $oProvider = \Auth::user()->getProviderData();
+    
+            $result = PurchaseOrdersUtils::insertPurchaseOrders($lPurchaseOrders, $oProvider->id_provider);
+        } catch (\Throwable $th) {
+            \Log::error($th);
+            return view('errorPages.serverError');
+        }
 
         return view('purchaseOrders.purchase_orders')->with('lPurchaseOrders', $lPurchaseOrders)
                                                     ->with('lStatus', $lStatus)
@@ -204,25 +205,30 @@ class purchaseOrdersController extends Controller
     }
 
     public function purcharseOrdersManager(){
-        $olProviders = SProvidersUtils::getlProviders();
-
-        $lProviders = [];
-        foreach ($olProviders as $value) {
-            array_push($lProviders, ['id' => $value->id_provider, 'text' => $value->provider_name]);
+        try {
+            $olProviders = SProvidersUtils::getlProviders();
+    
+            $lProviders = [];
+            foreach ($olProviders as $value) {
+                array_push($lProviders, ['id' => $value->id_provider, 'text' => $value->provider_name]);
+            }
+    
+            $lStatus = StatusDps::where('is_deleted', 0)
+                                ->where('type_doc_id', SysConst::DOC_TYPE_PURCHASE_ORDER)
+                                ->select(
+                                    'id_status_dps as id',
+                                    'name as text'
+                                )
+                                ->get()
+                                ->toArray();
+    
+            array_unshift($lStatus, ['id' => 0, 'text' => 'Todos']);
+    
+            $year = Carbon::now()->format('Y');
+        } catch (\Throwable $th) {
+            \Log::error($th);
+            return view('errorPages.serverError');
         }
-
-        $lStatus = StatusDps::where('is_deleted', 0)
-                            ->where('type_doc_id', SysConst::DOC_TYPE_PURCHASE_ORDER)
-                            ->select(
-                                'id_status_dps as id',
-                                'name as text'
-                            )
-                            ->get()
-                            ->toArray();
-
-        array_unshift($lStatus, ['id' => 0, 'text' => 'Todos']);
-
-        $year = Carbon::now()->format('Y');
 
         return view('purchaseOrders.purchase_orders_manager')->with('lProviders', $lProviders)
                                                             ->with('lStatus', $lStatus)

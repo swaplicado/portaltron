@@ -32,40 +32,40 @@ class dpsComplementaryController extends Controller
             foreach ($lDpsComp as $dps) {
                 $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
             }
+
+            $lStatus = StatusDps::where('type_doc_id', SysConst::DOC_TYPE_FACTURA)
+                                ->where('is_deleted', 0)
+                                ->select(
+                                    'id_status_dps as id',
+                                    'name as text'
+                                )
+                                ->get()
+                                ->toArray();
+    
+            array_unshift($lStatus, ['id' => 0, 'text' => 'Todos']);
+    
+            $lTypes = TypeDoc::whereIn('id_type', [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO])
+                            ->where('is_deleted', 0)
+                            ->select(
+                                'id_type as id',
+                                'name_type as text'
+                            )
+                            ->get()
+                            ->toArray();
+    
+            $lAreas = Areas::where('is_deleted', 0)
+                            ->select(
+                                'id_area as id',
+                                'name_area as text'
+                            )
+                            ->get()
+                            ->toArray();
+    
+            $default_area_id = $oProvider->area_id;
         } catch (\Throwable $th) {
             \Log::error($th);
             return view('errorPages.serverError');
         }
-
-        $lStatus = StatusDps::where('type_doc_id', SysConst::DOC_TYPE_FACTURA)
-                            ->where('is_deleted', 0)
-                            ->select(
-                                'id_status_dps as id',
-                                'name as text'
-                            )
-                            ->get()
-                            ->toArray();
-
-        array_unshift($lStatus, ['id' => 0, 'text' => 'Todos']);
-
-        $lTypes = TypeDoc::whereIn('id_type', [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO])
-                        ->where('is_deleted', 0)
-                        ->select(
-                            'id_type as id',
-                            'name_type as text'
-                        )
-                        ->get()
-                        ->toArray();
-
-        $lAreas = Areas::where('is_deleted', 0)
-                        ->select(
-                            'id_area as id',
-                            'name_area as text'
-                        )
-                        ->get()
-                        ->toArray();
-
-        $default_area_id = $oProvider->area_id;
 
         return view('dpsComplementary.dps_complementary')->with('lDpsComp', $lDpsComp)
                                                         ->with('year', $year)

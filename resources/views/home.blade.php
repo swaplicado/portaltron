@@ -13,11 +13,19 @@
                 <figure>
                     <blockquote class="blockquote">
                     <h1>Bienvenido</h1>
-                    <h1>{{\Auth::user()->names}}</h1>
+                    @if(!\Auth::user()->is_provider())
+                        <h1>{{\Auth::user()->names}}</h1>
+                    @else
+                        <h1>{{\Auth::user()->getProviderData()->provider_short_name}}</h1>
+                    @endif
                     <h1> a PP</h1>
                     </blockquote>
                     <figcaption class="blockquote-footer" style="padding-left: 7%">
-                        Bienvenido {{\Auth::user()->full_name}} a Portal proveedores
+                        @if(!\Auth::user()->is_provider())
+                            Bienvenido {{\Auth::user()->full_name}} a Portal proveedores
+                        @else
+                            Bienvenido {{\Auth::user()->getProviderData()->provider_name}} a Portal proveedores
+                        @endif
                     </figcaption>
                 </figure>
             </div>

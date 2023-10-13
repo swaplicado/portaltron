@@ -53,7 +53,13 @@
 
           <!-- Perfil -->
           <li class="nav-item">
-            <span style="color: white">{{ \Auth::user()->username }}</span>
+            <span style="color: white">
+              @if(!\Auth::user()->is_provider())
+                  {{ \Auth::user()->username }}
+              @else
+                  {{\Auth::user()->getProviderData()->provider_short_name}}
+              @endif
+            </span>
           </li>
           <li class="nav-item nav-profile dropdown">
             <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" id="profileDropdown">
