@@ -54,7 +54,7 @@
                     <th>short_name</th>
                     <th style="text-align: center">Proveedor</th>
                     <th style="text-align: center">RFC</th>
-                    <th style="text-align: center">Email</th>
+                    <th style="text-align: center">Correo/th>
                     <th style="text-align: center">Usuario</th>
                     <th style="text-align: center">Estatus</th>
                     <th style="text-align: center">Fecha creación</th>

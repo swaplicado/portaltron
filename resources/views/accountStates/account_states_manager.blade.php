@@ -50,13 +50,13 @@
             <table class="display expandable-table dataTable no-footer" id="table_account_state" width="100%" cellspacing="0">
                 <thead>
                     <th>id_year</th>
-                    <th>Fecha</th>
-                    <th>Concepto</th>
-                    <th>Importe ME</th>
-                    <th>Tipo de cambio</th>
-                    <th>Debe</th>
-                    <th>Haber</th>
-                    <th>Saldo</th>
+                    <th style="text-align: center">Fecha</th>
+                    <th style="text-align: center">Concepto</th>
+                    <th style="text-align: center">Importe ME</th>
+                    <th style="text-align: center">Tipo de cambio</th>
+                    <th style="text-align: center">Debe</th>
+                    <th style="text-align: center">Haber</th>
+                    <th style="text-align: center">Saldo</th>
                 </thead>
                 <tbody>
 

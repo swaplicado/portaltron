@@ -12,7 +12,7 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Area</label>
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Área destino</label>
                                 <div class="col-sm-9">
                                     <select class="select2-class form-control" style="width: 100%"
                                     name="select_area" id="select_area"></select>
@@ -92,7 +92,7 @@
                             <div class="table-responsive">
                                 <table class="display expandable-table dataTable no-footer" id="table_provider_documents" width="100%" cellspacing="0">
                                     <thead>
-                                        <th style="text-align: center">Area</th>
+                                        <th style="text-align: center">Área destino</th>
                                         <th style="text-align: center">Documento</th>
                                         <th style="text-align: center"></th>
                                     </thead>

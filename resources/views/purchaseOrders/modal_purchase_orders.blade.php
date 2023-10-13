@@ -27,7 +27,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">comentarios</label>
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Comentarios</label>
                                 <div class="col-sm-9">
                                     {{-- <button class="btn btn-info" v-on:click="openComments()">comentario</button> --}}
                                     <textarea class="form-control" id="exampleFormControlTextarea1" rows="3" v-model="comments"></textarea>

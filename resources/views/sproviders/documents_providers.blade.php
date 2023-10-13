@@ -46,7 +46,7 @@
                     <th>short_name</th>
                     <th>Proveedor</th>
                     <th>RFC</th>
-                    <th>Email</th>
+                    <th>Correo</th>
                     <th># docs. pendientes</th>
                 </thead>
                 <tbody>

@@ -2,7 +2,7 @@
     <div class="modal-dialog" style="max-width: 50rem">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modal_dps_complementary"><b> @{{ modal_title }} </b></h5>
+                <h5 class="modal-title" id="modal_dps_complementary"><b> Facturas y notas de crédito </b></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -15,7 +15,7 @@
                                 <table class="display expandable-table dataTable no-footer" id="table_provider_documents" width="100%" cellspacing="0">
                                     <thead>
                                         <th>Orden compra</th>
-                                        <th>Area</th>
+                                        <th>Área destino</th>
                                         <th>Documento</th>
                                         <th></th>
                                     </thead>

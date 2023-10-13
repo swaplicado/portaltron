@@ -40,7 +40,7 @@
   
 <div class="card" id="payComplementsManager">
     <div class="card-header">
-        <h3>Complementos de pago</h3>
+        <h3>CFDI de pago</h3>
     </div>
     <div class="card-body">
         <div class="grid-margin">
@@ -93,7 +93,7 @@
                     <th>reference_doc_n</th>
                     <th style="text-align: center">F. Creación</th>
                     <th style="text-align: center">Tipo</th>
-                    <th style="text-align: center">Area</th>
+                    <th style="text-align: center">Área destino</th>
                     <th style="text-align: center">Folio</th>
                     <th style="text-align: center">Estatus</th>
                     <th style="text-align: center">Orden compra</th>

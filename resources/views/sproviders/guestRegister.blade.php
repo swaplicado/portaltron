@@ -131,7 +131,7 @@
                                                     <div class="col-md-6">
                                                         <div class="form-group sm-form-group row">
                                                             <label
-                                                                class="col-sm-3 my-col-sm-3 col-form-label ">Email</label>
+                                                                class="col-sm-3 my-col-sm-3 col-form-label ">Correo</label>
                                                             <div class="col-sm-9">
                                                                 <input type="text" class="form-control"
                                                                     id="email" placeholder="Email" v-model="email">
@@ -179,7 +179,7 @@
                                                 <div class="row">
                                                     <div class="col-md-6">
                                                         <div class="form-group sm-form-group row">
-                                                            <label class="col-sm-3 my-col-sm-3 col-form-label ">Área</label>
+                                                            <label class="col-sm-3 my-col-sm-3 col-form-label ">Área destino</label>
                                                             <div class="col-sm-9">
                                                                 <select class="form-control" v-model="area_id"
                                                                 style="color: black">

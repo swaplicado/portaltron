@@ -20,7 +20,7 @@
                         <input type="text" class="form-control" id="provider_rfc" placeholder="Password">
                     </div>
                     <div class="form-group">
-                        <label for="provider_email">Email</label>
+                        <label for="provider_email">Correo</label>
                         <input type="email" class="form-control" id="provider_email" placeholder="Password">
                     </div>
                     <button type="submit" class="btn btn-primary mr-2">Submit</button>
