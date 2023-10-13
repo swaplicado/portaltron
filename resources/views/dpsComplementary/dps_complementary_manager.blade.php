@@ -40,7 +40,7 @@
   
 <div class="card" id="dpsComplementaryManager">
     <div class="card-header">
-        <h3>Complementos</h3>
+        <h3>CFDI</h3>
     </div>
     <div class="card-body">
         <div class="grid-margin">
