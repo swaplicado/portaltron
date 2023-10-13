@@ -25,9 +25,9 @@ class accountStatesController extends Controller
         //
         $year = $date_filter->get('year');
         // id del proveedor
-        $oProvider = \Auth::user()->getProviderData();
-        $idProvider = $oProvider->external_id;
-        //$idProvider = 887;
+        //$oProvider = \Auth::user()->getProviderData();
+        //$idProvider = $oProvider->external_id;
+        $idProvider = 887;
         // meses que apareceran en el select para cambiar el estado de cuenta
         $sMonths = [];
 
@@ -92,9 +92,9 @@ class accountStatesController extends Controller
 
     public function updateAccountState(Request $request){
         $Aaux = $request->sMonths[$request->filter_month_id];
-        $oProvider = \Auth::user()->getProviderData();
-        $idProvider = $oProvider->external_id;
-        //$idProvider = 887;
+        //$oProvider = \Auth::user()->getProviderData();
+        //$idProvider = $oProvider->external_id;
+        $idProvider = 887;
         $res = json_decode($this->getAccountState($idProvider,$Aaux["number_year"],$Aaux["date_ini"],$Aaux["date_fin"]));
 
         $AccountState = $res->lRows; 

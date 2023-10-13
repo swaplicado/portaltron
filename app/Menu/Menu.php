@@ -21,7 +21,8 @@ class Menu {
                 (object) ['type' => $element, 'route' => route('purchaseOrders.indexManager'), 'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Ordenes compra'],
                 // (object) ['type' => $element, 'route' => route('accountStates.index'), 'icon' => 'bx bx-wallet bx-sm', 'name' => 'Estados de cuenta'],
                 (object) ['type' => $element, 'route' => route('accountStates.managerIndex'), 'icon' => 'bx bx-wallet bx-sm', 'name' => 'Estados de cuenta'],
-                (object) ['type' => $element, 'route' => route('estimateRequest.indexERManager'), 'icon' => 'bx bxs-dollar-circle bx-sm', 'name' => 'Sol. cotización']
+                (object) ['type' => $element, 'route' => route('estimateRequest.indexERManager'), 'icon' => 'bx bxs-dollar-circle bx-sm', 'name' => 'Sol. cotización'],
+                (object) ['type' => $element, 'route' => route('payComplement.payComplement'), 'icon' => 'bx bx bx-receipt bx-sm', 'name' => 'CFDI de pago']
             ];
         }else{
             $lPermissions = collect($oUser->permissionsByRol());

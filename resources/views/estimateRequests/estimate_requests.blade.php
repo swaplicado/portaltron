@@ -131,6 +131,7 @@
                                             'colTargetsAlignCenter' =>[3,4,5,6],
                                             'select' => true,
                                             'show' => true,
+                                            'order' => [[3, 'desc'], [4, 'desc']],
                                         ] )
 
     @include('layouts.table_jsControll', [
