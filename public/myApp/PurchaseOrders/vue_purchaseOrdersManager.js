@@ -67,10 +67,10 @@ var app = new Vue({
             this.daysCredit = data[indexesPurchaseOrdersTable.daysCred];
             this.idCurrency = data[indexesPurchaseOrdersTable.excRate];
             this.currency = data[indexesPurchaseOrdersTable.fCurKey];
-            this.total = data[indexesPurchaseOrdersTable.total];
-            this.taxRetained = data[indexesPurchaseOrdersTable.taxRetained];
-            this.taxCharged = data[indexesPurchaseOrdersTable.taxCharged];
-            this.stot = data[indexesPurchaseOrdersTable.stot];
+            this.total = data[indexesPurchaseOrdersTable.total].toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            this.taxRetained = data[indexesPurchaseOrdersTable.taxRetained].toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            this.taxCharged = data[indexesPurchaseOrdersTable.taxCharged].toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            this.stot = data[indexesPurchaseOrdersTable.stot].toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
             await this.getRows();
 
@@ -128,12 +128,17 @@ var app = new Vue({
                         ety.ref,
                         ety.concept,
                         ety.unit,
-                        (self.idCurrency == 1 ? ety.priceUnit : ety.priceUCur),
+                        (self.idCurrency == 1 ? ety.priceUnit.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 
+                                                ety.priceUCur.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })),
                         ety.qty,
-                        (self.idCurrency == 1 ? ety.taxCharged : ety.taxChargedCur),
-                        (self.idCurrency == 1 ? ety.taxRetained : ety.taxRetainedCur),
-                        (self.idCurrency == 1 ? ety.sTot : ety.sTotCur),
-                        (self.idCurrency == 1 ? ety.tot : ety.totCur),
+                        (self.idCurrency == 1 ? ety.taxCharged.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 
+                            ety.taxChargedCur.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })),
+                        (self.idCurrency == 1 ? ety.taxRetained.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 
+                            ety.taxRetainedCur.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })),
+                        (self.idCurrency == 1 ? ety.sTot.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 
+                            ety.sTotCur.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })),
+                        (self.idCurrency == 1 ? ety.tot.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 
+                            ety.totCur.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })),
                     ]
                 )
             }

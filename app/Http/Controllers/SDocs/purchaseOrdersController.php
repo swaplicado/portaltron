@@ -106,6 +106,7 @@ class purchaseOrdersController extends Controller
                     $row->id_status = SysConst::DOC_STATUS_ATENDIDO;
                     $row->status = "";
                 }
+                $row->dateFormat = dateUtils::formatDate($row->date, 'd-m-Y');
             }
 
         } catch (\Throwable $th) {

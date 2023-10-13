@@ -23,14 +23,15 @@
             'taxRetained': 5,
             'stot': 6,
             'id_status': 7,
-            'bpb': 8,
+            'dateFormat': 8,
             'reference': 9,
-            'status': 10,
-            'dateStartCred': 11,
-            'daysCred': 12,
-            'fCurKey': 13,
-            'total': 14,
-            'delivery_date': 15,
+            'bpb': 10,
+            'status': 11,
+            'dateStartCred': 12,
+            'daysCred': 13,
+            'fCurKey': 14,
+            'total': 15,
+            'delivery_date': 16,
         };
 
     var indexesEtyPurchaseOrderTable = {
@@ -107,14 +108,15 @@
                         <th>taxRetained</th>
                         <th>stot</th>
                         <th>id_status</th>
-                        <th>Sucursal</th>
-                        <th>Referencia</th>
-                        <th>Estatus</th>
-                        <th>Inicio credito</th>
-                        <th>Días credito</th>
-                        <th>Moneda</th>
-                        <th>Total</th>
-                        <th>Fecha entrega</th>
+                        <th style="text-align: center">F. Creación</th>
+                        <th style="text-align: center">Folio</th>
+                        <th style="text-align: center">Sucursal</th>
+                        <th style="text-align: center">Estatus</th>
+                        <th style="text-align: center">Inicio credito</th>
+                        <th style="text-align: center">Días credito</th>
+                        <th style="text-align: center">Moneda</th>
+                        <th style="text-align: center">Total</th>
+                        <th style="text-align: center">Fecha entrega</th>
                     </thead>
                     <tbody>
 
@@ -155,16 +157,22 @@
 
     @include('layouts.table_jsControll', [
                                             'table_id' => 'table_purchase_orders',
-                                            'colTargets' => [0,1,2,3,4,5,6],
+                                            'colTargets' => [0,1,2,3,4,5,6,12],
                                             'colTargetsSercheable' => [7],
+                                            'colTargetsNoOrder' => [8,9,11,13,14,15,16],
                                             'select' => true,
                                             'show' => true,
+                                            'order' => [[2, 'desc'], [10, 'desc']],
+                                            'colTargetsAlignRight' =>[15],
+                                            'colTargetsAlignCenter' =>[8,9,10,11,12,13,14,16],
                                         ] )
 
     @include('layouts.table_jsControll', [
                                             'table_id' => 'table_rows',
                                             'colTargets' => [0,1,2],
                                             'colTargetsSercheable' => [],
+                                            'colTargetsAlignRight' =>[5,7,8,9,10],
+                                            'colTargetsAlignCenter' =>[1,2,3,4,6],
                                         ] )
 
     <script type="text/javascript" src="{{ asset('myApp/Utils/datatablesUtils.js') }}"></script>
@@ -185,14 +193,16 @@
                         (oc.excRate == 1 ? oc.taxRetained : oc.taxRetainedCur),
                         (oc.excRate == 1 ? oc.stot : oc.stotCur),
                         oc.id_status,
-                        oc.bpb,
+                        oc.dateFormat,
                         oc.numRef,
+                        oc.bpb,
                         oc.status,
                         oc.dateStartCred,
                         oc.daysCred,
                         oc.fCurKey,
-                        (oc.excRate == 1 ? oc.tot : oc.totCur),
-                        oc.delivery_date
+                        (oc.excRate == 1 ? oc.tot.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 
+                                            oc.totCur.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })),
+                        (oc.delivery_date != null ? oc.delivery_date : 'Sin fecha de entrega')
                     ]
                 )
             }

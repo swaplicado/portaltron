@@ -60,6 +60,7 @@ var app = new Vue({
             this.modal_title = "Carga de " +this.type_name;
             this.clean();
             $('#select_area').val(self.default_area_id).trigger('change');
+            this.area_id = self.default_area_id;
             $('#modal_dps_complementary').modal('show');
         },
 

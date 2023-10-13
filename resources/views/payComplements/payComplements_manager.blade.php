@@ -24,13 +24,14 @@
             'status_id': 4,
             'is_opened': 5,
             'reference_doc_n': 6,
-            'type': 7,
-            'area': 8,
-            'folio': 9,
-            'status': 10,
-            'purchase_order': 11,
-            'have_pdf': 12,
-            'have_xml': 13,
+            'dateFormat': 7,
+            'type': 8,
+            'area': 9,
+            'folio': 10,
+            'status': 11,
+            'purchase_order': 12,
+            'have_pdf': 13,
+            'have_xml': 14,
         };
 </script>
 @endsection
@@ -90,13 +91,14 @@
                     <th>status_id</th>
                     <th>is_opened</th>
                     <th>reference_doc_n</th>
-                    <th>Tipo</th>
-                    <th>Area</th>
-                    <th>Folio</th>
-                    <th>Estatus</th>
-                    <th>Orden compra</th>
-                    <th>PDF</th>
-                    <th>XML</th>
+                    <th style="text-align: center">F. Creación</th>
+                    <th style="text-align: center">Tipo</th>
+                    <th style="text-align: center">Area</th>
+                    <th style="text-align: center">Folio</th>
+                    <th style="text-align: center">Estatus</th>
+                    <th style="text-align: center">Orden compra</th>
+                    <th style="text-align: center">PDF</th>
+                    <th style="text-align: center">XML</th>
                 </thead>
                 <tbody>
 
@@ -140,12 +142,14 @@
 
     @include('layouts.table_jsControll', [
                                             'table_id' => 'table_pay_complement',
-                                            'colTargets' => [0,1,2,3,5,6,9,11],
+                                            'colTargets' => [0,1,2,3,5,6,10,12],
                                             'colTargetsSercheable' => [4],
+                                            'colTargetsNoOrder' => [7,8,13,14],
                                             'select' => true,
                                             'show' => true,
                                             'upload' => true,
                                             'order' => [[0, 'desc']],
+                                            'colTargetsAlignCenter' =>[7,8,9,10,11,12,13,14],
                                         ] )
 
     <script type="text/javascript" src="{{ asset('myApp/Utils/datatablesUtils.js') }}"></script>
@@ -163,6 +167,7 @@
                         dps.status_id,
                         dps.is_opened,
                         dps.reference_doc_n,
+                        dps.dateFormat,
                         dps.type,
                         (dps.name_area != null ? dps.name_area : 'Sin area'),
                         dps.folio_n,

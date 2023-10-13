@@ -56,15 +56,6 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Inicio credito</label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control" id="folio" 
-                                    placeholder="Folio" v-model="dateStartCred" readonly>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group sm-form-group row">
                                 <label class="col-sm-3 my-col-sm-3 col-form-label ">Días credito</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="authorizationStatusName" 
@@ -72,28 +63,26 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Impuestos retenidos</label>
+                                <label class="col-sm-3 my-col-sm-3 col-form-label">Impuestos retenidos</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="folio" 
-                                    placeholder="Folio" v-model="taxRetained" readonly>
+                                    placeholder="Folio" v-model="taxRetained" readonly style="text-align: right">
                                 </div>
                             </div>
                         </div>
+                    </div>
+                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group sm-form-group row">
                                 <label class="col-sm-3 my-col-sm-3 col-form-label ">Impuestos cargados</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="authorizationStatusName" 
-                                    placeholder="Estatus autorización" v-model="taxCharged" readonly>
+                                    placeholder="Estatus autorización" v-model="taxCharged" readonly style="text-align: right">
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group sm-form-group row">
                                 <label class="col-sm-3 my-col-sm-3 col-form-label ">Moneda</label>
@@ -108,18 +97,16 @@
                                 <label class="col-sm-3 my-col-sm-3 col-form-label ">Subtotal</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="authorizationStatusName" 
-                                    placeholder="Estatus autorización" v-model="stot" readonly>
+                                    placeholder="Estatus autorización" v-model="stot" readonly style="text-align: right">
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="row">
                         <div class="col-md-6">
                             <div class="form-group sm-form-group row">
                                 <label class="col-sm-3 my-col-sm-3 col-form-label ">Total</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="folio" 
-                                    placeholder="Folio" v-model="total" readonly>
+                                    placeholder="Folio" v-model="total" readonly style="text-align: right">
                                 </div>
                             </div>
                         </div>
@@ -129,16 +116,16 @@
                     <table class="display expandable-table dataTable no-footer" id="table_rows" width="100%" cellspacing="0">
                         <thead>
                             <th>idEty</th>
-                            <th>conceptKey</th>
-                            <th>ref</th>
-                            <th>Concepto</th>
-                            <th>Unidad</th>
-                            <th>Precio unitario</th>
-                            <th>Cantidad</th>
-                            <th>Impuesto cargado</th>
-                            <th>Impuesto retenido</th>
-                            <th>Subtotal</th>
-                            <th>Total</th>
+                            <th style="text-align: center">conceptKey</th>
+                            <th style="text-align: center">ref</th>
+                            <th style="text-align: center">Concepto</th>
+                            <th style="text-align: center">Unidad</th>
+                            <th style="text-align: center">Precio unitario</th>
+                            <th style="text-align: center">Cantidad</th>
+                            <th style="text-align: center">Impuesto cargado</th>
+                            <th style="text-align: center">Impuesto retenido</th>
+                            <th style="text-align: center">Subtotal</th>
+                            <th style="text-align: center">Total</th>
                         </thead>
                         <tbody>
                             

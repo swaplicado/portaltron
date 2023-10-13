@@ -9,6 +9,7 @@ use App\Models\SDocs\DpsComplementary;
 use App\Models\SDocs\StatusDps;
 use App\Models\SDocs\VoboDps;
 use App\Models\SProviders\SProvider;
+use App\Utils\dateUtils;
 use App\Utils\DpsComplementsUtils;
 use App\Utils\FilesUtils;
 use App\Utils\ordersVobosUtils;
@@ -26,6 +27,10 @@ class payComplementController extends Controller
             $year = Carbon::now()->format('Y');
 
             $lDpsPayComp = DpsComplementsUtils::getlDpsComplements($year, $oProvider->id_provider, [SysConst::DOC_TYPE_COMPLEMENTO_PAGO]);
+
+            foreach ($lDpsPayComp as $dps) {
+                $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
+            }
 
             $lStatus = StatusDps::where('type_doc_id', SysConst::DOC_TYPE_COMPLEMENTO_PAGO)
                                 ->where('is_deleted', 0)
@@ -139,6 +144,10 @@ class payComplementController extends Controller
 
             $lDpsPayComp = DpsComplementsUtils::getlDpsComplements($year, $oProvider->id_provider, [SysConst::DOC_TYPE_COMPLEMENTO_PAGO]);
 
+            foreach ($lDpsPayComp as $dps) {
+                $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
+            }
+
             \DB::commit();
         } catch (\Throwable $th) {
             \Log::error($th);
@@ -173,6 +182,11 @@ class payComplementController extends Controller
             $year = $request->year;
             $oProvider = \Auth::user()->getProviderData();
             $lDpsPayComp = DpsComplementsUtils::getlDpsComplements($year, $oProvider->id_provider, [SysConst::DOC_TYPE_COMPLEMENTO_PAGO]);
+
+            foreach ($lDpsPayComp as $dps) {
+                $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
+            }
+
         } catch (\Throwable $th) {
             \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
@@ -228,6 +242,11 @@ class payComplementController extends Controller
 
             $lDpsPayComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $oProvider->id_provider, 
                                                 [SysConst::DOC_TYPE_COMPLEMENTO_PAGO], $oArea->id_area);
+
+            foreach ($lDpsPayComp as $dps) {
+                $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
+            }
+
         } catch (\Throwable $th) {
             \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
@@ -306,6 +325,10 @@ class payComplementController extends Controller
 
             $lDpsPayComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $provider_id, 
                                                 [SysConst::DOC_TYPE_COMPLEMENTO_PAGO], $oArea->id_area);
+
+            foreach ($lDpsPayComp as $dps) {
+                $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
+            }
 
             \DB::commit();
         } catch (\Throwable $th) {

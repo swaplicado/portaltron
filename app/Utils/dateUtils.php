@@ -23,6 +23,9 @@ class dateUtils {
                 case 'D-m-Y':
                     $date = $oDate->format('d').'-'.dateUtils::monthsAux[$oDate->month].'-'.$oDate->format('Y');
                     break;
+                case 'D/m/Y':
+                    $date = $oDate->format('d').'/'.dateUtils::monthsAux[$oDate->month].'/'.$oDate->format('Y');
+                    break;
                 case 'DDD D-M-Y':
                     $date = dateUtils::days[$oDate->dayOfWeek].' '.$oDate->format('d').'-'.dateUtils::months[$oDate->month].'-'.$oDate->format('Y');
                     break;

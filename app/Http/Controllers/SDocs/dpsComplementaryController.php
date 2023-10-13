@@ -11,6 +11,7 @@ use App\Models\SDocs\StatusDps;
 use App\Models\SDocs\TypeDoc;
 use App\Models\SDocs\VoboDps;
 use App\Models\SProviders\SProvider;
+use App\Utils\dateUtils;
 use App\Utils\DpsComplementsUtils;
 use App\Utils\FilesUtils;
 use App\Utils\ordersVobosUtils;
@@ -28,6 +29,9 @@ class dpsComplementaryController extends Controller
 
             $lDpsComp = DpsComplementsUtils::getlDpsComplements($year, $oProvider->id_provider, [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO]);
 
+            foreach ($lDpsComp as $dps) {
+                $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
+            }
         } catch (\Throwable $th) {
             \Log::error($th);
             return view('errorPages.serverError');
@@ -165,6 +169,9 @@ class dpsComplementaryController extends Controller
 
             $lDpsComp = DpsComplementsUtils::getlDpsComplements($year, $oProvider->id_provider, [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO]);
 
+            foreach ($lDpsComp as $dps) {
+                $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
+            }
             \DB::commit();
         } catch (\Throwable $th) {
             \Log::error($th);
@@ -202,6 +209,9 @@ class dpsComplementaryController extends Controller
 
             $oProvider = \Auth::user()->getProviderData();
             $lDpsComp = DpsComplementsUtils::getlDpsComplements($year, $oProvider->id_provider, [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO]);
+            foreach ($lDpsComp as $dps) {
+                $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
+            }
         } catch (\Throwable $th) {
             \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
@@ -266,6 +276,9 @@ class dpsComplementaryController extends Controller
 
             $lDpsComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $oProvider->id_provider, 
             [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->id_area);
+            foreach ($lDpsComp as $dps) {
+                $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
+            }
         } catch (\Throwable $th) {
             \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
@@ -346,6 +359,10 @@ class dpsComplementaryController extends Controller
 
             $lDpsComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $provider_id, 
                         [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->id_area);
+            
+            foreach ($lDpsComp as $dps) {
+                $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
+            }
 
             \DB::commit();
         } catch (\Throwable $th) {

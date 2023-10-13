@@ -79,10 +79,10 @@ var app = new Vue({
             this.daysCredit = data[indexesPurchaseOrdersTable.daysCred];
             this.idCurrency = data[indexesPurchaseOrdersTable.excRate];
             this.currency = data[indexesPurchaseOrdersTable.fCurKey];
-            this.total = data[indexesPurchaseOrdersTable.total];
-            this.taxRetained = data[indexesPurchaseOrdersTable.taxRetained];
-            this.taxCharged = data[indexesPurchaseOrdersTable.taxCharged];
-            this.stot = data[indexesPurchaseOrdersTable.stot];
+            this.total = data[indexesPurchaseOrdersTable.total].toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            this.taxRetained = data[indexesPurchaseOrdersTable.taxRetained].toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            this.taxCharged = data[indexesPurchaseOrdersTable.taxCharged].toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            this.stot = data[indexesPurchaseOrdersTable.stot].toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
             await this.getRows();
 
@@ -138,33 +138,6 @@ var app = new Vue({
             inputElement.focus();
         },
 
-        drawTablePurchaseOrders(lPurchaseOrders){
-            var arrOC = [];
-            for (let oc of lPurchaseOrders) {
-                arrOC.push(
-                    [
-                        oc.idYear,
-                        oc.idDoc,
-                        oc.date,
-                        oc.excRate,
-                        (oc.excRate == 1 ? oc.taxCharged : oc.taxChargedCur),
-                        (oc.excRate == 1 ? oc.taxRetained : oc.taxRetainedCur),
-                        (oc.excRate == 1 ? oc.stot : oc.stotCur),
-                        1,
-                        oc.bpb,
-                        oc.numRef,
-                        'Nuevo',
-                        oc.dateStartCred,
-                        oc.daysCred,
-                        oc.fCurKey,
-                        (oc.excRate == 1 ? oc.tot : oc.totCur),
-                        ''
-                    ]
-                )
-            }
-            drawTable('table_purchase_orders', arrOC);
-        },
-
         drawTableRows(lRows){
             let arrEty = []
             for(let ety of lRows){
@@ -175,12 +148,17 @@ var app = new Vue({
                         ety.ref,
                         ety.concept,
                         ety.unit,
-                        (self.idCurrency == 1 ? ety.priceUnit : ety.priceUCur),
+                        (self.idCurrency == 1 ? ety.priceUnit.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 
+                                                ety.priceUCur.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })),
                         ety.qty,
-                        (self.idCurrency == 1 ? ety.taxCharged : ety.taxChargedCur),
-                        (self.idCurrency == 1 ? ety.taxRetained : ety.taxRetainedCur),
-                        (self.idCurrency == 1 ? ety.sTot : ety.sTotCur),
-                        (self.idCurrency == 1 ? ety.tot : ety.totCur),
+                        (self.idCurrency == 1 ? ety.taxCharged.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 
+                            ety.taxChargedCur.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })),
+                        (self.idCurrency == 1 ? ety.taxRetained.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 
+                            ety.taxRetainedCur.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })),
+                        (self.idCurrency == 1 ? ety.sTot.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 
+                            ety.sTotCur.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })),
+                        (self.idCurrency == 1 ? ety.tot.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 
+                            ety.totCur.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })),
                     ]
                 )
             }
@@ -205,10 +183,12 @@ var app = new Vue({
                 let data = result.data;
                 if(data.success){
                     let index = searchIndex('table_purchase_orders', [indexesPurchaseOrdersTable.idYear, indexesPurchaseOrdersTable.idDoc], [this.idYear, this.idDoc]);
-                    
-                    let cellDeliveryDate = table['table_purchase_orders'].cell(index, indexesPurchaseOrdersTable.delivery_date);
-                    let cellstatusId = table['table_purchase_orders'].cell(index, indexesPurchaseOrdersTable.id_status);
-                    let cellstatus = table['table_purchase_orders'].cell(index, indexesPurchaseOrdersTable.status);
+
+                    var rowIndexes = table['table_purchase_orders'].rows().indexes();
+
+                    let cellDeliveryDate = table['table_purchase_orders'].cell(rowIndexes[index], indexesPurchaseOrdersTable.delivery_date);
+                    let cellstatusId = table['table_purchase_orders'].cell(rowIndexes[index], indexesPurchaseOrdersTable.id_status);
+                    let cellstatus = table['table_purchase_orders'].cell(rowIndexes[index], indexesPurchaseOrdersTable.status);
                     
                     this.deliveryDate = data.deliveryDate;
                     this.comments = data.comments;

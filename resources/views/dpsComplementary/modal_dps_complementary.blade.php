@@ -100,23 +100,23 @@
                             <div class="table-responsive">
                                 <table class="display expandable-table dataTable no-footer" id="table_provider_documents" width="100%" cellspacing="0">
                                     <thead>
-                                        <th>Orden compra</th>
-                                        <th>Area</th>
-                                        <th>Documento</th>
+                                        <th style="text-align: center">Orden compra</th>
+                                        <th style="text-align: center">Area</th>
+                                        <th style="text-align: center">Documento</th>
                                         <th></th>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>@{{reference}}</td>
-                                            <td>@{{name_area}}</td>
-                                            <td>PDF</td>
-                                            <td><a :href="pdf_url" target="_blank" class="btn btn-primary">Ver</a></td>
+                                            <td style="text-align: center">@{{reference}}</td>
+                                            <td style="text-align: center">@{{name_area}}</td>
+                                            <td style="text-align: center">PDF</td>
+                                            <td style="text-align: center"><a :href="pdf_url" target="_blank" class="btn btn-primary">Ver</a></td>
                                         </tr>
                                         <tr>
-                                            <td>@{{reference}}</td>
-                                            <td>@{{name_area}}</td>
-                                            <td>XML</td>
-                                            <td><a :href="xml_url" target="_blank" class="btn btn-primary">Ver</a></td>
+                                            <td style="text-align: center">@{{reference}}</td>
+                                            <td style="text-align: center">@{{name_area}}</td>
+                                            <td style="text-align: center">XML</td>
+                                            <td style="text-align: center"><a :href="xml_url" target="_blank" class="btn btn-primary">Ver</a></td>
                                         </tr>
                                     </tbody>
                                 </table>

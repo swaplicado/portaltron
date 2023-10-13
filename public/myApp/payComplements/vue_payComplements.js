@@ -43,6 +43,7 @@ var app = new Vue({
             this.modal_title = "Carga de complemento de pago";
             this.clean();
             $('#select_area').val(self.default_area_id).trigger('change');
+            this.area_id = self.default_area_id;
             $('#modal_pay_complements').modal('show');
         },
 
