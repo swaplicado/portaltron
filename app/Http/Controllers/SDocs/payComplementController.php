@@ -66,10 +66,11 @@ class payComplementController extends Controller
 
     public function savePayComplement(Request $request){
         try {
+            $config = \App\Utils\Configuration::getConfigurations();
             $oProvider = \Auth::user()->getProviderData();
             $type_id = SysConst::DOC_TYPE_COMPLEMENTO_PAGO;
             $year = $request->year;
-            $area_id = $request->area_id != "null" ? $request->area_id : null;
+            $area_id = $request->area_id != "null" ? $request->area_id : $config->fatherArea;
 
             $orders = ordersVobosUtils::getDpsOrder($type_id, $area_id);
 

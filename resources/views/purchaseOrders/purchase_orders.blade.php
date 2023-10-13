@@ -150,7 +150,7 @@
                                             'select' => true,
                                             'show' => true,
                                             'order' => [[2, 'desc'], [9, 'desc']],
-                                            'colTargetsAlignRight' =>[15],
+                                            'colTargetsAlignRight' =>[14],
                                             'colTargetsAlignCenter' =>[8,9,10,11,12,13,15],
                                         ] )
 

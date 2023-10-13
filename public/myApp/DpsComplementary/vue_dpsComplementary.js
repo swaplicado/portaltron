@@ -18,6 +18,7 @@ var app = new Vue({
         xml_url: null,
         oDps: null,
         id_dps: null,
+        folio: null,
     },
     mounted(){
         self = this;
@@ -53,6 +54,8 @@ var app = new Vue({
         showModal(data){
             this.id_dps = data[indexesDpsCompTable.id_dps];
             this.name_area = data[indexesDpsCompTable.area];
+            let folio = data[indexesDpsCompTable.folio] != null ? data[indexesDpsCompTable.folio] : ''
+            this.modal_title = data[indexesDpsCompTable.type] + ' ' + folio;
             this.getDpsComp();
         },
 
@@ -83,6 +86,7 @@ var app = new Vue({
             formData.append('type_id', this.type_id);
             formData.append('year', this.year);
             formData.append('area_id', this.area_id);
+            formData.append('folio', this.folio);
 
             axios.post(route, formData, {
                 headers: {
@@ -174,6 +178,7 @@ var app = new Vue({
             this.reference = null;
             this.area_id = null;
             this.name_area = null;
+            this.folio = null;
         }
     }
 })

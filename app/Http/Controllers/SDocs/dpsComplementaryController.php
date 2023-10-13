@@ -77,11 +77,13 @@ class dpsComplementaryController extends Controller
 
     public function saveComplementary(Request $request){
         try {
+            $config = \App\Utils\Configuration::getConfigurations();
             $oProvider = \Auth::user()->getProviderData();
             $type_id = $request->type_id;
             $reference = $request->reference;
             $year = $request->year;
-            $area_id = $request->area_id != "null" ? $request->area_id : null;
+            $area_id = $request->area_id != "null" ? $request->area_id : $config->fatherArea;
+            $folio = $request->folio;
 
             $oReference = Dps::where('folio_n', $reference)
                             ->where('is_deleted', 0)    
@@ -134,6 +136,7 @@ class dpsComplementaryController extends Controller
             $oDps = new Dps();
             $oDps->type_doc_id = $type_id;
             $oDps->provider_id_n = $oProvider->id_provider;
+            $oDps->folio_n = $folio;
             $oDps->area_id = $area_id;
             $oDps->pdf_url_n = $rutaPdf;
             $oDps->xml_url_n = $rutaXml;

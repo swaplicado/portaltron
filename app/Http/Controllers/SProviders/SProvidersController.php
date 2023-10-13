@@ -47,6 +47,8 @@ class SProvidersController extends Controller
                             'name as text'
                         )
                         ->get();
+
+            $lAreas = Areas::where('is_active', 1)->where('is_deleted', 0)->get();
             
         } catch (\Throwable $th) {
             \Log::error($th);
@@ -56,7 +58,8 @@ class SProvidersController extends Controller
         return view('sproviders.sproviders')->with('lProviders', $lProviders)
                                             ->with('lConstants', $lConstants)
                                             ->with('lStatus', $lStatus)
-                                            ->with('oArea', $oArea);
+                                            ->with('oArea', $oArea)
+                                            ->with('lAreas', $lAreas);
     }
 
     public function getProvider(Request $request){

@@ -12,7 +12,7 @@
                     <div class="row" id="divOrigen" ref="rowDelevery">
                         <div class="col-md-6">
                             <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Fecha entrega</label>
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Fecha entrega:*</label>
                                 <div class="col-sm-9">
                                     <div class="input-group">
                                         <input type="text" id="myDatePicker" ref="datepicker" name="datepicker" class="form-control" disabled>
@@ -37,7 +37,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Referencia</label>
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Folio:</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="folio" placeholder="Folio" v-model="reference" readonly>
                                 </div>
@@ -45,7 +45,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Estatus</label>
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Estatus:</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="authorizationStatusName" 
                                     placeholder="Estatus autorización" v-model="status" readonly>
@@ -56,7 +56,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Días credito</label>
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Días credito:</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="authorizationStatusName" 
                                     placeholder="Estatus autorización" v-model="daysCredit" readonly>
@@ -65,7 +65,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label">Impuestos retenidos</label>
+                                <label class="col-sm-3 my-col-sm-3 col-form-label">Impuestos retenidos:</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="folio" 
                                     placeholder="Folio" v-model="taxRetained" readonly style="text-align: right">
@@ -76,7 +76,7 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Impuestos cargados</label>
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Impuestos cargados:</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="authorizationStatusName" 
                                     placeholder="Estatus autorización" v-model="taxCharged" readonly style="text-align: right">
@@ -85,16 +85,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Moneda</label>
-                                <div class="col-sm-9">
-                                    <input type="text" class="form-control" id="folio" 
-                                    placeholder="Folio" v-model="currency" readonly>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Subtotal</label>
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Subtotal:</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="authorizationStatusName" 
                                     placeholder="Estatus autorización" v-model="stot" readonly style="text-align: right">
@@ -103,7 +94,7 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Total</label>
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Total:</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="folio" 
                                     placeholder="Folio" v-model="total" readonly style="text-align: right">

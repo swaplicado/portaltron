@@ -12,6 +12,7 @@
         this.requireModifyRoute = <?php echo json_encode(route('sproviders.requireModify')); ?>;
         this.lStatus = <?php echo json_encode($lStatus); ?>;
         this.voboDocRoute = <?php echo json_encode(route('voboDocs.voboDoc')); ?>;
+        this.lAreas = <?php echo json_encode($lAreas); ?>;
     }
     var oServerData = new GlobalData();
     var indexesProvidersTable = {

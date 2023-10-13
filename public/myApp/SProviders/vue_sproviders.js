@@ -11,6 +11,7 @@ var app = new Vue({
         provider_short_name: null,
         provider_rfc: null,
         provider_email: null,
+        provider_area: null,
         id_provider: null,
         oArea: oServerData.oArea,
         user_id: null,
@@ -21,6 +22,7 @@ var app = new Vue({
         enableAuthorize: false,
         canAuthorize: false,
         enableModify: false,
+        lAreas: oServerData.lAreas,
     },
     watch: {
         lDocuments:function(val){
@@ -98,6 +100,7 @@ var app = new Vue({
                         this.provider_rfc = data.oProvider.provider_rfc;
                         this.provider_email = data.oProvider.provider_email;
                         this.user_id = data.oProvider.user_id;
+                        this.provider_area = data.oProvider.area_id;
                         this.lDocuments = data.lDocuments;
                         Swal.close();
                         resolve('ok');

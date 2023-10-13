@@ -29,9 +29,8 @@
             'status': 11,
             'dateStartCred': 12,
             'daysCred': 13,
-            'fCurKey': 14,
-            'total': 15,
-            'delivery_date': 16,
+            'total': 14,
+            'delivery_date': 15,
         };
 
     var indexesEtyPurchaseOrderTable = {
@@ -114,7 +113,6 @@
                         <th style="text-align: center">Estatus</th>
                         <th style="text-align: center">Inicio credito</th>
                         <th style="text-align: center">Días credito</th>
-                        <th style="text-align: center">Moneda</th>
                         <th style="text-align: center">Total</th>
                         <th style="text-align: center">Fecha entrega</th>
                     </thead>
@@ -159,12 +157,12 @@
                                             'table_id' => 'table_purchase_orders',
                                             'colTargets' => [0,1,2,3,4,5,6,12],
                                             'colTargetsSercheable' => [7],
-                                            'colTargetsNoOrder' => [8,9,11,13,14,15,16],
+                                            'colTargetsNoOrder' => [8,9,11,13,14,15],
                                             'select' => true,
                                             'show' => true,
                                             'order' => [[2, 'desc'], [10, 'desc']],
-                                            'colTargetsAlignRight' =>[15],
-                                            'colTargetsAlignCenter' =>[8,9,10,11,12,13,14,16],
+                                            'colTargetsAlignRight' =>[14],
+                                            'colTargetsAlignCenter' =>[8,9,10,11,12,13,15],
                                         ] )
 
     @include('layouts.table_jsControll', [
@@ -199,9 +197,8 @@
                         oc.status,
                         oc.dateStartCred,
                         oc.daysCred,
-                        oc.fCurKey,
-                        (oc.excRate == 1 ? oc.tot.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : 
-                                            oc.totCur.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })),
+                        (oc.excRate == 1 ? oc.tot.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })+ ' ' +oc.fCurKey: 
+                                            oc.totCur.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })+ ' '+oc.fCurKey),
                         (oc.delivery_date != null ? oc.delivery_date : 'Sin fecha de entrega')
                     ]
                 )
