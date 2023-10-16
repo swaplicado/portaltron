@@ -157,3 +157,7 @@ Route::middleware(['auth', 'menu', 'app.sprovider', 'app.companie'])->group( fun
 Route::get('/unauthorized', function () {
     return view('layouts.unauthorized');
 })->name('unauthorized');
+
+Route::get('/manualUsuario', function () {
+    return view('manuales.manuales');
+})->name('manualUsuario');

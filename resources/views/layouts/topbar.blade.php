@@ -25,11 +25,13 @@
             </div>
           </li>
         </ul>
+
         <ul class="navbar-nav navbar-nav-right">
           <li class="nav-item nav-search d-none d-lg-block">
-            <h2 style="color:white">{{session()->get('companie_name')}}</h2>
+            <h3 style="color:white">{{session()->get('companie_name')}}</h3>
           </li>
         </ul>
+
         <ul class="navbar-nav navbar-nav-right">
           
           <!-- Notificaciones -->
