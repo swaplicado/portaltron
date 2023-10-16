@@ -48,7 +48,7 @@ class estimateRequestController extends Controller{
                 $idProvider = $oProvider->external_id;
             }
             
-            //$idProvider = 6054;
+            //$idProvider = 887;
 
             $config = \App\Utils\Configuration::getConfigurations();
             $body = '{
@@ -173,17 +173,9 @@ class estimateRequestController extends Controller{
         $lStatus[1] = ['id' => 0, 'text' => 'Abierto'];
         $lStatus[2] = ['id' => 1, 'text' => 'Sin abrir'];
         
-        $res = json_decode($this->getEstimateRequest($Year));
 
-        $lEstimateRequest = $res->lRows;
 
-        foreach ($lEstimateRequest as $er) {
-            $er->dateFormat = dateUtils::formatDate($er->date, 'd-m-Y');
-        }
-
-        $result = EstimateRequestUtils::insertEstimateRequest($lEstimateRequest);
-
-        return view('estimateRequests.estimate_request_manager')->with('lEstimateRequest', $lEstimateRequest)
+        return view('estimateRequests.estimate_request_manager')->with('lEstimateRequest', [])
                                                     ->with('lStatus', $lStatus)
                                                     ->with('lProviders',$lProviders)
                                                     ->with('Year', $Year);
