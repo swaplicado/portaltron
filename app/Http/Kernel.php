@@ -66,5 +66,6 @@ class Kernel extends HttpKernel
         'menu' => \App\Http\Middleware\MenuMiddleware::class,
         'app.middleware' => \App\Http\Middleware\AppGuardMiddleware::class,
         'app.sprovider' => \App\Http\Middleware\SProvidersMiddleware::class,
+        'app.companie' => \App\Http\Middleware\CompanieMiddleware::class,
     ];
 }

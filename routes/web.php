@@ -14,6 +14,7 @@ use App\Http\Controllers\SAccountStates\accountStatesController;
 use App\Http\Controllers\SDocs\voboDocsController;
 use App\Http\Controllers\SDocs\dpsComplementaryController;
 use App\Http\Controllers\SDocs\payComplementController;
+use App\Http\Controllers\Companies\companiesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,9 +47,15 @@ Route::middleware(['auth'])->group( function() {
         Route::post('/updateTempProvider', [SProvidersController::class, 'updateTempProvider'] )->name('updateTempProvider');
     });
     Route::get('/logout', [LoginController::class, 'logout'])->name('logout');
+
+    /**
+     * Ruta de seleccion de empresa despues del log
+     */
+    Route::get('loginCompanie', [companiesController::class, 'index'])->name('loginCompanie');
+    Route::post('loginCompanie/set', [companiesController::class, 'setCompanie'])->name('setCompanie');
 });
 
-Route::middleware(['auth', 'menu', 'app.sprovider'])->group( function () {
+Route::middleware(['auth', 'menu', 'app.sprovider', 'app.companie'])->group( function () {
     Route::get('/registry', [HomeController::class, 'index'])->name('user_registry');
     Route::get('/home', [HomeController::class, 'index'])->name('home');
 

@@ -110,6 +110,10 @@ class AppLinkUtils {
             'headers' => $headers
         ]);
 
+        $oBody = json_decode($body);
+        $oBody->idDB = session()->get('companie_idDB');
+        $body = json_encode($oBody);
+
         $request = new \GuzzleHttp\Psr7\Request($method, $route, $headers, $body);
         $response = $client->send($request);
         $jsonString = $response->getBody()->getContents();
