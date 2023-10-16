@@ -36,10 +36,10 @@ class companiesController extends Controller
     public function setCompanie(Request $request){
         $companie = $request->companie;
         $oCompanie = \DB::table('companies')
-                        ->where('id_companie', $companie)
+                        ->where('id_company', $companie)
                         ->first();
 
-        session()->put('companie_id', $oCompanie->id_companie);
+        session()->put('companie_id', $oCompanie->id_company);
         session()->put('companie_idDB', $oCompanie->external_id);
         session()->put('companie_name', $oCompanie->company_name_ui);
         session()->put('companie_logo', $oCompanie->logo_url);
