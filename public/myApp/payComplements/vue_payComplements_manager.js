@@ -69,6 +69,32 @@ var app = new Vue({
             });
         },
 
+        getlDpsCompByYear(){
+            SGui.showWaitingUnlimit();
+
+            let route = this.oData.getPayComplementsProviderRoute;
+
+            axios.post(route, {
+                'provider_id': this.provider_id,
+                'year': this.year,
+            })
+            .then( result => {
+                let data = result.data;
+                if(data.success){
+                    this.lDpsPayComp = data.lDpsPayComp;
+                    drawTableDpsPaycomplement(this.lDpsPayComp);
+                    this.showProvider = true;
+                    SGui.showOk();
+                }else{
+                    SGui.showMessage('', data.message, data.icon);
+                }
+            })
+            .catch( function(error){
+                console.log(error);
+                SGui.showError(error);
+            });
+        },
+
         showModal(data){
             this.clean();
             this.id_dps = data[indexesPayCompTable.id_dps];

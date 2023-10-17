@@ -275,7 +275,11 @@ class dpsComplementaryController extends Controller
             $oArea = \Auth::user()->getArea();
             $provider_id = $request->provider_id;
             $oProvider = SProvider::findOrFail($provider_id);
-            $year = Carbon::now()->format('Y');
+            $year = $request->year;
+
+            if(is_null($year)){
+                $year = Carbon::now()->format('Y');
+            }
 
             $lDpsComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $oProvider->id_provider, 
             [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->id_area);

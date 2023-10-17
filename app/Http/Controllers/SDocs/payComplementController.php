@@ -239,7 +239,11 @@ class payComplementController extends Controller
             $oArea = \Auth::user()->getArea();
             $provider_id = $request->provider_id;
             $oProvider = SProvider::findOrFail($provider_id);
-            $year = Carbon::now()->format('Y');
+            $year = $request->year;
+
+            if(is_null($year)){
+                $year = Carbon::now()->format('Y');
+            }
 
             $lDpsPayComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $oProvider->id_provider, 
                                                 [SysConst::DOC_TYPE_COMPLEMENTO_PAGO], $oArea->id_area);
