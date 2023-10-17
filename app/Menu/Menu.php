@@ -30,7 +30,8 @@ class Menu {
             $viewsAccess = $lPermissions->where('level', 'vista');
     
             $lMenus = [
-                (object) ['type' => $element, 'route' => route('home'), 'icon' => 'bx bx-home bx-sm', 'name' => 'Inicio', 'order' => 0]
+                (object) ['type' => $element, 'route' => route('home'), 'icon' => 'bx bx-home bx-sm', 'name' => 'Inicio', 'order' => 0],
+                (object) ['type' => $element, 'route' => route('manualUsuario'), 'icon' => 'bx bxs-book-alt bx-sm', 'name' => 'Manual de usuario', 'order' => 8]
             ];
             foreach($viewsAccess as $view){
                 switch ($view->key_code) {
