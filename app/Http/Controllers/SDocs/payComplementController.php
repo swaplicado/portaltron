@@ -71,6 +71,7 @@ class payComplementController extends Controller
             $type_id = SysConst::DOC_TYPE_COMPLEMENTO_PAGO;
             $year = $request->year;
             $area_id = $request->area_id != "null" ? $request->area_id : $config->fatherArea;
+            $folio = $request->folio;
 
             $orders = ordersVobosUtils::getDpsOrder($type_id, $area_id);
 
@@ -113,6 +114,7 @@ class payComplementController extends Controller
             $oDps->type_doc_id = $type_id;
             $oDps->provider_id_n = $oProvider->id_provider;
             $oDps->area_id = $area_id;
+            $oDps->folio_n = $folio;
             $oDps->pdf_url_n = $rutaPdf;
             $oDps->xml_url_n = $rutaXml;
             $oDps->status_id = $status_id;

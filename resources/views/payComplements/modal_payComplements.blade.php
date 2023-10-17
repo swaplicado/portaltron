@@ -23,6 +23,16 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group sm-form-group row">
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Folio:</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="folio" placeholder="Folio" v-model="folio">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group sm-form-group row">
                                 <label class="col-sm-3 my-col-sm-3 col-form-label ">
                                     PDF
                                 </label>

@@ -11,6 +11,7 @@ var app = new Vue({
         name_area: null,
         pdf_url: null,
         xml_url: null,
+        folio: null,
     },
     mounted(){
         self = this;
@@ -36,6 +37,8 @@ var app = new Vue({
         showModal(data){
             this.id_dps = data[indexesPayCompTable.id_dps];
             this.name_area = data[indexesPayCompTable.area];
+            this.folio = data[indexesPayCompTable.folio];
+            this.modal_title = "CFDI de pago " + this.folio;
             this.getPayComp();
         },
 
@@ -63,6 +66,7 @@ var app = new Vue({
             formData.append('xml', fileXml);
             formData.append('year', this.year);
             formData.append('area_id', this.area_id);
+            formData.append('folio', this.folio);
 
             axios.post(route, formData, {
                 headers: {
@@ -99,6 +103,7 @@ var app = new Vue({
                     this.oDps = data.oDps;
                     this.pdf_url = this.oDps.pdf_url_n;
                     this.xml_url = this.oDps.xml_url_n;
+                    this.folio = this.oDps.folio_n;
                     Swal.close();
                     $('#modal_get_pay_complement').modal('show');
                 }else{
@@ -125,6 +130,7 @@ var app = new Vue({
             this.id_dps = null;
             this.area_id = null;
             this.name_area = null;
+            this.folio = null;
         },
 
         getlPayCompByYear(){

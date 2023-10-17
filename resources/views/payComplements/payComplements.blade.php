@@ -131,7 +131,7 @@
 
     @include('layouts.table_jsControll', [
                                             'table_id' => 'table_pay_complements',
-                                            'colTargets' => [0,1,2,3,5,6,10,12],
+                                            'colTargets' => [0,1,2,3,5,6,12],
                                             'colTargetsSercheable' => [4],
                                             'colTargetsNoOrder' => [7,8,13,14],
                                             'select' => true,

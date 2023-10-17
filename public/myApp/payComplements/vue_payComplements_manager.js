@@ -15,6 +15,7 @@ var app = new Vue({
         type_id:  null,
         pdf_url: null,
         xml_url: null,
+        folio: null,
         oDps: null,
         id_dps: null,
 
@@ -99,6 +100,7 @@ var app = new Vue({
             this.clean();
             this.id_dps = data[indexesPayCompTable.id_dps];
             this.name_area = data[indexesPayCompTable.area];
+            this.folio = data[indexesPayCompTable.folio];
             this.getPayComp();
         },
 
