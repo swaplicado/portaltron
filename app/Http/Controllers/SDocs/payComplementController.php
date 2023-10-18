@@ -72,6 +72,11 @@ class payComplementController extends Controller
             $year = $request->year;
             $area_id = $request->area_id != "null" ? $request->area_id : $config->fatherArea;
             $folio = $request->folio;
+            $comments = $request->comments;
+
+            if(is_null($comments) || $comments == "null"){
+                return json_encode(['success' => false, 'message' => 'Debe ingresar la referencia de factura', 'icon' => 'warning']);
+            }
 
             $orders = ordersVobosUtils::getDpsOrder($type_id, $area_id);
 
@@ -125,6 +130,7 @@ class payComplementController extends Controller
 
             $oDpsComp = new DpsComplementary();
             $oDpsComp->dps_id = $oDps->id_dps;
+            $oDpsComp->provider_comment_n = $comments;
             $oDpsComp->is_opened = 1;
             $oDpsComp->is_deleted = 0;
             $oDpsComp->created_by = \Auth::user()->id;

@@ -16,6 +16,7 @@ var app = new Vue({
         pdf_url: null,
         xml_url: null,
         folio: null,
+        comments: null,
         oDps: null,
         id_dps: null,
 
@@ -101,6 +102,7 @@ var app = new Vue({
             this.id_dps = data[indexesPayCompTable.id_dps];
             this.name_area = data[indexesPayCompTable.area];
             this.folio = data[indexesPayCompTable.folio];
+            this.comments = data[indexesPayCompTable.comments];
             this.getPayComp();
         },
 
@@ -170,6 +172,7 @@ var app = new Vue({
             this.reference = null;
             this.pdf_url = null;
             this.xml_url = null;
+            this.comments = null;
         }
     }
 })

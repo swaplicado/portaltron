@@ -15,17 +15,20 @@
                                 <table class="display expandable-table dataTable no-footer" id="table_provider_documents" width="100%" cellspacing="0">
                                     <thead>
                                         <th>Área destino</th>
+                                        <th>Ref. Factura</th>
                                         <th>Documento</th>
                                         <th></th>
                                     </thead>
                                     <tbody>
                                         <tr>
                                             <td>@{{name_area}}</td>
+                                            <td>@{{comments}}</td>
                                             <td>PDF</td>
                                             <td><a :href="pdf_url" target="_blank" class="btn btn-primary">Ver</a></td>
                                         </tr>
                                         <tr>
                                             <td>@{{name_area}}</td>
+                                            <td>@{{comments}}</td>
                                             <td>XML</td>
                                             <td><a :href="xml_url" target="_blank" class="btn btn-primary">Ver</a></td>
                                         </tr>

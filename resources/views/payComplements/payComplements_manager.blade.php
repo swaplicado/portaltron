@@ -28,10 +28,11 @@
             'type': 8,
             'area': 9,
             'folio': 10,
-            'status': 11,
-            'purchase_order': 12,
-            'have_pdf': 13,
-            'have_xml': 14,
+            'comments': 11,
+            'status': 12,
+            'purchase_order': 13,
+            'have_pdf': 14,
+            'have_xml': 15,
         };
 </script>
 @endsection
@@ -95,6 +96,7 @@
                     <th style="text-align: center">Tipo</th>
                     <th style="text-align: center">Área destino</th>
                     <th style="text-align: center">Folio</th>
+                    <th style="text-align: center">Ref. Factura</th>
                     <th style="text-align: center">Estatus</th>
                     <th style="text-align: center">Orden compra</th>
                     <th style="text-align: center">PDF</th>
@@ -142,14 +144,14 @@
 
     @include('layouts.table_jsControll', [
                                             'table_id' => 'table_pay_complement',
-                                            'colTargets' => [0,1,2,3,5,6,12],
+                                            'colTargets' => [0,1,2,3,5,6,13],
                                             'colTargetsSercheable' => [4],
-                                            'colTargetsNoOrder' => [7,8,13,14],
+                                            'colTargetsNoOrder' => [7,8,11,13,14,15],
                                             'select' => true,
                                             'show' => true,
                                             'upload' => true,
                                             'order' => [[0, 'desc']],
-                                            'colTargetsAlignCenter' =>[7,8,9,10,11,12,13,14],
+                                            'colTargetsAlignCenter' =>[7,8,9,10,11,12,13,14,15],
                                         ] )
 
     <script type="text/javascript" src="{{ asset('myApp/Utils/datatablesUtils.js') }}"></script>
@@ -171,6 +173,7 @@
                         dps.type,
                         (dps.name_area != null ? dps.name_area : 'Sin area'),
                         dps.folio_n,
+                        dps.provider_comment_n,
                         dps.status,
                         dps.reference_folio,
                         ((dps.pdf_url_n != null && dps.pdf_url_n != "") ? 'Cargado' : 'Sin cargar'),
