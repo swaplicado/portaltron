@@ -15,6 +15,7 @@ use App\Http\Controllers\SDocs\voboDocsController;
 use App\Http\Controllers\SDocs\dpsComplementaryController;
 use App\Http\Controllers\SDocs\payComplementController;
 use App\Http\Controllers\Companies\companiesController;
+use App\Http\Controllers\UserManuals\userManualsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -152,12 +153,13 @@ Route::middleware(['auth', 'menu', 'app.sprovider', 'app.companie'])->group( fun
         Route::post('payComplement/getPayComplement', [payComplementController::class, 'getPayComplement'])->name('getPayComplement');
         Route::post('payComplement/getlPayCompByYear', [payComplementController::class, 'getlPayCompByYear'])->name('getlPayCompByYear');
     });
+
+    /**
+     * Manual de usuario
+     */
+    Route::get('/manualUsuario', [userManualsController::class, 'index'])->name('manualUsuario');
 });
 
 Route::get('/unauthorized', function () {
     return view('layouts.unauthorized');
 })->name('unauthorized');
-
-Route::get('/manualUsuario', function () {
-    return view('manuales.manuales');
-})->name('manualUsuario');
