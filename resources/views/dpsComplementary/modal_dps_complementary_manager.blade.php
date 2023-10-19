@@ -51,7 +51,7 @@
                 </button>
                 <button type="button" class="btn btn-success btn-icon-text" id="btn_approve" 
                         v-if="check_status == 1" v-on:click="setVoboComplement(true)">
-                    <b>Autorizar</b>
+                    <b>Aprobar</b>
                     <i class="bx bxs-like"></i>
                 </button>
             </div>

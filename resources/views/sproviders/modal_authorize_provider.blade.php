@@ -13,7 +13,7 @@
                                         que todos los tengan estatus autorizado o rechazado.
                                     </li>
                                     <li>
-                                        El botón "Autorizar" solo se habilitará hasta que todos los documentos tengan estatus aprobado.
+                                        El botón "Aprobar" solo se habilitará hasta que todos los documentos tengan estatus aprobado.
                                     </li>
                                 </ul>
                             </div>
@@ -161,7 +161,7 @@
                             <label class="col-form-label "></label>
                             <button type="button" class="btn btn-success btn-icon-text form-control" id="btn_approve"
                             v-on:click="setStatusProvider(lConstants.PROVIDER_APROBADO)" :disabled="!enableAuthorize">
-                                <b>Autorizar</b>
+                                <b>Aprobar</b>
                                 <i class="bx bxs-like"></i>
                             </button>
                         </div>
