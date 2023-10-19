@@ -70,9 +70,13 @@ class payComplementController extends Controller
             $oProvider = \Auth::user()->getProviderData();
             $type_id = SysConst::DOC_TYPE_COMPLEMENTO_PAGO;
             $year = $request->year;
-            $area_id = $request->area_id != "null" ? $request->area_id : $config->fatherArea;
+            $area_id = $request->area_id;
             $folio = $request->folio;
             $comments = $request->comments;
+
+            if(is_null($area_id) || $area_id == "null"){
+                return json_encode(['success' => false, 'message' => 'Debe ingresar un área destino', 'icon' => 'warning']);
+            }
 
             if(is_null($comments) || $comments == "null"){
                 return json_encode(['success' => false, 'message' => 'Debe ingresar la referencia de factura', 'icon' => 'warning']);

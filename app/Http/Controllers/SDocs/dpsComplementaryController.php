@@ -82,8 +82,12 @@ class dpsComplementaryController extends Controller
             $type_id = $request->type_id;
             $reference = $request->reference;
             $year = $request->year;
-            $area_id = $request->area_id != "null" ? $request->area_id : $config->fatherArea;
+            $area_id = $request->area_id;
             $folio = $request->folio;
+
+            if(is_null($area_id) || $area_id == "null"){
+                return json_encode(['success' => false, 'message' => 'Debe ingresar un área destino', 'icon' => 'warning']);
+            }
 
             $oReference = Dps::where('folio_n', $reference)
                             ->where('is_deleted', 0)    

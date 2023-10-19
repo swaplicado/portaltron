@@ -38,14 +38,27 @@ class ordersVobosUtils {
      * Metodo que regresa el order para dar vobo a los dps
      */
     public static function getDpsOrder($type_dps_id, $area_id){
-        if(is_null($area_id)){
-            $area_id = 0;
-        }
+        // if(is_null($area_id)){
+        //     $area_id = 0;
+        // }
 
         $config = \App\Utils\Configuration::getConfigurations();
         $sOrders =  json_encode($config->ordersDps);
         $lOrders = collect(json_decode($sOrders));
         $oOrder = $lOrders->where('type', $type_dps_id)->where('id', $area_id)->first();
+
+        if(is_null($oOrder)){
+            $sDefOrder = json_encode($config->defaultOrderDps);
+            $lDefOrder = collect(json_decode($sDefOrder));
+            $oOrder = $lDefOrder->where('type', $type_dps_id)->first();
+            foreach($oOrder->orders as $order){
+                if($order->area == 0){
+                    $order->area = $area_id;
+                    break;
+                }
+            }
+        }
+
         $orders = $oOrder->orders;
 
         return $orders;
