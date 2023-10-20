@@ -27572,7 +27572,7 @@ table.dataTable tbody td.select-checkbox:after {
 
 /* SweetAlert */
 .swal2-container {
-  z-index: 1500;
+  z-index: 9999 !important;
 }
 
 .swal2-modal {
@@ -31032,4 +31032,14 @@ input[type=file]::file-selector-button:hover {
   transform:translate(50%,-50%) rotate(-45deg);
   background-color:#444444;
   box-shadow:0 1px 8px rgba(0,0,0,0.5);
+}
+
+.modal-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Ajusta el valor de opacidad según tus necesidades */
+  z-index: 9999; /* Asegúrate de que el valor de z-index sea mayor que el del modal */
 }

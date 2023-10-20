@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Areas\Areas;
 use App\Models\SDocs\Dps;
 use App\Models\SDocs\DpsComplementary;
+use App\Models\SDocs\DpsReasonRejection;
 use App\Models\SDocs\StatusDps;
 use App\Models\SDocs\TypeDoc;
 use App\Models\SDocs\VoboDps;
@@ -260,6 +261,19 @@ class dpsComplementaryController extends Controller
                             )
                             ->get()
                             ->toArray();
+            
+            $arrStatusFac = SysConst::statusTypesDoc['FACTURA'];
+            $arrStatusNC = SysConst::statusTypesDoc['NOTA_CREDITO'];
+
+            $lConstants = [
+                'FACTURA' => SysConst::DOC_TYPE_FACTURA,
+                'NOTA_CREDITO' => SysConst::DOC_TYPE_NOTA_CREDITO,
+                'FAC_STATUS_NUEVO' => $arrStatusFac['NUEVO'],
+                'FAC_STATUS_PENDIENTE' => $arrStatusFac['PENDIENTE'],
+                'NC_STATUS_NUEVO' => $arrStatusNC['NUEVO'],
+                'NC_STATUS_PENDIENTE' => $arrStatusNC['PENDIENTE'],
+            ];
+
         } catch (\Throwable $th) {
             \Log::error($th);
             return view('errorPages.serverError');
@@ -268,7 +282,8 @@ class dpsComplementaryController extends Controller
         return view('dpsComplementary.dps_complementary_manager')->with('lProviders', $lProviders)
                                                                 ->with('year', $year)
                                                                 ->with('lStatus', $lStatus)
-                                                                ->with('lTypes', $lTypes);
+                                                                ->with('lTypes', $lTypes)
+                                                                ->with('lConstants', $lConstants);
     }
 
     /**
@@ -312,18 +327,34 @@ class dpsComplementaryController extends Controller
                     ->select(
                         'd.*',
                         'd2.folio_n as reference',
+                        'dc.requester_comment_n',
                         'v.is_accept',
                         'v.is_reject',
                         'v.order',
                         'v.check_status',
                     )
                     ->first();
+
+            $lDpsReasons = DpsReasonRejection::where(function($query) use($oDps){
+                                                $query->where('type_doc_id_n', $oDps->type_doc_id)->orWhere('type_doc_id_n', null);
+                                            })
+                                            ->where('is_active', 1)
+                                            ->where('is_deleted', 0)
+                                            ->orderBy('type_doc_id_n', 'desc')
+                                            ->get()
+                                            ->map(function ($item) {
+                                                return [
+                                                    'id' => $item->id_dps_reason_rejection,
+                                                    'text' => $item->reason,
+                                                ];
+                                            });
+
         } catch (\Throwable $th) {
             \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
         }
 
-        return json_encode(['success' => true, 'oDps' => $oDps]);
+        return json_encode(['success' => true, 'oDps' => $oDps, 'lDpsReasons' => $lDpsReasons]);
     }
 
     public function setVoboComplement(Request $request){
@@ -333,6 +364,7 @@ class dpsComplementaryController extends Controller
             $is_reject = $request->is_reject;
             $provider_id = $request->provider_id;
             $year = $request->year;
+            $comments = $request->comments;
 
             $oArea = \Auth::user()->getArea();
 
@@ -366,6 +398,19 @@ class dpsComplementaryController extends Controller
             }else{
                 $oDps->status_id = $status_id;
                 $oDps->update();
+            }
+
+            if($is_reject){
+                $oDpsComplementary = DpsComplementary::where('dps_id', $id_dps)->where('is_deleted', 0)->first();
+                $oDpsComplementary->requester_comment_n = $comments;
+                $oDpsComplementary->update();
+
+                $rejection_id = $request->rejection_id;
+                if(!is_null($rejection_id) && $rejection_id != "null"){
+                    $oDpsReasonRejection = DpsReasonRejection::find($rejection_id);
+                    $oDpsReasonRejection->count_usage = $oDpsReasonRejection->count_usage + 1;
+                    $oDpsReasonRejection->update();
+                }
             }
 
             $lDpsComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $provider_id, 

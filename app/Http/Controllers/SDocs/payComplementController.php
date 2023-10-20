@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Areas\Areas;
 use App\Models\SDocs\Dps;
 use App\Models\SDocs\DpsComplementary;
+use App\Models\SDocs\DpsReasonRejection;
 use App\Models\SDocs\StatusDps;
 use App\Models\SDocs\VoboDps;
 use App\Models\SProviders\SProvider;
@@ -233,6 +234,14 @@ class payComplementController extends Controller
 
             array_unshift($lStatus, ['id' => 0, 'text' => 'Todos']);
 
+            $arrStatusFac = SysConst::statusTypesDoc['COMPLEMENTO_PAGO'];
+
+            $lConstants = [
+                'COMPLEMENTO_PAGO' => SysConst::DOC_TYPE_COMPLEMENTO_PAGO,
+                'CP_STATUS_NUEVO' => $arrStatusFac['NUEVO'],
+                'CP_STATUS_PENDIENTE' => $arrStatusFac['PENDIENTE'],
+            ];
+
         } catch (\Throwable $th) {
             \Log::error($th);
             return view('errorPages.serverError');
@@ -240,7 +249,8 @@ class payComplementController extends Controller
 
         return view('payComplements.payComplements_manager')->with('lProviders', $lProviders)
                                                                 ->with('year', $year)
-                                                                ->with('lStatus', $lStatus);
+                                                                ->with('lStatus', $lStatus)
+                                                                ->with('lConstants', $lConstants);
     }
 
     /**
@@ -290,12 +300,27 @@ class payComplementController extends Controller
                         'v.check_status',
                     )
                     ->first();
+
+            $lDpsReasons = DpsReasonRejection::where(function($query) use($oDps){
+                                                $query->where('type_doc_id_n', $oDps->type_doc_id)->orWhere('type_doc_id_n', null);
+                                            })
+                                            ->where('is_active', 1)
+                                            ->where('is_deleted', 0)
+                                            ->orderBy('type_doc_id_n', 'desc')
+                                            ->get()
+                                            ->map(function ($item) {
+                                                return [
+                                                    'id' => $item->id_dps_reason_rejection,
+                                                    'text' => $item->reason,
+                                                ];
+                                            });
+
         } catch (\Throwable $th) {
             \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
         }
 
-        return json_encode(['success' => true, 'oDps' => $oDps]);
+        return json_encode(['success' => true, 'oDps' => $oDps, 'lDpsReasons' => $lDpsReasons]);
     }
 
     public function setVoboPayComplement(Request $request){
@@ -305,6 +330,7 @@ class payComplementController extends Controller
             $is_reject = $request->is_reject;
             $provider_id = $request->provider_id;
             $year = $request->year;
+            $comments = $request->comments;
 
             $oArea = \Auth::user()->getArea();
 
@@ -338,6 +364,19 @@ class payComplementController extends Controller
             }else{
                 $oDps->status_id = $status_id;
                 $oDps->update();
+            }
+
+            if($is_reject){
+                $oDpsComplementary = DpsComplementary::where('dps_id', $id_dps)->where('is_deleted', 0)->first();
+                $oDpsComplementary->requester_comment_n = $comments;
+                $oDpsComplementary->update();
+
+                $rejection_id = $request->rejection_id;
+                if(!is_null($rejection_id) && $rejection_id != "null"){
+                    $oDpsReasonRejection = DpsReasonRejection::find($rejection_id);
+                    $oDpsReasonRejection->count_usage = $oDpsReasonRejection->count_usage + 1;
+                    $oDpsReasonRejection->update();
+                }
             }
 
             $lDpsPayComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $provider_id, 

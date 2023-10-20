@@ -107,32 +107,32 @@
     @if (isset($show_type))
         @switch($show_type)
             @case('principal')
-                <button type="button" class="btn btn-secondary btn-rounded btn-icon" id="btn_show">
+                <button type="button" class="btn btn-primary btn-rounded btn-icon" id="btn_show">
                     <i class="bx bxs-show"></i>
                 </button>
                 @break
 
             @case('inverse')
-                <button type="button" class="btn btn-inverse-secondary btn-rounded btn-icon" id="btn_show_inverse">
+                <button type="button" class="btn btn-inverse-primary btn-rounded btn-icon" id="btn_show">
                     <i class="bx bxs-show"></i>
                 </button>
                 @break
                 
             @case('outline')
-                <button type="button" class="btn btn-outline-secondary btn-rounded btn-icon" id="btn_show_outline">
+                <button type="button" class="btn btn-outline-primary btn-rounded btn-icon" id="btn_show">
                     <i class="bx bxs-show"></i>
                 </button>
                 @break
                 
             @default
-                <button type="button" class="btn btn-secondary btn-rounded btn-icon" id="btn_show">
+                <button type="button" class="btn btn-primary btn-rounded btn-icon" id="btn_show">
                     <i class="bx bxs-show"></i>
                 </button>
                 @break
 
         @endswitch
     @else
-        <button type="button" class="btn btn-secondary btn-rounded btn-icon" id="btn_show">
+        <button type="button" class="btn btn-primary btn-rounded btn-icon" id="btn_show">
             <i class="bx bxs-show"></i>
         </button>
     @endif
