@@ -80,7 +80,10 @@ class DpsComplementsUtils {
                             's.name as status',
                             'd2.folio_n as reference_folio',
                             'd.created_at',
-                            'a.name_area'
+                            'a.name_area',
+                            'v.check_status',
+                            'v.is_accept',
+                            'v.is_reject',
                         )
                         ->get();
 

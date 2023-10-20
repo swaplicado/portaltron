@@ -32,9 +32,10 @@
             'area': 9,
             'folio': 10,
             'status': 11,
-            'purchase_order': 12,
-            'have_pdf': 13,
-            'have_xml': 14,
+            'comments': 12,
+            'purchase_order': 13,
+            'have_pdf': 14,
+            'have_xml': 15,
         };
 </script>
 @endsection
@@ -93,6 +94,7 @@
                     <th style="text-align: center">Área destino</th>
                     <th style="text-align: center">Folio</th>
                     <th style="text-align: center">Estatus</th>
+                    <th style="text-align: center">Comentario</th>
                     <th style="text-align: center">Orden compra</th>
                     <th style="text-align: center">PDF</th>
                     <th style="text-align: center">XML</th>
@@ -148,12 +150,12 @@
                                             'table_id' => 'table_dps_complementary',
                                             'colTargets' => [0,1,2,5,6],
                                             'colTargetsSercheable' => [3,4],
-                                            'colTargetsNoOrder' => [7,8,13,14],
+                                            'colTargetsNoOrder' => [7,8,13,14,15],
                                             'select' => true,
                                             'show' => true,
                                             'upload' => true,
                                             'order' => [[0, 'desc']],
-                                            'colTargetsAlignCenter' =>[6,7,8,9,10,11,12,13,14],
+                                            'colTargetsAlignCenter' =>[6,7,8,9,10,11,12,13,14,15],
                                         ] )
 
     <script type="text/javascript" src="{{ asset('myApp/Utils/datatablesUtils.js') }}"></script>
@@ -176,6 +178,7 @@
                         (dps.name_area != null ? dps.name_area : 'Sin area'),
                         dps.folio_n,
                         dps.status,
+                        dps.requester_comment_n,
                         dps.reference_folio,
                         ((dps.pdf_url_n != null && dps.pdf_url_n != "") ? 'Cargado' : 'Sin cargar'),
                         ((dps.xml_url_n != null && dps.xml_url_n != "") ? 'Cargado' : 'Sin cargar'),

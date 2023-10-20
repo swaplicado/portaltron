@@ -12,7 +12,8 @@ var app = new Vue({
         pdf_url: null,
         xml_url: null,
         folio: null,
-        comments: null
+        comments: null,
+        request_comments: null,
     },
     mounted(){
         self = this;
@@ -104,6 +105,7 @@ var app = new Vue({
                 let data =  result.data;
                 if(data.success){
                     this.oDps = data.oDps;
+                    this.request_comments = this.oDps.requester_comment_n;
                     this.pdf_url = this.oDps.pdf_url_n;
                     this.xml_url = this.oDps.xml_url_n;
                     this.folio = this.oDps.folio_n;
@@ -135,6 +137,7 @@ var app = new Vue({
             this.name_area = null;
             this.folio = null;
             this.comments = null;
+            this.request_comments = null;
         },
 
         getlPayCompByYear(){

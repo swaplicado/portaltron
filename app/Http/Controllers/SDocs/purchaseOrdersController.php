@@ -62,7 +62,9 @@ class purchaseOrdersController extends Controller
             $config = \App\Utils\Configuration::getConfigurations();
             $body = '{
                 "idBp": '.$idProvider.',
+                "aBp": '.[].',
                 "year": '.$year.',
+                "date": '.$year.',
                 "user": "'.\Auth::user()->username.'"
             }';
 
