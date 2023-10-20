@@ -19,6 +19,7 @@ var app = new Vue({
         oDps: null,
         id_dps: null,
         folio: null,
+        comments: null,
     },
     mounted(){
         self = this;
@@ -122,6 +123,7 @@ var app = new Vue({
                 if(data.success){
                     this.oDps = data.oDps;
                     this.reference = this.oDps.reference;
+                    this.comments = this.oDps.requester_comment_n;
                     this.pdf_url = this.oDps.pdf_url_n;
                     this.xml_url = this.oDps.xml_url_n;
                     Swal.close();
@@ -179,6 +181,7 @@ var app = new Vue({
             this.area_id = null;
             this.name_area = null;
             this.folio = null;
+            this.comments = null;
         }
     }
 })

@@ -135,6 +135,17 @@
                             </div>
                         </div>
                     </div>
+                    <br>
+                    <div class="row" v-if="comments != null">
+                        <div class="col-md-12">
+                            <div class="">
+                                <label class="col-sm-12 col-form-label">Comentarios:</label>
+                                <div class="col-sm-12">
+                                    <textarea rows="5" v-model="comments" style="width: 100%" disabled></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">

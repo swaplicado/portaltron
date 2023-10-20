@@ -200,7 +200,8 @@ class dpsComplementaryController extends Controller
                     ->where('dc.is_deleted', 0)
                     ->select(
                         'd.*',
-                        'd2.folio_n as reference'
+                        'd2.folio_n as reference',
+                        'dc.requester_comment_n',
                     )
                     ->first();
 

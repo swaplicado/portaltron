@@ -31,9 +31,10 @@
             'folio': 10,
             'comments': 11,
             'status': 12,
-            'purchase_order': 13,
-            'have_pdf': 14,
-            'have_xml': 15,
+            'comments': 13,
+            'purchase_order': 14,
+            'have_pdf': 15,
+            'have_xml': 16,
         };
 </script>
 @endsection
@@ -57,7 +58,7 @@
                 <select class="select2-class form-control" name="status_filter" id="status_filter"></select>
             </span>
         </div>
-        <div class="input-group" style="display: inline-flex; width: auto">
+        {{--<div class="input-group" style="display: inline-flex; width: auto">
             <div class="input-group-prepend">
                 <button type="button" class="btn btn-secondary" v-on:click="year--">
                     <span class="bx bx-minus"></span>
@@ -71,7 +72,7 @@
             </div>
         </div>
         <button class="btn btn-primary" v-on:click="getlPayCompByYear()"><span class="bx bx-search"></span></button>
-        <br>
+        <br>--}}
         <br>
         <div class="table-responsive">
             <table class="display expandable-table dataTable no-footer" id="table_pay_complements" width="100%" cellspacing="0">
@@ -89,6 +90,7 @@
                     <th style="text-align: center">Folio</th>
                     <th style="text-align: center">Ref. Factura</th>
                     <th style="text-align: center">Estatus</th>
+                    <th style="text-align: center">Comentario</th>
                     <th style="text-align: center">Orden compra</th>
                     <th style="text-align: center">PDF</th>
                     <th style="text-align: center">XML</th>
@@ -133,14 +135,14 @@
 
     @include('layouts.table_jsControll', [
                                             'table_id' => 'table_pay_complements',
-                                            'colTargets' => [0,1,2,3,5,6,13],
+                                            'colTargets' => [0,1,2,3,5,6,14],
                                             'colTargetsSercheable' => [4],
-                                            'colTargetsNoOrder' => [7,8,11,13,14,15],
+                                            'colTargetsNoOrder' => [7,8,11,13,14,15,16],
                                             'select' => true,
                                             'show' => true,
                                             'upload' => true,
                                             'order' => [[0, 'desc']],
-                                            'colTargetsAlignCenter' =>[7,8,9,10,11,12,13,14,15],
+                                            'colTargetsAlignCenter' =>[7,8,9,10,11,12,13,14,15,16],
                                         ] )
 
     <script type="text/javascript" src="{{ asset('myApp/Utils/datatablesUtils.js') }}"></script>
@@ -164,6 +166,7 @@
                         dps.folio_n,
                         dps.provider_comment_n,
                         dps.status,
+                        dps.requester_comment_n,
                         dps.reference_folio,
                         ((dps.pdf_url_n != null && dps.pdf_url_n != "") ? 'Cargado' : 'Sin cargar'),
                         ((dps.xml_url_n != null && dps.xml_url_n != "") ? 'Cargado' : 'Sin cargar'),

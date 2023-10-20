@@ -181,6 +181,7 @@ class payComplementController extends Controller
                     ->where('dc.is_deleted', 0)
                     ->select(
                         'd.*',
+                        'dc.requester_comment_n',
                     )
                     ->first();
 
