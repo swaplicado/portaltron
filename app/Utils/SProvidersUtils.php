@@ -44,10 +44,19 @@ class SProvidersUtils {
     /**
      * Metodo que obtiene todos los proveedores
      */
-    public static function getlProviders(){
+    public static function getlProviders($area_id = null){
+        $config = \App\Utils\Configuration::getConfigurations();
+
         $lProviders = SProvider::where('providers.is_active', 1)
-                            ->where('providers.is_deleted', 0)
-                            ->join(config('myapp.mngr_db').'.users as u', 'u.id', '=', 'user_id')
+                            ->where('providers.is_deleted', 0);
+
+        if(!is_null($area_id)){
+            if($area_id != $config->fatherArea){
+                $lProviders = $lProviders->where('providers.area_id', $area_id);
+            }
+        }
+
+        $lProviders = $lProviders->join(config('myapp.mngr_db').'.users as u', 'u.id', '=', 'user_id')
                             ->join('status_providers as sp', 'sp.id_status_providers', '=', 'providers.status_provider_id')
                             ->select(
                                 'id_provider',
