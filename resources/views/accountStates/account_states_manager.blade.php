@@ -40,9 +40,9 @@
                 <label for="filter_month">Fecha de corte: </label>
                 <select class="select2-class form-control" name="filter_month" id="filter_month"></select>
             </span> 
-            <span class="nobreak">
+            <span class="">
                 <label for="filter_provider">Proveedores: </label>
-                <select class="select2-class form-control" name="filter_provider" id="filter_provider"></select>
+                <select class="select2-class form-control" name="filter_provider" id="filter_provider" style="width: 300px !important"></select>
             </span>     
         </div>
 

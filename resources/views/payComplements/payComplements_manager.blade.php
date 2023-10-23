@@ -49,9 +49,9 @@
     </div>
     <div class="card-body">
         <div class="grid-margin">
-            <span class="nobreak">
+            <span class="">
                 <label for="provider_filter">Seleccione proveedor: </label>
-                <select class="select2-class form-control" style="min-width: 20rem;" name="provider_filter" id="provider_filter"></select>
+                <select class="select2-class form-control" name="provider_filter" id="provider_filter" style="width: 300px !important"></select>
             </span>
             <button type="button" class="btn btn-primary" v-on:click="getPayCompProvider()">
                 Consultar

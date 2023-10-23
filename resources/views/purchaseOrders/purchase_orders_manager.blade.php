@@ -60,7 +60,7 @@
     </div>
     <div class="card-body">
         <div class="grid-margin">
-            <span class="nobreak">
+            <span class="">
                 <label for="provider_filter">Seleccione proveedor: </label>
                 <select class="select2-class form-control" name="provider_filter" id="provider_filter" style="width: 300px !important"></select>
             </span>
