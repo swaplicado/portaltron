@@ -88,7 +88,7 @@
                                             <div class="brand-logo">
                                                 <img src="{{ asset('images/aeth.png') }}" alt="logo">
                                             </div>
-                                            <h4>Hola! vamos a comenzar</h4>
+                                            <h4>!Hola! Vamos a comenzar</h4>
                                             <h6 class="font-weight-light">Ingresa todos los datos para registrarte
                                                 como proveedor.</h6>
                                             <br>
@@ -97,7 +97,7 @@
                                                     <div class="col-md-6">
                                                         <div class="form-group sm-form-group row">
                                                             <label class="col-sm-3 my-col-sm-3 col-form-label ">Razón
-                                                                social</label>
+                                                                social*</label>
                                                             <div class="col-sm-9">
                                                                 <input type="text" class="form-control"
                                                                     id="name" placeholder="Razón social"
@@ -108,7 +108,7 @@
                                                     <div class="col-md-6">
                                                         <div class="form-group sm-form-group row">
                                                             <label class="col-sm-3 my-col-sm-3 col-form-label ">Nombre
-                                                                comercial</label>
+                                                                comercial*</label>
                                                             <div class="col-sm-9">
                                                                 <input type="text" class="form-control"
                                                                     id="shortName" placeholder="Nombre comercial"
@@ -121,7 +121,7 @@
                                                     <div class="col-md-6">
                                                         <div class="form-group sm-form-group row">
                                                             <label
-                                                                class="col-sm-3 my-col-sm-3 col-form-label ">RFC</label>
+                                                                class="col-sm-3 my-col-sm-3 col-form-label ">RFC*</label>
                                                             <div class="col-sm-9">
                                                                 <input type="text" class="form-control"
                                                                     id="rfc" placeholder="RFC" v-model="rfc">
@@ -131,7 +131,7 @@
                                                     <div class="col-md-6">
                                                         <div class="form-group sm-form-group row">
                                                             <label
-                                                                class="col-sm-3 my-col-sm-3 col-form-label ">Correo</label>
+                                                                class="col-sm-3 my-col-sm-3 col-form-label ">Correo*</label>
                                                             <div class="col-sm-9">
                                                                 <input type="text" class="form-control"
                                                                     id="email" placeholder="Email" v-model="email">
@@ -143,7 +143,7 @@
                                                     <div class="col-md-6">
                                                         <div class="form-group sm-form-group row">
                                                             <label
-                                                                class="col-sm-3 my-col-sm-3 col-form-label ">Contraseña</label>
+                                                                class="col-sm-3 my-col-sm-3 col-form-label ">Contraseña*</label>
                                                             <div class="col-sm-9">
                                                                 <div class="input-group">
                                                                     <input :type="typeInputPass" class="form-control"
@@ -166,7 +166,7 @@
                                                         <div class="form-group sm-form-group row">
                                                             <label
                                                                 class="col-sm-3 my-col-sm-3 col-form-label ">Confirmar
-                                                                contraseña</label>
+                                                                contraseña*</label>
                                                             <div class="col-sm-9">
                                                                 <input :type="typeInputPass" class="form-control"
                                                                     id="confirmPassword" placeholder="confirmPassword"
@@ -198,7 +198,7 @@
                                                     <div class="col-md-12">
                                                         <div class="form-group sm-form-group row">
                                                             <label class="col-sm-3 my-col-sm-3 col-form-label ">
-                                                                {{$doc->name}}
+                                                                {{$doc->name}}*
                                                             </label>
                                                             <div class="col-sm-9">
                                                                 <input type="file" id="doc_{{$doc->id_request_type_doc}}" name="doc_{{$doc->id_request_type_doc}}"
@@ -247,7 +247,7 @@
                                                 <img src="{{ asset('images/aeth.png') }}" alt="logo">
                                             </div>
                                             <h2>
-                                                Tu registro se ha enviado con éxito!!
+                                                ¡Tu registro se ha enviado con éxito!
                                             </h2>
                                             <h4>
                                                 Tu cuenta será revisada para su autorización a la brevedad
