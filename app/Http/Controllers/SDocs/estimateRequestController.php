@@ -42,18 +42,21 @@ class estimateRequestController extends Controller{
     public function getEstimateRequest($year, $providerId = null){
         try {
             if(\Auth::user()->type()->id_typesuser != SysConst::TYPE_ESTANDAR){
-                $idProvider = $providerId;
+                $idProvider = json_encode($providerId);
             }else{
                 $oProvider = \Auth::user()->getProviderData();
-                $idProvider = $oProvider->external_id;
+                $idProvider[0] = $oProvider->external_id;
             }
-            
-            //$idProvider = 887;
 
             $config = \App\Utils\Configuration::getConfigurations();
+            $date = Carbon::now()->subMonthsNoOverflow($config->subMounthsDps)->toDateString();
+            //$idProvider = 887;
+            
             $body = '{
-                "idBp": '.$idProvider.',
+                "idBp": '.0.',
+                "aBp": '.$idProvider.',
                 "year": '.$year.',
+                "date": '.$date.',
                 "user": "'.\Auth::user()->username.'"
             }';
 
@@ -69,17 +72,17 @@ class estimateRequestController extends Controller{
             $data = json_decode($result->data);
             $lRows = $data->lERData;
 
-            if($year > $config->dpsLimitYearToSaveInDB){
-                $result = EstimateRequestUtils::insertEstimateRequest($lRows);
-            }
+            $result = EstimateRequestUtils::insertEstimateRequest($lRows);
             
             foreach($lRows as $row){
                 $oEstimateRequest = \DB::table('est_req as er')
+                                ->join('providers','providers.id_provider','=','er.provider_id')
                                 ->where('er.external_id', $row->idEstimateRequest)
                                 ->where('er.is_deleted', 0)
                                 ->select(
                                     'er.id_est_req AS idInternal',
                                     'er.is_opened',
+                                    'providers.provider_name AS name'
                                     'er.provider_comment_n',
                                     'er.created_at AS createdAt',
                                     'er.updated_at AS updatedAt'
@@ -96,6 +99,9 @@ class estimateRequestController extends Controller{
                         $date = Carbon::parse($oEstimateRequest->updatedAt);
                         $date->isoFormat('DD/MM/YYYY HH:mm');
                         $row->updatedAt = $date->isoFormat('DD/MM/YYYY HH:mm');    
+                    }
+                    if(count($providerId) != 1){
+                        $row->prov_name = $oEstimateRequest->name;
                     }
                 }else{
                     $row->idInternal = 0;
@@ -161,9 +167,19 @@ class estimateRequestController extends Controller{
     }
 
     public function estimateRequestManager(){
-        $olProviders = SProvidersUtils::getlProviders();
+        $config = \App\Utils\Configuration::getConfigurations();
 
         $lProviders = [];
+        
+        $olProviders = SProvidersUtils::getlProviders();
+
+        $AuxProviders = $olProviders;
+        $AuxProviders = $lProviders->pluck('ext_id');
+
+        $result = json_decode($this->getEstimateRequest($year, $AuxProviders));
+
+        array_push($lProviders, ['id' => 0, 'text' => 'Todos']);
+
         foreach ($olProviders as $value) {
             array_push($lProviders, ['id' => $value->id_provider, 'text' => $value->provider_name]);
         }
@@ -175,7 +191,7 @@ class estimateRequestController extends Controller{
         
 
 
-        return view('estimateRequests.estimate_request_manager')->with('lEstimateRequest', [])
+        return view('estimateRequests.estimate_request_manager')->with('lEstimateRequest', $result)
                                                     ->with('lStatus', $lStatus)
                                                     ->with('lProviders',$lProviders)
                                                     ->with('Year', $Year);
@@ -186,9 +202,18 @@ class estimateRequestController extends Controller{
             $providerId = $request->providerId;
             $year = $request->year;
 
-            $oProvider = SProvider::findOrFail($providerId);
+            if($providerId == 0){
+                $olProviders = SProvidersUtils::getlProviders();
 
-            $result = json_decode($this->getEstimateRequest($year, $oProvider->external_id));
+                $AuxProviders = $olProviders;
+                $AuxProviders = $lProviders->pluck('ext_id');
+
+            }else{
+                $oProvider = SProvider::findOrFail($providerId);
+                $AuxProviders[0] = $oProvider->external_id;
+            }
+
+            $result = json_decode($this->getEstimateRequest($year, $AuxProviders));
 
             $lEstimateRequest = $result->lRows;
 

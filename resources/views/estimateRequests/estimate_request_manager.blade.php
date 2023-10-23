@@ -26,7 +26,8 @@
             'body': 7,
             'opened': 8,
             'See':9,
-            'dateOpen': 10
+            'dateOpen': 10,
+            'nameProvider': 11,
         };
 
     var indexesEtyEstimateRequestTable = {
@@ -100,6 +101,7 @@
                         <th>abierto</th>
                         <th style="text-align: center">Visto</th>
                         <th style="text-align: center">Fecha visto</th>
+                        <th style="text-align: center">Proveedor</th>
                     </thead>
                     <tbody>
 
@@ -142,7 +144,7 @@
                                             'table_id' => 'table_estimate_request',
                                             'colTargets' => [0,1,2,7],
                                             'colTargetsSercheable' => [8],
-                                            'colTargetsAlignCenter' =>[3,4,5,6,9,10],
+                                            'colTargetsAlignCenter' =>[3,4,5,6,9,10,11],
                                             'select' => true,
                                             'show' => true,
                                             'order' => [[3, 'desc'], [4, 'desc']],
@@ -176,6 +178,7 @@
                         er.is_opened,
                         (er.is_opened == 1 ? 'Sí' : 'No'),
                         er.updatedAt
+                        er.name
                     ]
                 )
             }

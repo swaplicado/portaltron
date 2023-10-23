@@ -12,6 +12,7 @@ class EstimateRequestUtils {
                 if(is_null($oER)){
                     $oER = new EstimateRequest();
                     $oER->external_id = $er->idEstimateRequest;
+                    $oER->provider_id = $er->idBp;
                     $oER->is_opened = 0; 
                     $oER->status = 0;
                     $oER->is_deleted = 0;
