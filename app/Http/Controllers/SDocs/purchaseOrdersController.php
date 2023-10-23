@@ -32,14 +32,12 @@ class purchaseOrdersController extends Controller
                                 ->toArray();
     
             array_unshift($lStatus, ['id' => 0, 'text' => 'Todos']);
+
+            $oProvider = \Auth::user()->getProviderData();
             
-            $res = json_decode($this->getPurchaseOrders($idYear));
+            $res = json_decode($this->getPurchaseOrders($idYear, [$oProvider->external_id]));
     
             $lPurchaseOrders = $res->lRows;
-    
-            $oProvider = \Auth::user()->getProviderData();
-    
-            $result = PurchaseOrdersUtils::insertPurchaseOrders($lPurchaseOrders, $oProvider->id_provider);
         } catch (\Throwable $th) {
             \Log::error($th);
             return view('errorPages.serverError');
@@ -50,21 +48,16 @@ class purchaseOrdersController extends Controller
                                                     ->with('idYear', $idYear);
     }
 
-    public function getPurchaseOrders($year, $providerId = null){
+    public function getPurchaseOrders($year, $lProvider = null){
         try {
-            if(\Auth::user()->type()->id_typesuser != SysConst::TYPE_ESTANDAR){
-                $idProvider = $providerId;
-            }else{
-                $oProvider = \Auth::user()->getProviderData();
-                $idProvider = $oProvider->external_id;
-            }
-
             $config = \App\Utils\Configuration::getConfigurations();
+            $arr = json_encode($lProvider);
+            $date = Carbon::now()->subMonthsNoOverflow($config->subMounthsDps)->toDateString();
             $body = '{
-                "idBp": '.$idProvider.',
-                "aBp": '.[].',
+                "idBp": 0,
+                "aBp": '.$arr.',
                 "year": '.$year.',
-                "date": '.$year.',
+                "date": "'.$date.'",
                 "user": "'.\Auth::user()->username.'"
             }';
 
@@ -80,9 +73,7 @@ class purchaseOrdersController extends Controller
             $data = json_decode($result->data);
             $lRows = $data->lPOData;
 
-            if($year > $config->dpsLimitYearToSaveInDB){
-                $result = PurchaseOrdersUtils::insertPurchaseOrders($lRows, $idProvider);
-            }
+            $result = PurchaseOrdersUtils::insertPurchaseOrders($lRows, $lProvider);
             
             foreach($lRows as $row){
                 $oPurchaseOrder = \DB::table('dps as d')
@@ -110,6 +101,14 @@ class purchaseOrdersController extends Controller
                     $row->status = "";
                 }
                 $row->dateFormat = dateUtils::formatDate($row->date, 'd-m-Y');
+
+                $oProvider = SProvider::where('external_id', $row->idBP)->first();
+
+                if(!is_null($oProvider)){
+                    $row->provider_name = $oProvider->provider_name;
+                }else{
+                    $row->provider_name = "";
+                }
             }
 
         } catch (\Throwable $th) {
@@ -208,12 +207,22 @@ class purchaseOrdersController extends Controller
 
     public function purcharseOrdersManager(){
         try {
-            $olProviders = SProvidersUtils::getlProviders();
+            $oArea = \Auth::user()->getArea();
+            $olProviders = SProvidersUtils::getlProviders($oArea->id_area);
     
             $lProviders = [];
+            $lProvidersId = [];
             foreach ($olProviders as $value) {
                 array_push($lProviders, ['id' => $value->id_provider, 'text' => $value->provider_name]);
+                array_push($lProvidersId, $value->ext_id);
             }
+
+            array_unshift($lProviders, ['id'=> 0, 'text'=> "Todos"]);
+
+            $year = Carbon::now()->format('Y');
+            $result = json_decode($this->getPurchaseOrders($year, $lProvidersId));
+
+            $lPurchaseOrders = $result->lRows;
     
             $lStatus = StatusDps::where('is_deleted', 0)
                                 ->where('type_doc_id', SysConst::DOC_TYPE_PURCHASE_ORDER)
@@ -224,9 +233,7 @@ class purchaseOrdersController extends Controller
                                 ->get()
                                 ->toArray();
     
-            array_unshift($lStatus, ['id' => 0, 'text' => 'Todos']);
-    
-            $year = Carbon::now()->format('Y');
+            array_push($lStatus, ['id' => 0, 'text' => 'Todos']);
         } catch (\Throwable $th) {
             \Log::error($th);
             return view('errorPages.serverError');
@@ -234,7 +241,8 @@ class purchaseOrdersController extends Controller
 
         return view('purchaseOrders.purchase_orders_manager')->with('lProviders', $lProviders)
                                                             ->with('lStatus', $lStatus)
-                                                            ->with('year', $year);
+                                                            ->with('year', $year)
+                                                            ->with('lPurchaseOrders', $lPurchaseOrders);
     }
 
     public function getPurchaseOrdersByProvider(Request $request){
@@ -242,9 +250,21 @@ class purchaseOrdersController extends Controller
             $providerId = $request->providerId;
             $year = $request->year;
 
-            $oProvider = SProvider::findOrFail($providerId);
+            if($providerId != 0){
+                $oProvider = SProvider::findOrFail($providerId);
+                $result = json_decode($this->getPurchaseOrders($year, [$oProvider->external_id]));
+            }else{
+                $oArea = \Auth::user()->getArea();
+                $olProviders = SProvidersUtils::getlProviders($oArea->id_area);
+        
+                $lProvidersId = [];
+                foreach ($olProviders as $value) {
+                    array_push($lProvidersId, $value->ext_id);
+                }
 
-            $result = json_decode($this->getPurchaseOrders($year, $oProvider->external_id));
+                $year = Carbon::now()->format('Y');
+                $result = json_decode($this->getPurchaseOrders($year, $lProvidersId));
+            }
 
             $lPurchaseOrders = $result->lRows;
 

@@ -3,8 +3,8 @@ var app = new Vue({
     data: {
         oData: oServerData,
         lProviders: oServerData.lProviders,
-        showProvider: false,
-        lPurchaseOrders: [],
+        showProvider: true,
+        lPurchaseOrders: oServerData.lPurchaseOrders,
         lStatus: oServerData.lStatus,
         idDoc: null,
         year: oServerData.year,
@@ -39,7 +39,7 @@ var app = new Vue({
             self.providerId = e.params.data.id;
         });
 
-        $('#provider_filter').val('').trigger('change');
+        // $('#provider_filter').val('').trigger('change');
 
         $('#status_filter').select2({
             data: self.oData.lStatus,

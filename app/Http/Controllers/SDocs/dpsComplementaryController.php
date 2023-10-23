@@ -234,9 +234,11 @@ class dpsComplementaryController extends Controller
      */
     public function complementsManager(){
         try {
-            $olProviders = SProvidersUtils::getlProviders();
+            $oArea = \Auth::user()->getArea();
+            $olProviders = SProvidersUtils::getlProviders($oArea->id_area);
 
             $lProviders = [];
+            array_push($lProviders, ['id' => 0, 'text' => "Todos"]);
             foreach ($olProviders as $value) {
                 array_push($lProviders, ['id' => $value->id_provider, 'text' => $value->provider_name]);
             }
@@ -275,6 +277,12 @@ class dpsComplementaryController extends Controller
                 'NC_STATUS_PENDIENTE' => $arrStatusNC['PENDIENTE'],
             ];
 
+        $lDpsComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, 0, 
+                    [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->id_area);
+                    foreach ($lDpsComp as $dps) {
+                        $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
+                    }
+
         } catch (\Throwable $th) {
             \Log::error($th);
             return view('errorPages.serverError');
@@ -284,7 +292,8 @@ class dpsComplementaryController extends Controller
                                                                 ->with('year', $year)
                                                                 ->with('lStatus', $lStatus)
                                                                 ->with('lTypes', $lTypes)
-                                                                ->with('lConstants', $lConstants);
+                                                                ->with('lConstants', $lConstants)
+                                                                ->with('lDpsComp', $lDpsComp);
     }
 
     /**
@@ -294,14 +303,19 @@ class dpsComplementaryController extends Controller
         try {
             $oArea = \Auth::user()->getArea();
             $provider_id = $request->provider_id;
-            $oProvider = SProvider::findOrFail($provider_id);
+
+            if($provider_id != 0){
+                $oProvider = SProvider::findOrFail($provider_id);
+                $provider_id = $oProvider->id_provider;
+            }
+
             $year = $request->year;
 
             if(is_null($year)){
                 $year = Carbon::now()->format('Y');
             }
 
-            $lDpsComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $oProvider->id_provider, 
+            $lDpsComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $provider_id, 
             [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->id_area);
             foreach ($lDpsComp as $dps) {
                 $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');

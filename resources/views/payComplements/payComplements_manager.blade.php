@@ -7,6 +7,7 @@
 @section('headJs')
 <script>
     function GlobalData(){
+        this.lDpsPayComp = <?php echo json_encode($lDpsPayComp) ?>;
         this.year = <?php echo json_encode($year) ?>;
         this.lStatus = <?php echo json_encode($lStatus) ?>;
         this.lConstants = <?php echo json_encode($lConstants); ?>;
@@ -25,16 +26,17 @@
             'status_id': 4,
             'is_opened': 5,
             'reference_doc_n': 6,
-            'dateFormat': 7,
-            'type': 8,
-            'area': 9,
-            'folio': 10,
-            'comments': 11,
-            'status': 12,
-            'purchase_order': 13,
-            'comments': 14,
-            'have_pdf': 15,
-            'have_xml': 16,
+            'provider_name': 7,
+            'dateFormat': 8,
+            'type': 9,
+            'area': 10,
+            'folio': 11,
+            'comments': 12,
+            'status': 13,
+            'purchase_order': 14,
+            'comments': 15,
+            'have_pdf': 16,
+            'have_xml': 17,
         };
 </script>
 @endsection
@@ -94,6 +96,7 @@
                     <th>status_id</th>
                     <th>is_opened</th>
                     <th>reference_doc_n</th>
+                    <th style="text-align: center">Proveedor</th>
                     <th style="text-align: center">F. Creación</th>
                     <th style="text-align: center">Tipo</th>
                     <th style="text-align: center">Área destino</th>
@@ -176,6 +179,7 @@
                         dps.status_id,
                         dps.is_opened,
                         dps.reference_doc_n,
+                        dps.provider_name,
                         dps.dateFormat,
                         dps.type,
                         (dps.name_area != null ? dps.name_area : 'Sin area'),

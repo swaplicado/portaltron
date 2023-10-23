@@ -63,7 +63,7 @@
                 <select class="select2-class form-control" name="status_filter" id="status_filter"></select>
             </span>
         </div>
-        <div class="input-group" style="display: inline-flex; width: auto">
+        {{--<div class="input-group" style="display: inline-flex; width: auto">
             <div class="input-group-prepend">
                 <button type="button" class="btn btn-secondary" v-on:click="year--">
                     <span class="bx bx-minus"></span>
@@ -77,7 +77,7 @@
             </div>
         </div>
         <button class="btn btn-primary" v-on:click="getlDpsCompByYear()"><span class="bx bx-search"></span></button>
-        <br>
+        <br>--}}
         <br>
         <div class="table-responsive">
             <table class="display expandable-table dataTable no-footer" id="table_dps_complementary" width="100%" cellspacing="0">

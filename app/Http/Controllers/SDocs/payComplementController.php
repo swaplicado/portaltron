@@ -215,9 +215,11 @@ class payComplementController extends Controller
      */
     public function payComplementsManager(){
         try {
-            $olProviders = SProvidersUtils::getlProviders();
+            $oArea = \Auth::user()->getArea();
+            $olProviders = SProvidersUtils::getlProviders($oArea->id_area);
 
             $lProviders = [];
+            array_push($lProviders, ['id' => 0, 'text' => "Todos"]);
             foreach ($olProviders as $value) {
                 array_push($lProviders, ['id' => $value->id_provider, 'text' => $value->provider_name]);
             }
@@ -243,6 +245,9 @@ class payComplementController extends Controller
                 'CP_STATUS_PENDIENTE' => $arrStatusFac['PENDIENTE'],
             ];
 
+            $lDpsPayComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, 0, 
+                                                [SysConst::DOC_TYPE_COMPLEMENTO_PAGO], $oArea->id_area);
+
         } catch (\Throwable $th) {
             \Log::error($th);
             return view('errorPages.serverError');
@@ -251,7 +256,8 @@ class payComplementController extends Controller
         return view('payComplements.payComplements_manager')->with('lProviders', $lProviders)
                                                                 ->with('year', $year)
                                                                 ->with('lStatus', $lStatus)
-                                                                ->with('lConstants', $lConstants);
+                                                                ->with('lConstants', $lConstants)
+                                                                ->with('lDpsPayComp', $lDpsPayComp);
     }
 
     /**
@@ -261,14 +267,22 @@ class payComplementController extends Controller
         try {
             $oArea = \Auth::user()->getArea();
             $provider_id = $request->provider_id;
-            $oProvider = SProvider::findOrFail($provider_id);
+            
+            if($provider_id != 0){
+                $oProvider = SProvider::findOrFail($provider_id);
+                $provider_id = $oProvider->id_provider;
+            }
+            
+
+
+
             $year = $request->year;
 
             if(is_null($year)){
                 $year = Carbon::now()->format('Y');
             }
 
-            $lDpsPayComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $oProvider->id_provider, 
+            $lDpsPayComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $provider_id, 
                                                 [SysConst::DOC_TYPE_COMPLEMENTO_PAGO], $oArea->id_area);
 
             foreach ($lDpsPayComp as $dps) {

@@ -28,7 +28,7 @@ class AddProviderIdToEstReq extends Migration
     public function down()
     {
         Schema::table('dps', function (Blueprint $table) {
-            $table->dropForeign('provider_id_n')
+            $table->dropForeign('provider_id_n');
             $table->dropColumn('provider_id_n');
         });
     }

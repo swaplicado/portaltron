@@ -8,6 +8,7 @@
 <script>
     function GlobalData(){
         this.lProviders = <?php echo json_encode($lProviders) ?>;
+        this.lPurchaseOrders = <?php echo json_encode($lPurchaseOrders) ?>;
         this.getPurchaseOrdersRoute = <?php echo json_encode(route('purchaseOrders.getPurchaseOrdersManager')) ?>;
         this.lStatus = <?php echo json_encode($lStatus) ?>;
         this.year = <?php echo json_encode($year) ?>;
@@ -23,14 +24,15 @@
             'taxRetained': 5,
             'stot': 6,
             'id_status': 7,
-            'dateFormat': 8,
-            'reference': 9,
-            'bpb': 10,
-            'status': 11,
-            'dateStartCred': 12,
-            'daysCred': 13,
-            'total': 14,
-            'delivery_date': 15,
+            'Proveedor': 8,
+            'dateFormat': 9,
+            'reference': 10,
+            'bpb': 11,
+            'status': 12,
+            'dateStartCred': 13,
+            'daysCred': 14,
+            'total': 15,
+            'delivery_date': 16,
         };
 
     var indexesEtyPurchaseOrderTable = {
@@ -80,7 +82,7 @@
                     <select class="select2-class form-control" name="status_filter" id="status_filter"></select>
                 </span>
             </div>
-            <div class="input-group" style="display: inline-flex; width: auto">
+            {{--<div class="input-group" style="display: inline-flex; width: auto">
                 <div class="input-group-prepend">
                     <button type="button" class="btn btn-secondary" v-on:click="year--">
                         <span class="bx bx-minus"></span>
@@ -94,7 +96,7 @@
                 </div>
             </div>
             <button class="btn btn-primary" v-on:click="getPurchaseOrdersProvider()"><span class="bx bx-search"></span></button>
-            <br>
+            <br>--}}
             <br>
             <div class="table-responsive">
                 <table class="display expandable-table dataTable no-footer" id="table_purchase_orders" width="100%" cellspacing="0">
@@ -107,6 +109,7 @@
                         <th>taxRetained</th>
                         <th>stot</th>
                         <th>id_status</th>
+                        <th style="text-align: center">Proveedor</th>
                         <th style="text-align: center">F. Creación</th>
                         <th style="text-align: center">Folio</th>
                         <th style="text-align: center">Sucursal</th>
@@ -155,7 +158,7 @@
 
     @include('layouts.table_jsControll', [
                                             'table_id' => 'table_purchase_orders',
-                                            'colTargets' => [0,1,2,3,4,5,6,12],
+                                            'colTargets' => [0,1,2,3,4,5,6,13],
                                             'colTargetsSercheable' => [7],
                                             'colTargetsNoOrder' => [8,9,11,13,14,15],
                                             'select' => true,
@@ -191,6 +194,7 @@
                         (oc.excRate == 1 ? oc.taxRetained : oc.taxRetainedCur),
                         (oc.excRate == 1 ? oc.stot : oc.stotCur),
                         oc.id_status,
+                        oc.provider_name,
                         oc.dateFormat,
                         oc.numRef,
                         oc.bpb,
@@ -207,7 +211,7 @@
         };
 
         $(document).ready(function() {
-            // drawTablePurchaseOrders(oServerData.lPurchaseOrders);
+            drawTablePurchaseOrders(oServerData.lDpsComp);
         })
     </script>
     <script>

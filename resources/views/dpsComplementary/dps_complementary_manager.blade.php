@@ -7,6 +7,7 @@
 @section('headJs')
     <script>
         function GlobalData() {
+            this.lDpsComp = <?php echo json_encode($lDpsComp); ?>;
             this.year = <?php echo json_encode($year); ?>;
             this.lStatus = <?php echo json_encode($lStatus); ?>;
             this.lTypes = <?php echo json_encode($lTypes); ?>;
@@ -26,15 +27,16 @@
             'status_id': 4,
             'is_opened': 5,
             'reference_doc_n': 6,
-            'dateFormat': 7,
-            'type': 8,
-            'area': 9,
-            'folio': 10,
-            'status': 11,
-            'purchase_order': 12,
-            'comments': 13,
-            'have_pdf': 14,
-            'have_xml': 15,
+            'provider_name': 7,
+            'dateFormat': 8,
+            'type': 9,
+            'area': 10,
+            'folio': 11,
+            'status': 12,
+            'purchase_order': 13,
+            'comments': 14,
+            'have_pdf': 15,
+            'have_xml': 16,
         };
     </script>
 @endsection
@@ -99,6 +101,7 @@
                             <th>status_id</th>
                             <th>is_opened</th>
                             <th>reference_doc_n</th>
+                            <th style="text-align: center">Proveedor</th>
                             <th style="text-align: center">F. Creación</th>
                             <th style="text-align: center">Tipo</th>
                             <th style="text-align: center">Área destino</th>
@@ -159,14 +162,14 @@
 
     @include('layouts.table_jsControll', [
         'table_id' => 'table_dps_complementary',
-        'colTargets' => [0, 1, 2, 5, 6, 10],
+        'colTargets' => [0, 1, 2, 5, 6, 11],
         'colTargetsSercheable' => [3, 4],
-        'colTargetsNoOrder' => [7, 8, 12, 13, 14, 15],
+        'colTargetsNoOrder' => [7, 8, 12, 13, 14, 15, 16],
         'select' => true,
         'show' => true,
         'upload' => true,
         'order' => [[0, 'desc']],
-        'colTargetsAlignCenter' => [6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+        'colTargetsAlignCenter' => [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
     ])
 
     <script type="text/javascript" src="{{ asset('myApp/Utils/datatablesUtils.js') }}"></script>
@@ -192,6 +195,7 @@
 
                         dps.is_opened,
                         dps.reference_doc_n,
+                        dps.provider_name,
                         dps.dateFormat,
                         dps.type,
                         (dps.name_area != null ? dps.name_area : 'Sin area'),
@@ -214,5 +218,10 @@
             }
             drawTable('table_dps_complementary', arrDpsComp);
         };
+    </script>
+    <script>
+        $(document).ready(function() {
+            drawTableDpsComplementary(oServerData.lDpsComp);
+        })
     </script>
 @endsection

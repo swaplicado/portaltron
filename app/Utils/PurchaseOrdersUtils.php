@@ -3,6 +3,7 @@
 use App\Constants\SysConst;
 use App\Models\SDocs\Dps;
 use App\Models\SDocs\PurchaseOrders;
+use App\Models\SProviders\SProvider;
 
 class PurchaseOrdersUtils {
     public static function insertPurchaseOrders($lPurchaseOrders, $provider_id){
@@ -12,11 +13,13 @@ class PurchaseOrdersUtils {
                 $oDps = Dps::where('ext_id_year', $oc->idYear)->where('ext_id_doc', $oc->idDoc)->first();
 
                 if(is_null($oDps)){
+                    $oProvider = SProvider::where('external_id', $oc->idBP)->first();
+
                     $oDps = new Dps();
                     $oDps->type_doc_id = SysConst::DOC_TYPE_PURCHASE_ORDER;
                     $oDps->ext_id_year = $oc->idYear;
                     $oDps->ext_id_doc = $oc->idDoc;
-                    $oDps->provider_id_n = $provider_id;
+                    $oDps->provider_id_n = $oProvider->id_provider;
                     $oDps->folio_n = $oc->numRef;
                     $oDps->status_id = SysConst::DOC_STATUS_NUEVO;
                     $oDps->is_deleted = 0;

@@ -46,6 +46,7 @@ class estimateRequestController extends Controller{
             }else{
                 $oProvider = \Auth::user()->getProviderData();
                 $idProvider[0] = $oProvider->external_id;
+                $idProvider = json_encode($idProvider);
             }
 
             $config = \App\Utils\Configuration::getConfigurations();
@@ -53,10 +54,10 @@ class estimateRequestController extends Controller{
             //$idProvider = 887;
             
             $body = '{
-                "idBp": '.0.',
+                "idBp": 0,
                 "aBp": '.$idProvider.',
                 "year": '.$year.',
-                "date": '.$date.',
+                "date": "'.$date.'",
                 "user": "'.\Auth::user()->username.'"
             }';
 
@@ -82,7 +83,7 @@ class estimateRequestController extends Controller{
                                 ->select(
                                     'er.id_est_req AS idInternal',
                                     'er.is_opened',
-                                    'providers.provider_name AS name'
+                                    'providers.provider_name AS name',
                                     'er.provider_comment_n',
                                     'er.created_at AS createdAt',
                                     'er.updated_at AS updatedAt'
@@ -170,13 +171,13 @@ class estimateRequestController extends Controller{
         $config = \App\Utils\Configuration::getConfigurations();
 
         $lProviders = [];
-        
-        $olProviders = SProvidersUtils::getlProviders();
+        $oArea = \Auth::user()->getArea();
+        $olProviders = SProvidersUtils::getlProviders($oArea->id_area);
 
         $AuxProviders = $olProviders;
-        $AuxProviders = $lProviders->pluck('ext_id');
-
-        $result = json_decode($this->getEstimateRequest($year, $AuxProviders));
+        $AuxProviders = $olProviders->pluck('ext_id');
+        $Year = Carbon::now()->format('Y');
+        $result = json_decode($this->getEstimateRequest($Year, $AuxProviders));
 
         array_push($lProviders, ['id' => 0, 'text' => 'Todos']);
 
@@ -184,7 +185,7 @@ class estimateRequestController extends Controller{
             array_push($lProviders, ['id' => $value->id_provider, 'text' => $value->provider_name]);
         }
 
-        $Year = Carbon::now()->format('Y');
+        
         $lStatus[0] = ['id' => 2, 'text' => 'Todos'];
         $lStatus[1] = ['id' => 0, 'text' => 'Abierto'];
         $lStatus[2] = ['id' => 1, 'text' => 'Sin abrir'];
@@ -206,7 +207,7 @@ class estimateRequestController extends Controller{
                 $olProviders = SProvidersUtils::getlProviders();
 
                 $AuxProviders = $olProviders;
-                $AuxProviders = $lProviders->pluck('ext_id');
+                $AuxProviders = $olProviders->pluck('ext_id');
 
             }else{
                 $oProvider = SProvider::findOrFail($providerId);

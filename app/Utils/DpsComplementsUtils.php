@@ -48,6 +48,7 @@ class DpsComplementsUtils {
                     ->join('dps_complementary as com', 'd.id_dps', '=', 'com.dps_id')
                     ->join('type_doc as t', 't.id_type', '=', 'd.type_doc_id')
                     ->join('status_dps as s', 's.id_status_dps', '=', 'd.status_id')
+                    ->leftJoin('providers as prov', 'prov.id_provider', '=', 'd.provider_id_n')
                     ->leftJoin('purchase_orders as p', 'p.id_purchase_order', '=', 'com.reference_doc_n')
                     ->leftJoin('dps as d2', 'd2.id_dps', '=', 'p.dps_id')
                     ->leftJoin('areas as a', 'a.id_area', '=', 'd.area_id')
@@ -56,9 +57,14 @@ class DpsComplementsUtils {
                     ->whereIn('v.check_status', [SysConst::VOBO_REVISION, SysConst::VOBO_REVISADO])
                     ->whereIn('d.type_doc_id', $lTypes)
                         ->where('d.is_deleted', 0)
-                        ->whereYear('d.created_at', $year)
-                        ->where('d.provider_id_n', $provider_id)
-                        ->where('com.is_deleted', 0)
+                        ->whereYear('d.created_at', $year);
+        if($provider_id != 0){
+            $lDps = $lDps->where('d.provider_id_n', $provider_id);
+        }else{
+            $lDps = $lDps->where('d.provider_id_n', '!=', null);
+        }
+                
+        $lDps = $lDps->where('com.is_deleted', 0)
                         ->select(
                             'd.id_dps',
                             'd.type_doc_id',
@@ -84,6 +90,7 @@ class DpsComplementsUtils {
                             'v.check_status',
                             'v.is_accept',
                             'v.is_reject',
+                            'prov.provider_name',
                         )
                         ->get();
 
