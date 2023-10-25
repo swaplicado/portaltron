@@ -63,6 +63,10 @@ class dpsComplementaryController extends Controller
                             ->toArray();
     
             $default_area_id = $oProvider->area_id;
+
+            $config = \App\Utils\Configuration::getConfigurations();
+            $showAreaDps = $config->showAreaDps;
+
         } catch (\Throwable $th) {
             \Log::error($th);
             return view('errorPages.serverError');
@@ -73,7 +77,8 @@ class dpsComplementaryController extends Controller
                                                         ->with('lStatus', $lStatus)
                                                         ->with('lTypes', $lTypes)
                                                         ->with('lAreas', $lAreas)
-                                                        ->with('default_area_id', $default_area_id);
+                                                        ->with('default_area_id', $default_area_id)
+                                                        ->with('showAreaDps', $showAreaDps);
     }
 
     public function saveComplementary(Request $request){
@@ -86,9 +91,9 @@ class dpsComplementaryController extends Controller
             $area_id = $request->area_id;
             $folio = $request->folio;
 
-            if(is_null($area_id) || $area_id == "null"){
-                return json_encode(['success' => false, 'message' => 'Debe ingresar un área destino', 'icon' => 'warning']);
-            }
+            // if(is_null($area_id) || $area_id == "null"){
+            //     return json_encode(['success' => false, 'message' => 'Debe ingresar un área destino', 'icon' => 'warning']);
+            // }
 
             $oReference = Dps::where('folio_n', $reference)
                             ->where('is_deleted', 0)    
@@ -277,11 +282,20 @@ class dpsComplementaryController extends Controller
                 'NC_STATUS_PENDIENTE' => $arrStatusNC['PENDIENTE'],
             ];
 
-        $lDpsComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, 0, 
+            $lDpsComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, 0, 
                     [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->id_area);
                     foreach ($lDpsComp as $dps) {
                         $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
                     }
+
+            $lAreas = Areas::where('is_deleted', 0)
+                            ->where('is_active', 1)
+                            ->select(
+                                'id_area as id',
+                                'name_area as text'
+                            )
+                            ->get()
+                            ->toArray();
 
         } catch (\Throwable $th) {
             \Log::error($th);
@@ -293,7 +307,8 @@ class dpsComplementaryController extends Controller
                                                                 ->with('lStatus', $lStatus)
                                                                 ->with('lTypes', $lTypes)
                                                                 ->with('lConstants', $lConstants)
-                                                                ->with('lDpsComp', $lDpsComp);
+                                                                ->with('lDpsComp', $lDpsComp)
+                                                                ->with('lAreas', $lAreas);
     }
 
     /**
@@ -426,6 +441,68 @@ class dpsComplementaryController extends Controller
                     $oDpsReasonRejection->count_usage = $oDpsReasonRejection->count_usage + 1;
                     $oDpsReasonRejection->update();
                 }
+            }
+
+            $lDpsComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $provider_id, 
+                        [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->id_area);
+            
+            foreach ($lDpsComp as $dps) {
+                $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
+            }
+
+            \DB::commit();
+        } catch (\Throwable $th) {
+            \Log::error($th);
+            return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
+        }
+
+        return json_encode(['success' => true, 'lDpsComp' => $lDpsComp]);
+    }
+
+    public function changeAreaDps(Request $request){
+        try {
+            $area_id = $request->area_id;
+            $dps_id = $request->dps_id;
+            $provider_id = $request->provider_id;
+            $type_id = $request->type_id;
+
+            if(is_null($area_id)){
+                return json_encode(['success' => false, 'message' => "Debe seleccionar un area de destino", 'icon' => 'info']);
+            }
+
+            $oArea = \Auth::user()->getArea();
+            $year = Carbon::now()->format('Y');
+
+            \DB::beginTransaction();
+
+            $oDps = Dps::find($dps_id);
+
+            $arrStatusFac = SysConst::statusTypesDoc['FACTURA'];
+            $arrStatusNC = SysConst::statusTypesDoc['NOTA_CREDITO'];
+
+            if($oDps->status_id != $arrStatusFac['NUEVO'] && $oDps->status_id != $arrStatusNC['NUEVO']){
+                return json_encode(['success' => false, 'message' => "Solo se puede reenviar documentos con estatus Nuevo", 'icon' => 'info']);
+            }
+
+            $oDps->area_id = $area_id;
+            $oDps->update();
+            
+            VoboDps::where('dps_id', $dps_id)->where('is_deleted', 0)->update(['is_deleted' => 1]);
+
+            $orders = ordersVobosUtils::getDpsOrder($type_id, $area_id);
+
+            foreach($orders as $order){
+                $oVoboDps = new VoboDps();
+                $oVoboDps->dps_id = $oDps->id_dps;
+                $oVoboDps->area_id = $order->area;
+                $oVoboDps->is_accept = 0;
+                $oVoboDps->is_reject = 0;
+                $oVoboDps->order = $order->order;
+                $oVoboDps->check_status = $order->order == 1 ? SysConst::VOBO_REVISION : SysConst::VOBO_NO_REVISION;
+                $oVoboDps->is_deleted = 0;
+                $oVoboDps->created_by = 1;
+                $oVoboDps->updated_by = 1;
+                $oVoboDps->save();
             }
 
             $lDpsComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $provider_id, 

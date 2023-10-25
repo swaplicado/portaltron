@@ -14,6 +14,7 @@ var app = new Vue({
         folio: null,
         comments: null,
         request_comments: null,
+        area_id: "",
     },
     mounted(){
         self = this;
@@ -42,7 +43,10 @@ var app = new Vue({
             this.folio = data[indexesPayCompTable.folio];
             this.comments = data[indexesPayCompTable.comments];
             this.modal_title = "CFDI de pago " + this.folio;
-            this.getPayComp();
+            this.getPayComp()
+                .then(data => {
+                    $('#modal_get_pay_complement').modal('show');
+                });
         },
 
         upload(){ 
@@ -98,27 +102,31 @@ var app = new Vue({
 
             let route = this.oData.getPayComplementRoute;
 
-            axios.post(route, {
-                'id_dps': this.id_dps,
-            })
-            .then( result => {
-                let data =  result.data;
-                if(data.success){
-                    this.oDps = data.oDps;
-                    this.request_comments = this.oDps.requester_comment_n;
-                    this.pdf_url = this.oDps.pdf_url_n;
-                    this.xml_url = this.oDps.xml_url_n;
-                    this.folio = this.oDps.folio_n;
-                    Swal.close();
-                    $('#modal_get_pay_complement').modal('show');
-                }else{
-                    SGui.showMessage('', data.message, data.icon);
-                }
-            })
-            .catch( function(error){
-                console.log(error);
-                SGui.showError(error);
-            });
+            return new Promise((resolve, reject) => 
+                axios.post(route, {
+                    'id_dps': this.id_dps,
+                })
+                .then( result => {
+                    let data =  result.data;
+                    if(data.success){
+                        this.oDps = data.oDps;
+                        this.request_comments = this.oDps.requester_comment_n;
+                        this.pdf_url = this.oDps.pdf_url_n;
+                        this.xml_url = this.oDps.xml_url_n;
+                        this.folio = this.oDps.folio_n;
+                        Swal.close();
+                        resolve(true);
+                    }else{
+                        SGui.showMessage('', data.message, data.icon);
+                        reject(data.message);
+                    }
+                })
+                .catch( function(error){
+                    console.log(error);
+                    SGui.showError(error);
+                    reject(error);
+                })
+            );
         },
 
         clean(){

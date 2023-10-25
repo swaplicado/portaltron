@@ -53,6 +53,9 @@ class payComplementController extends Controller
                             ->toArray();
 
             $default_area_id = $oProvider->area_id;
+
+            $config = \App\Utils\Configuration::getConfigurations();
+            $showAreaDps = $config->showAreaDps;
         } catch (\Throwable $th) {
             \Log::error($th);
             return view('errorPages.serverError');
@@ -62,7 +65,8 @@ class payComplementController extends Controller
                                                         ->with('year', $year)
                                                         ->with('lStatus', $lStatus)
                                                         ->with('lAreas', $lAreas)
-                                                        ->with('default_area_id', $default_area_id);
+                                                        ->with('default_area_id', $default_area_id)
+                                                        ->with('showAreaDps', $showAreaDps);
     }
 
     public function savePayComplement(Request $request){
@@ -75,9 +79,9 @@ class payComplementController extends Controller
             $folio = $request->folio;
             $comments = $request->comments;
 
-            if(is_null($area_id) || $area_id == "null"){
-                return json_encode(['success' => false, 'message' => 'Debe ingresar un área destino', 'icon' => 'warning']);
-            }
+            // if(is_null($area_id) || $area_id == "null"){
+            //     return json_encode(['success' => false, 'message' => 'Debe ingresar un área destino', 'icon' => 'warning']);
+            // }
 
             if(is_null($comments) || $comments == "null"){
                 return json_encode(['success' => false, 'message' => 'Debe ingresar la referencia de factura', 'icon' => 'warning']);
@@ -248,6 +252,15 @@ class payComplementController extends Controller
             $lDpsPayComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, 0, 
                                                 [SysConst::DOC_TYPE_COMPLEMENTO_PAGO], $oArea->id_area);
 
+            $lAreas = Areas::where('is_deleted', 0)
+                            ->where('is_active', 1)
+                            ->select(
+                                'id_area as id',
+                                'name_area as text'
+                            )
+                            ->get()
+                            ->toArray();
+
         } catch (\Throwable $th) {
             \Log::error($th);
             return view('errorPages.serverError');
@@ -257,7 +270,8 @@ class payComplementController extends Controller
                                                                 ->with('year', $year)
                                                                 ->with('lStatus', $lStatus)
                                                                 ->with('lConstants', $lConstants)
-                                                                ->with('lDpsPayComp', $lDpsPayComp);
+                                                                ->with('lDpsPayComp', $lDpsPayComp)
+                                                                ->with('lAreas', $lAreas);
     }
 
     /**
@@ -392,6 +406,67 @@ class payComplementController extends Controller
                     $oDpsReasonRejection->count_usage = $oDpsReasonRejection->count_usage + 1;
                     $oDpsReasonRejection->update();
                 }
+            }
+
+            $lDpsPayComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $provider_id, 
+                                                [SysConst::DOC_TYPE_COMPLEMENTO_PAGO], $oArea->id_area);
+
+            foreach ($lDpsPayComp as $dps) {
+                $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
+            }
+
+            \DB::commit();
+        } catch (\Throwable $th) {
+            \Log::error($th);
+            return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
+        }
+
+        return json_encode(['success' => true, 'lDpsPayComp' => $lDpsPayComp]);
+    }
+
+    public function changeAreaPayComplement(Request $request){
+        try {
+            $area_id = $request->area_id;
+            $dps_id = $request->dps_id;
+            $provider_id = $request->provider_id;
+            $type_id = SysConst::DOC_TYPE_COMPLEMENTO_PAGO;
+
+            if(is_null($area_id)){
+                return json_encode(['success' => false, 'message' => "Debe seleccionar un area de destino", 'icon' => 'info']);
+            }
+
+            $oArea = \Auth::user()->getArea();
+            $year = Carbon::now()->format('Y');
+
+            \DB::beginTransaction();
+
+            $oDps = Dps::find($dps_id);
+
+            $arrStatusCP = SysConst::statusTypesDoc['COMPLEMENTO_PAGO'];
+
+            if($oDps->status_id != $arrStatusCP['NUEVO']){
+                return json_encode(['success' => false, 'message' => "Solo se puede reenviar documentos con estatus Nuevo", 'icon' => 'info']);
+            }
+
+            $oDps->area_id = $area_id;
+            $oDps->update();
+
+            VoboDps::where('dps_id', $dps_id)->where('is_deleted', 0)->update(['is_deleted' => 1]);
+
+            $orders = ordersVobosUtils::getDpsOrder($type_id, $area_id);
+
+            foreach($orders as $order){
+                $oVoboDps = new VoboDps();
+                $oVoboDps->dps_id = $oDps->id_dps;
+                $oVoboDps->area_id = $order->area;
+                $oVoboDps->is_accept = 0;
+                $oVoboDps->is_reject = 0;
+                $oVoboDps->order = $order->order;
+                $oVoboDps->check_status = $order->order == 1 ? SysConst::VOBO_REVISION : SysConst::VOBO_NO_REVISION;
+                $oVoboDps->is_deleted = 0;
+                $oVoboDps->created_by = 1;
+                $oVoboDps->updated_by = 1;
+                $oVoboDps->save();
             }
 
             $lDpsPayComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $provider_id, 

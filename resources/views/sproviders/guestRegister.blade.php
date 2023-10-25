@@ -61,9 +61,9 @@
         <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row navbar-dark">
             <!-- logo -->
             <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
-                <a class="navbar-brand brand-logo mr-5" href="index.html"><img src="{{ asset('images/aeth.png') }}"
+                <a class="navbar-brand brand-logo mr-5" href="{{ \App\Utils\Configuration::getConfigurations()->appmanagerRoute }}"><img src="{{ asset('images/aeth.png') }}"
                         class="mr-2" alt="logo" /></a>
-                <a class="navbar-brand brand-logo-mini" href="index.html"><img
+                <a class="navbar-brand brand-logo-mini" href="{{ \App\Utils\Configuration::getConfigurations()->appmanagerRoute }}"><img
                         src="{{ asset('images/aeth_mini.png') }}" alt="logo" /></a>
             </div>
             <div class="navbar-menu-wrapper d-flex align-items-center justify-content-end">
@@ -175,7 +175,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-
+                                                @if($showAreaRegisterProvider)
                                                 <div class="row">
                                                     <div class="col-md-6">
                                                         <div class="form-group sm-form-group row">
@@ -192,7 +192,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-
+                                                @endif
                                             @foreach($lDocs as $doc)
                                                 <div class="row">
                                                     <div class="col-md-12">

@@ -57,7 +57,10 @@ var app = new Vue({
             this.name_area = data[indexesDpsCompTable.area];
             let folio = data[indexesDpsCompTable.folio] != null ? data[indexesDpsCompTable.folio] : ''
             this.modal_title = data[indexesDpsCompTable.type] + ' ' + folio;
-            this.getDpsComp();
+            this.getDpsComp()
+                .then(data => {
+                    $('#modal_get_dps_complementary').modal('show');
+                });
         },
 
         upload(){ 
@@ -115,27 +118,31 @@ var app = new Vue({
 
             let route = this.oData.GetComplementsRoute;
 
-            axios.post(route, {
-                'id_dps': this.id_dps,
-            })
-            .then( result => {
-                let data =  result.data;
-                if(data.success){
-                    this.oDps = data.oDps;
-                    this.reference = this.oDps.reference;
-                    this.comments = this.oDps.requester_comment_n;
-                    this.pdf_url = this.oDps.pdf_url_n;
-                    this.xml_url = this.oDps.xml_url_n;
-                    Swal.close();
-                    $('#modal_get_dps_complementary').modal('show');
-                }else{
-                    SGui.showMessage('', data.message, data.icon);
-                }
-            })
-            .catch( function(error){
-                console.log(error);
-                SGui.showError(error);
-            });
+            return new Promise((resolve, reject) => 
+                axios.post(route, {
+                    'id_dps': this.id_dps,
+                })
+                .then( result => {
+                    let data =  result.data;
+                    if(data.success){
+                        this.oDps = data.oDps;
+                        this.reference = this.oDps.reference;
+                        this.comments = this.oDps.requester_comment_n;
+                        this.pdf_url = this.oDps.pdf_url_n;
+                        this.xml_url = this.oDps.xml_url_n;
+                        Swal.close();
+                        resolve(true);
+                    }else{
+                        SGui.showMessage('', data.message, data.icon);
+                        reject(data.message);
+                    }
+                })
+                .catch( function(error){
+                    console.log(error);
+                    SGui.showError(error);
+                    reject(error);
+                })
+            );
         },
 
         updateComplementary(){
@@ -182,6 +189,6 @@ var app = new Vue({
             this.name_area = null;
             this.folio = null;
             this.comments = null;
-        }
+        },
     }
 })

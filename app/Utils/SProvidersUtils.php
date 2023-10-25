@@ -137,9 +137,13 @@ class SProvidersUtils {
             return [false, $message];
         }
 
-        if($area_id == null){
-            $message = 'Debe seleccionar un área';
-            return [false, $message];
+        $showAreaRegisterProvider = \App\Utils\Configuration::getConfigurations()->showAreaRegisterProvider;
+
+        if($showAreaRegisterProvider){
+            if($area_id == null){
+                $message = 'Debe seleccionar un área';
+                return [false, $message];
+            }
         }
 
         $lDocs = RequestTypeDocs::where('is_default', 1)

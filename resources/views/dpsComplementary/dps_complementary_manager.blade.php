@@ -9,6 +9,7 @@
         function GlobalData() {
             this.lDpsComp = <?php echo json_encode($lDpsComp); ?>;
             this.year = <?php echo json_encode($year); ?>;
+            this.lAreas = <?php echo json_encode($lAreas); ?>;
             this.lStatus = <?php echo json_encode($lStatus); ?>;
             this.lTypes = <?php echo json_encode($lTypes); ?>;
             this.lConstants = <?php echo json_encode($lConstants); ?>;
@@ -17,6 +18,7 @@
             this.GetComplementsRoute = <?php echo json_encode(route('dpsComplementary.GetComplements')); ?>;
             this.getDpsComplementManagerRoute = <?php echo json_encode(route('dpsComplementary.getDpsComplementManager')); ?>;
             this.setVoboComplementRoute = <?php echo json_encode(route('dpsComplementary.setVoboComplement')); ?>;
+            this.changeAreaDpsRoute = <?php echo json_encode(route('dpsComplementary.changeAreaDps')); ?>;
         }
         var oServerData = new GlobalData();
         var indexesDpsCompTable = {
@@ -64,7 +66,7 @@
                 </template>
 
                 <div class="grid-margin">
-                    @include('layouts.buttons', ['show' => true])
+                    @include('layouts.buttons', ['show' => true, 'change' => true])
                     <span class="nobreak">
                         <label for="status_filter">Filtrar Tipo: </label>
                         <select class="select2-class form-control" name="type_filter" id="type_filter"></select>
@@ -155,6 +157,15 @@
 
             $('#status_filter').change(function() {
                 table['table_dps_complementary'].draw();
+            });
+
+            $('#btn_change').click(function () {
+                if(table['table_dps_complementary'].row('.selected').data() == undefined){
+                    SGui.showError("Debe seleccionar un renglón");
+                    return;
+                }
+
+                app.change(table['table_dps_complementary'].row('.selected').data());
             });
 
         });

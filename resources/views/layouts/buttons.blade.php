@@ -172,3 +172,38 @@
         </button>
     @endif
 @endif
+
+@if (isset($change))
+    @if (isset($change_type))
+        @switch($change_type)
+            @case('principal')
+                <button type="button" class="btn btn-info btn-rounded btn-icon" id="btn_change">
+                    <i class='bx bx-transfer-alt'></i>
+                </button>
+                @break
+
+            @case('inverse')
+                <button type="button" class="btn btn-inverse-info btn-rounded btn-icon" id="btn_change_inverse">
+                    <i class='bx bx-transfer-alt'></i>
+                </button>
+                @break
+                
+            @case('outline')
+                <button type="button" class="btn btn-outline-info btn-rounded btn-icon" id="btn_change_outline">
+                    <i class='bx bx-transfer-alt'></i>
+                </button>
+                @break
+                
+            @default
+                <button type="button" class="btn btn-info btn-rounded btn-icon" id="btn_change">
+                    <i class='bx bx-transfer-alt'></i>
+                </button>
+                @break
+
+        @endswitch
+    @else
+        <button type="button" class="btn btn-info btn-rounded btn-icon" id="btn_change">
+            <i class='bx bx-transfer-alt'></i>
+        </button>
+    @endif
+@endif

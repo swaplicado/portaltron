@@ -29,6 +29,9 @@ var app = new Vue({
         rejection_id: null,
         comments: null,
         is_reject: 0,
+
+        lAreas: oServerData.lAreas,
+        area_id: "",
     },
     mounted(){
         self = this;
@@ -49,6 +52,16 @@ var app = new Vue({
         }).on('select2:select', function(e) {
             
         });
+
+        $('#select_area').select2({
+            data: self.lAreas,
+            placeholder: 'Selecciona area',
+            dropdownParent: $('#modal_change_pay_complement')
+        }).on('select2:select', function(e) {
+            self.area_id =  e.params.data.id;
+        });
+
+        this.provider_id = $('#provider_filter').val();
     },
     methods: {
         getPayCompProvider(){
@@ -108,29 +121,8 @@ var app = new Vue({
             this.name_area = data[indexesPayCompTable.area];
             this.folio = data[indexesPayCompTable.folio];
             this.comments = data[indexesPayCompTable.comments];
-            this.getPayComp();
-        },
-
-        getPayComp(){
-            SGui.showWaitingUnlimit();
-
-            let route = this.oData.getPayComplementManagerRoute;
-
-            axios.post(route, {
-                'id_dps': this.id_dps,
-            })
-            .then( result => {
-                let data =  result.data;
-                if(data.success){
-                    this.oDps = data.oDps;
-                    this.check_status = this.oDps.check_status;
-                    this.comments = this.oDps.requester_comment_n;
-                    this.pdf_url = this.oDps.pdf_url_n;
-                    this.xml_url = this.oDps.xml_url_n;
-
-                    this.lDpsReasons = data.lDpsReasons;
-                    this.is_reject = this.oDps.is_reject;
-
+            this.getPayComp()
+                .then( data => {
                     $('#freqComments').select2({
                         data: self.lDpsReasons,
                         placeholder: "Comentarios frecuentes",
@@ -143,16 +135,44 @@ var app = new Vue({
 
                     $('#freqComments').val('').trigger('change');
 
-                    Swal.close();
                     $('#modal_pay_complement').modal('show');
-                }else{
-                    SGui.showMessage('', data.message, data.icon);
-                }
-            })
-            .catch( function(error){
-                console.log(error);
-                SGui.showError(error);
-            });
+                });
+        },
+
+        getPayComp(){
+            SGui.showWaitingUnlimit();
+
+            let route = this.oData.getPayComplementManagerRoute;
+
+            return new Promise((resolve, reject) => 
+                axios.post(route, {
+                    'id_dps': this.id_dps,
+                })
+                .then( result => {
+                    let data =  result.data;
+                    if(data.success){
+                        this.oDps = data.oDps;
+                        this.check_status = this.oDps.check_status;
+                        this.comments = this.oDps.requester_comment_n;
+                        this.pdf_url = this.oDps.pdf_url_n;
+                        this.xml_url = this.oDps.xml_url_n;
+
+                        this.lDpsReasons = data.lDpsReasons;
+                        this.is_reject = this.oDps.is_reject;
+
+                        Swal.close();
+                        resolve(true);
+                    }else{
+                        SGui.showMessage('', data.message, data.icon);
+                        reject(data.message);
+                    }
+                })
+                .catch( function(error){
+                    console.log(error);
+                    SGui.showError(error);
+                    reject(error);
+                })
+            );
         },
 
         rejectPayComp(){
@@ -211,6 +231,45 @@ var app = new Vue({
             this.comments = null;
             this.lDpsReasons = [];
             this.is_reject = 0;
+        },
+
+        change(data){
+            this.clean();
+            this.id_dps = data[indexesPayCompTable.id_dps];
+            this.name_area = data[indexesPayCompTable.area];
+            this.folio = data[indexesPayCompTable.folio];
+            this.comments = data[indexesPayCompTable.comments];
+            this.getPayComp()
+                .then( data => {
+                    $('#modal_change_pay_complement').modal('show');
+                });
+        },
+
+        setChange(){
+            SGui.showWaitingUnlimit();
+
+            let route = this.oData.changeAreaPayComplementRoute;
+
+            axios.post(route, {
+                'area_id': this.area_id,
+                'provider_id': this.provider_id,
+                'dps_id': this.id_dps,
+            })
+            .then( result => {
+                let data = result.data;
+                if(data.success){
+                    this.lDpsPayComp = data.lDpsPayComp;
+                    drawTableDpsPaycomplement(this.lDpsPayComp);
+                    SGui.showOk();
+                    $('#modal_change_pay_complement').modal('hide');
+                }else{
+                    SGui.showMessage('', data.message, data.icon);
+                }
+            })
+            .catch( function(error){
+                console.log(error);
+                SGui.showError(error);
+            });
         }
     }
 })

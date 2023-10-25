@@ -12,10 +12,12 @@
         this.lStatus = <?php echo json_encode($lStatus) ?>;
         this.lConstants = <?php echo json_encode($lConstants); ?>;
         this.lProviders = <?php echo json_encode($lProviders) ?>;
+        this.lAreas = <?php echo json_encode($lAreas) ?>;
         this.getPayComplementsProviderRoute = <?php echo json_encode(route('payComplement.getPayComplementsProvider')) ?>;
         this.getPayComplementRoute = <?php echo json_encode(route('payComplement.getPayComplement')) ?>;
         this.getPayComplementManagerRoute = <?php echo json_encode(route('payComplement.getPayComplementManager')) ?>;
         this.setVoboPayComplementRoute = <?php echo json_encode(route('payComplement.setVoboPayComplement')) ?>;
+        this.changeAreaPayComplementRoute = <?php echo json_encode(route('payComplement.changeAreaPayComplement')) ?>;
     }
     var oServerData = new GlobalData();
     var indexesPayCompTable = {
@@ -64,7 +66,7 @@
         </template>
 
         <div class="grid-margin">
-            @include('layouts.buttons', ['show' => true])
+            @include('layouts.buttons', ['show' => true, 'change' => true])
             <span class="nobreak">
                 <label for="status_filter">Filtrar estatus: </label>
                 <select class="select2-class form-control" name="status_filter" id="status_filter"></select>
@@ -145,12 +147,21 @@
                 table['table_pay_complement'].draw();
             });
 
+            $('#btn_change').click(function () {
+                if(table['table_pay_complement'].row('.selected').data() == undefined){
+                    SGui.showError("Debe seleccionar un renglón");
+                    return;
+                }
+
+                app.change(table['table_pay_complement'].row('.selected').data());
+            });
+
         });
     </script>
 
     @include('layouts.table_jsControll', [
                                             'table_id' => 'table_pay_complement',
-                                            'colTargets' => [0,1,2,3,5,6,13],
+                                            'colTargets' => [0,1,2,3,5,6,14],
                                             'colTargetsSercheable' => [4],
                                             'colTargetsNoOrder' => [7,8,11,13,14,15,16],
                                             'select' => true,

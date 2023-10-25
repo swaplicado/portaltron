@@ -116,3 +116,62 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="modal_change_pay_complement" ref="modal" tabindex="-1" aria-labelledby="modal_pay_complement" aria-hidden="true">
+    <div class="modal-dialog" style="max-width: 50rem">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal_pay_complement"><b> CFDI de pago @{{folio}}</b></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form class="forms-sample" action="#">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group sm-form-group row">
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Área destino:</label>
+                                <div class="col-sm-9">
+                                    <select class="select2-class form-control" style="width: 100%"
+                                    name="select_area" id="select_area"></select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="table-responsive">
+                                <table class="display expandable-table dataTable no-footer" id="table_provider_documents" width="100%" cellspacing="0">
+                                    <thead>
+                                        <th>Área destino</th>
+                                        <th>Ref. Factura</th>
+                                        <th>Documento</th>
+                                        <th></th>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>@{{name_area}}</td>
+                                            <td>@{{comments}}</td>
+                                            <td>PDF</td>
+                                            <td><a :href="pdf_url" target="_blank" class="btn btn-primary">Ver</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td>@{{name_area}}</td>
+                                            <td>@{{comments}}</td>
+                                            <td>XML</td>
+                                            <td><a :href="xml_url" target="_blank" class="btn btn-primary">Ver</a></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-info" v-on:click="setChange()">Reenviar</button>
+            </div>
+        </div>
+    </div>
+</div>

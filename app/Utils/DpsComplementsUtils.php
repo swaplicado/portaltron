@@ -54,6 +54,7 @@ class DpsComplementsUtils {
                     ->leftJoin('areas as a', 'a.id_area', '=', 'd.area_id')
                     ->join('vobo_dps as v', 'v.dps_id', '=', 'd.id_dps')
                     ->where('v.area_id', $area_id)
+                    ->where('v.is_deleted', 0)
                     ->whereIn('v.check_status', [SysConst::VOBO_REVISION, SysConst::VOBO_REVISADO])
                     ->whereIn('d.type_doc_id', $lTypes)
                         ->where('d.is_deleted', 0)

@@ -109,10 +109,10 @@ var app = new Vue({
                 return false;
             }
 
-            if(this.area_id == null || this.area_id == ""){
-                SGui.showMessage('', 'Debe seleccionar un área');
-                return false;
-            }
+            // if(this.area_id == null || this.area_id == ""){
+            //     SGui.showMessage('', 'Debe seleccionar un área');
+            //     return false;
+            // }
 
             return true;
         },

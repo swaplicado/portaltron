@@ -92,7 +92,10 @@ class SProvidersController extends Controller
 
         $lAreas = Areas::where('is_active', 1)->where('is_deleted', 0)->get();
 
-        return view('SProviders.guestRegister')->with('lDocs', $lDocs)->with('lAreas', $lAreas);
+        $config = \App\Utils\Configuration::getConfigurations();
+        $showAreaRegisterProvider = $config->showAreaRegisterProvider;
+
+        return view('SProviders.guestRegister')->with('lDocs', $lDocs)->with('lAreas', $lAreas)->with('showAreaRegisterProvider', $showAreaRegisterProvider);
     }
 
     public function tempProviderIndex($name){
@@ -112,6 +115,11 @@ class SProvidersController extends Controller
             $confirmPassword = $request->confirmPassword;
             $area_id = $request->area_id;
             $config = \App\Utils\Configuration::getConfigurations();
+            
+            if(is_null($area_id)){
+                $area_id = $config->defaultAreaProvider;
+            }
+
             $sOrders =  json_encode($config->orders);
             $lOrders = collect(json_decode($sOrders));
 

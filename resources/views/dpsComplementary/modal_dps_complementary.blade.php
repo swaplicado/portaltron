@@ -9,17 +9,19 @@
             </div>
             <div class="modal-body">
                 <form class="forms-sample" action="#">
-                    <div class="row">
-                        <div class="col-md-12">
-                            <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Área destino:</label>
-                                <div class="col-sm-9">
-                                    <select class="select2-class form-control" style="width: 100%"
-                                    name="select_area" id="select_area"></select>
+                    @if($showAreaDps)
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group sm-form-group row">
+                                    <label class="col-sm-3 my-col-sm-3 col-form-label ">Área destino:</label>
+                                    <div class="col-sm-9">
+                                        <select class="select2-class form-control" style="width: 100%"
+                                        name="select_area" id="select_area"></select>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    @endif
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group sm-form-group row">
