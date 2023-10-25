@@ -172,7 +172,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-
+                                                @if($showAreaRegisterProvider)
                                                     <div class="row">
                                                         <div class="col-md-6">
                                                             <div class="form-group sm-form-group row">
@@ -189,7 +189,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-
+                                                @endif
                                             @foreach($lDocs as $doc)
                                             @if($doc->is_reject)
                                                 <div class="row">

@@ -28,6 +28,7 @@ class SProvidersController extends Controller
 {
     public function index(){
         try {
+            $config = \App\Utils\Configuration::getConfigurations();
             $oArea = \Auth::user()->getArea();
             $lProviders = SProvidersUtils::getProvidersToVobo($oArea);
 
@@ -48,21 +49,27 @@ class SProvidersController extends Controller
                         )
                         ->get();
 
-            $lAreas = Areas::where('is_active', 1)->where('is_deleted', 0)->get();
             
+            $lAreas = Areas::whereIn('id_area', $config->areasToRegisterProvider)
+                            ->where('is_active', 1)
+                            ->where('is_deleted', 0)
+                            ->get();
+            
+            $user_area = $oArea->id_area;
+            $fatherArea = $config->fatherArea;
+            $showAreaRegisterProvider = $config->showAreaRegisterProvider;
         } catch (\Throwable $th) {
             \Log::error($th);
             return view('errorPages.serverError');
         }
-        $user_area = $oArea->id_area;
-        $fatherArea = $config = \App\Utils\Configuration::getConfigurations()->fatherArea;
         return view('sproviders.sproviders')->with('lProviders', $lProviders)
                                             ->with('lConstants', $lConstants)
                                             ->with('lStatus', $lStatus)
                                             ->with('oArea', $oArea)
                                             ->with('user_area', $user_area)
                                             ->with('fatherArea', $fatherArea)
-                                            ->with('lAreas', $lAreas);
+                                            ->with('lAreas', $lAreas)
+                                            ->with('showAreaRegisterProvider', $showAreaRegisterProvider);
     }
 
     public function getProvider(Request $request){
@@ -90,9 +97,11 @@ class SProvidersController extends Controller
                                 )
                                 ->get();
 
-        $lAreas = Areas::where('is_active', 1)->where('is_deleted', 0)->get();
-
         $config = \App\Utils\Configuration::getConfigurations();
+        $lAreas = Areas::whereIn('id_area', $config->areasToRegisterProvider)
+                        ->where('is_active', 1)
+                        ->where('is_deleted', 0)->get();
+
         $showAreaRegisterProvider = $config->showAreaRegisterProvider;
 
         return view('SProviders.guestRegister')->with('lDocs', $lDocs)->with('lAreas', $lAreas)->with('showAreaRegisterProvider', $showAreaRegisterProvider);
@@ -117,7 +126,14 @@ class SProvidersController extends Controller
             $config = \App\Utils\Configuration::getConfigurations();
             
             if(is_null($area_id)){
-                $area_id = $config->defaultAreaProvider;
+                if($config->requireAreaRegisterProvider){
+                    return json_encode(['success' => false, 'message' => "Debes seleccionar un área de destino", 'icon' => 'info']);
+                }else{
+                    $area_id = $config->omisionAreaRegisterProvider != null ? $config->omisionAreaRegisterProvider : $config->defaultAreaProvider;
+                    if(is_null($area_id)){
+                        return json_encode(['success' => false, 'message' => "No se encontró un área de destino", 'icon' => 'info']);
+                    }
+                }
             }
 
             $sOrders =  json_encode($config->orders);
@@ -389,18 +405,24 @@ class SProvidersController extends Controller
      * Metodo que regresa la vista para que el proveedor modifique sus datos
      */
     public function tempModifyProvider(){
+        $config = \App\Utils\Configuration::getConfigurations();
         $oProvider = \Auth::user()->getProviderData();
 
-        $lAreas = Areas::where('is_active', 1)->where('is_deleted', 0)->get();
+        $lAreas = Areas::whereIn('id_area', $config->areasToRegisterProvider)
+                        ->where('is_active', 1)
+                        ->where('is_deleted', 0)->get();
 
         // $lDocuments = SProvidersUtils::getDocumentsProvider($oProvider->id_provider, $oProvider->area_id);
         $lDocuments = SProvidersUtils::getDocumentsProviderByLastVobo($oProvider->id_provider);
         $lDocs = $lDocuments->where('is_reject', 1);
         // $lDocs = $lDocs->toArray();
 
+        $showAreaRegisterProvider = $config->showAreaRegisterProvider;
+
         return view('sproviders.tempModifyProvider')->with('oProvider', $oProvider)
                                                     ->with('lAreas', $lAreas)
-                                                    ->with('lDocs', $lDocs);
+                                                    ->with('lDocs', $lDocs)
+                                                    ->with('showAreaRegisterProvider', $showAreaRegisterProvider);
     }
 
     /**
@@ -416,6 +438,18 @@ class SProvidersController extends Controller
             $config = \App\Utils\Configuration::getConfigurations();
             $sOrders =  json_encode($config->orders);
             $lOrders = collect(json_decode($sOrders));
+
+            if(is_null($area_id)){
+                if($config->requireAreaRegisterProvider){
+                    return json_encode(['success' => false, 'message' => "Debes seleccionar un área de destino", 'icon' => 'info']);
+                }else{
+                    $area_id = $config->omisionAreaRegisterProvider != null ? $config->omisionAreaRegisterProvider : $config->defaultAreaProvider;
+                    if(is_null($area_id)){
+                        return json_encode(['success' => false, 'message' => "No se encontró un área de destino", 'icon' => 'info']);
+                    }
+                }
+            }
+
             $oOrder = $lOrders->where('id', $area_id)->first();
             $orders = $oOrder->orders;
 

@@ -64,7 +64,7 @@
                             </div>
                         </div>
                     </div>
-                    @if($user_area == $fatherArea)
+                    @if($showAreaRegisterProvider == true && $user_area == $fatherArea)
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group sm-form-group row">
