@@ -101,7 +101,7 @@ class DpsComplementsUtils {
 
     public static function getlDpsReferences($dps_id){
         $lDpsReferences = DB::table('dps_references AS dps')
-                                ->join('dps AS orinal','ref.id_dps','=','dps.dps_id')
+                                ->join('dps AS original','original.id_dps','=','dps.dps_id')
                                 ->leftJoin('dps AS ref','ref.id_dps','=','dps.reference_doc')
                                 ->where('dps.dps_id', $dps_id)
                                 ->where('dps.is_deleted', 0)
