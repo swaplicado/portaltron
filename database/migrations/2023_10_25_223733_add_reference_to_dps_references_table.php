@@ -31,6 +31,7 @@ class AddReferenceToDpsReferencesTable extends Migration
         Schema::table('dps_references', function (Blueprint $table) {
             $table->dropColumn('reference_folio_n');
             $table->dropColumn('reference_serie_n');
+            $table->dropColumn('reference_num_ref_n');
         });
     }
 }
