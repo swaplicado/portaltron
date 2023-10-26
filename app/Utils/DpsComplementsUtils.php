@@ -1,5 +1,6 @@
 <?php namespace App\Utils;
       use App\Constants\SysConst;
+      use DB;
 
 class DpsComplementsUtils {
     public static function getlDpsComplements($year, $provider_id, $lTypes){
@@ -96,5 +97,33 @@ class DpsComplementsUtils {
                         ->get();
 
         return $lDps;
+    }
+
+    public static function getlDpsReferences($dps_id){
+        $lDpsReferences = DB::table('dps_references AS dps')
+                                ->join('dps AS ref','ref.id_dps','=','dps.dps_id')
+                                ->where('dps.dps_id', $dps_id)
+                                ->where('dps.is_deleted', 0)
+                                ->select(
+                                    'dps.id_dps_reference AS idDps',
+                                    'ref.serie_n AS serie',
+                                    'ref.num_ref_n AS folio',
+                                    'ref.folio_n AS ref'   
+                                )
+                                ->get();
+        return $lDpsReferences;
+    }
+    // se ocupa enviar 
+    public static function transformToString($lDpsReferences){
+        $toVisualice = '';
+        foreach($lDpsReferences AS $ref){
+            if($toVisualice == ''){
+                $toVisualice = $toVisualice.$ref->ref;
+            }else{
+                $toVisualice = $toVisualice.', '.$ref->ref;
+            }
+        }
+
+        return $toVisualice;
     }
 }
