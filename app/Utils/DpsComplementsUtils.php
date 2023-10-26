@@ -21,6 +21,8 @@ class DpsComplementsUtils {
                                 'd.type_doc_id',
                                 'd.ext_id_year',
                                 'd.ext_id_doc',
+                                'd.serie_n',
+                                'd.num_ref_n',
                                 'd.folio_n',
                                 'd.pdf_url_n',
                                 'd.xml_url_n',
@@ -109,19 +111,22 @@ class DpsComplementsUtils {
                                     'dps.id_dps_reference AS idDps',
                                     'ref.serie_n AS serie',
                                     'ref.num_ref_n AS folio',
-                                    'ref.folio_n AS ref'   
+                                    'ref.folio_n AS ref',
+                                    'dps.reference_serie_n',
+                                    'dps.reference_num_ref_n',
+                                    'dps.reference_folio_n',
                                 )
                                 ->get();
         return $lDpsReferences;
     }
     // se ocupa enviar 
-    public static function transformToString($lDpsReferences){
+    public static function transformToString($lDpsReferences, $reference = "ref"){
         $toVisualice = '';
         foreach($lDpsReferences AS $ref){
             if($toVisualice == ''){
-                $toVisualice = $toVisualice.$ref->ref;
+                $toVisualice = $toVisualice.$ref->$reference;
             }else{
-                $toVisualice = $toVisualice.', '.$ref->ref;
+                $toVisualice = $toVisualice.', '.$ref->$reference;
             }
         }
 

@@ -59,12 +59,14 @@ class Menu {
                     case 'proveedor.complementos':
                         $lMenus[] = (object) ['type' => $element, 'route' => route('dpsComplementary.complements'), 
                                     'icon' => 'bx bxs-file-blank bx-sm', 'name' => 'Facturas y NC', 'order' => 5];
+                        $lMenus[] = (object) ['type' => $element, 'route' => route('notaCredito.notaCredito'), 
+                                    'icon' => 'bx bx bxs-credit-card bx-sm', 'name' => 'Notas de crédito', 'order' => 6];
                         $lMenus[] = (object) ['type' => $element, 'route' => route('payComplement.payComplement'), 
-                                    'icon' => 'bx bx bx-receipt bx-sm', 'name' => 'CFDI de pago', 'order' => 6];
+                                    'icon' => 'bx bx bx-receipt bx-sm', 'name' => 'CFDI de pago', 'order' => 7];
                         break;
                     case 'proveedor.estadoscuentas':
                         $lMenus[] = (object) ['type' => $element, 'route' => route('accountStates.index'), 
-                                    'icon' => 'bx bx-wallet bx-sm', 'name' => 'Estados de cuenta', 'order' => 7];
+                                    'icon' => 'bx bx-wallet bx-sm', 'name' => 'Estados de cuenta', 'order' => 8];
                         $lMenus[] = (object) ['type' => $element, 'route' => route('sproviders.profile'), 
                                     'icon' => 'bx bxs-user-detail bx-sm', 'name' => 'Mis datos proveedor', 'order' => 1];
                         break;

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SDocs\notaCreditoController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Auth\LoginController;
@@ -154,6 +155,13 @@ Route::middleware(['auth', 'menu', 'app.sprovider', 'app.companie'])->group( fun
         Route::post('payComplement/savePayComplement', [payComplementController::class, 'savePayComplement'])->name('savePayComplement');
         Route::post('payComplement/getPayComplement', [payComplementController::class, 'getPayComplement'])->name('getPayComplement');
         Route::post('payComplement/getlPayCompByYear', [payComplementController::class, 'getlPayCompByYear'])->name('getlPayCompByYear');
+    });
+
+    /** Rutas Notas de credito */
+    Route::group(['as' => 'notaCredito.'], function (){
+        Route::get('notaCredito', [notaCreditoController::class, 'providerIndex'])->name('notaCredito');
+        Route::post('notaCredito/saveNotaCredito', [notaCreditoController::class, 'saveNotaCredito'])->name('saveNotaCredito');
+        Route::post('notaCredito/getNotaCredito', [notaCreditoController::class, 'getNotaCredito'])->name('getNotaCredito');
     });
 
     /**
