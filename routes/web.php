@@ -159,6 +159,11 @@ Route::middleware(['auth', 'menu', 'app.sprovider', 'app.companie'])->group( fun
 
     /** Rutas Notas de credito */
     Route::group(['as' => 'notaCredito.'], function (){
+        Route::get('notaCreditoManager', [notaCreditoController::class, 'notaCreditoManager'])->name('notaCreditoManager');
+        Route::post('notaCreditoManager/getNotaCredito', [notaCreditoController::class, 'getNotaCreditoManager'])->name('getNotaCreditoManager');
+        Route::post('notaCreditoManager/setVoboNotaCredito', [notaCreditoController::class, 'setVoboNotaCredito'])->name('setVoboNotaCredito');
+        Route::post('notaCreditoManager/getNotasCreditoProvider', [notaCreditoController::class, 'getNotasCreditoProvider'])->name('getNotasCreditoProvider');
+
         Route::get('notaCredito', [notaCreditoController::class, 'providerIndex'])->name('notaCredito');
         Route::post('notaCredito/saveNotaCredito', [notaCreditoController::class, 'saveNotaCredito'])->name('saveNotaCredito');
         Route::post('notaCredito/getNotaCredito', [notaCreditoController::class, 'getNotaCredito'])->name('getNotaCredito');

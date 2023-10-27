@@ -74,6 +74,8 @@ class DpsComplementsUtils {
                             'd.type_doc_id',
                             'd.ext_id_year',
                             'd.ext_id_doc',
+                            'd.serie_n',
+                            'd.num_ref_n',
                             'd.folio_n',
                             'd.pdf_url_n',
                             'd.xml_url_n',

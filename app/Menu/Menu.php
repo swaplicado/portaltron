@@ -43,9 +43,11 @@ class Menu {
                         $lMenus[] = (object) ['type' => $element, 'route' => route('dpsComplementary.complementsManager'), 
                                     'icon' => 'bx bxs-file-blank bx-sm', 'name' => 'Facturas y NC', 'order' => 5];
                         $lMenus[] = (object) ['type' => $element, 'route' => route('payComplement.payComplementsManager'), 
-                                    'icon' => 'bx bx bx-receipt bx-sm', 'name' => 'CFDI de pago', 'order' => 6];
+                                    'icon' => 'bx bx bx-receipt bx-sm', 'name' => 'CFDI de pago', 'order' => 7];
                         $lMenus[] = (object) ['type' => $element, 'route' => route('estimateRequest.indexERManager'), 
                                     'icon' => 'bx bxs-dollar-circle bx-sm', 'name' => 'Sol. cotización', 'order' => 3];
+                        $lMenus[] = (object) ['type' => $element, 'route' => route('notaCredito.notaCreditoManager'), 
+                                    'icon' => 'bx bxs-credit-card bx-sm', 'name' => 'Notas de crédito', 'order' => 6];
                         break;
                     case 'proveedores.oc':
                         $lMenus[] = (object) ['type' => $element, 'route' => route('purchaseOrders.index'), 
@@ -77,7 +79,7 @@ class Menu {
                         break;
                     case 'manager.proveedor.estadoscuentas':
                         $lMenus[] = (object) ['type' => $element, 'route' => route('accountStates.managerIndex'), 
-                                    'icon' => 'bx bx-wallet bx-sm', 'name' => 'Estados de cuenta', 'order' => 7];
+                                    'icon' => 'bx bx-wallet bx-sm', 'name' => 'Estados de cuenta', 'order' => 8];
                         break;
                         
                     default:

@@ -7,14 +7,17 @@ use App\Http\Controllers\Controller;
 use App\Models\Areas\Areas;
 use App\Models\SDocs\Dps;
 use App\Models\SDocs\DpsComplementary;
+use App\Models\SDocs\DpsReasonRejection;
 use App\Models\SDocs\DpsReference;
 use App\Models\SDocs\StatusDps;
 use App\Models\SDocs\TypeDoc;
 use App\Models\SDocs\VoboDps;
+use App\Models\SProviders\SProvider;
 use App\Utils\dateUtils;
 use App\Utils\DpsComplementsUtils;
 use App\Utils\FilesUtils;
 use App\Utils\ordersVobosUtils;
+use App\Utils\SProvidersUtils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Storage;
@@ -245,5 +248,227 @@ class notaCreditoController extends Controller
         }
 
         return json_encode(['success' => true, 'oDps' => $oDps]);
+    }
+
+    public function notaCreditoManager(){
+        try {
+            $oArea = \Auth::user()->getArea();
+            $olProviders = SProvidersUtils::getlProviders($oArea->id_area);
+
+            $lProviders = [];
+            array_push($lProviders, ['id' => 0, 'text' => "Todos"]);
+            foreach ($olProviders as $value) {
+                array_push($lProviders, ['id' => $value->id_provider, 'text' => $value->provider_name]);
+            }
+
+            $year = Carbon::now()->format('Y');
+
+            $lStatus = StatusDps::where('type_doc_id', SysConst::DOC_TYPE_NOTA_CREDITO)
+                            ->where('is_deleted', 0)
+                            ->select(
+                                'id_status_dps as id',
+                                'name as text'
+                            )
+                            ->get()
+                            ->toArray();
+
+            array_unshift($lStatus, ['id' => 0, 'text' => 'Todos']);
+            
+            $arrStatusNC = SysConst::statusTypesDoc['NOTA_CREDITO'];
+
+            $lConstants = [
+                'NOTA_CREDITO' => SysConst::DOC_TYPE_NOTA_CREDITO,
+                'NC_STATUS_NUEVO' => $arrStatusNC['NUEVO'],
+                'NC_STATUS_PENDIENTE' => $arrStatusNC['PENDIENTE'],
+            ];
+
+            $lNotaCredito = DpsComplementsUtils::getlDpsComplementsToVobo($year, 0, 
+                    [SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->id_area);
+            foreach ($lNotaCredito as $nc) {
+                $lDpsReferences = DpsComplementsUtils::getlDpsReferences($nc->id_dps);
+                $Sreference = DpsComplementsUtils::transformToString($lDpsReferences, "reference_folio_n");
+                $nc->reference_string = $Sreference;
+                $nc->dateFormat = dateUtils::formatDate($nc->created_at, 'd-m-Y');
+            }
+
+            $lAreas = Areas::where('is_deleted', 0)
+                            ->where('is_active', 1)
+                            ->select(
+                                'id_area as id',
+                                'name_area as text'
+                            )
+                            ->get()
+                            ->toArray();
+
+        } catch (\Throwable $th) {
+            \Log::error($th);
+            return view('errorPages.serverError');
+        }
+
+        return view('notaCredito.notaCredito_manager')->with('lProviders', $lProviders)
+                                                    ->with('year', $year)
+                                                    ->with('lStatus', $lStatus)
+                                                    ->with('lConstants', $lConstants)
+                                                    ->with('lNotaCredito', $lNotaCredito)
+                                                    ->with('lAreas', $lAreas);
+    }
+
+    public function getNotaCreditoManager(Request $request){
+        try {
+            $id_dps = $request->id_dps;
+            $oArea = \Auth::user()->getArea();
+            $oDps = \DB::table('dps as d')
+                    ->join('dps_complementary as dc', 'dc.dps_id', '=', 'd.id_dps')
+                    ->leftJoin('dps as d2', 'd2.id_dps', '=', 'dc.reference_doc_n')
+                    ->join('vobo_dps as v', 'v.dps_id', '=', 'd.id_dps')
+                    ->where('d.id_dps', $id_dps)
+                    ->where('v.area_id', $oArea->id_area)
+                    ->where('d.is_deleted', 0)
+                    ->select(
+                        'd.*',
+                        'd2.folio_n as reference',
+                        'dc.requester_comment_n',
+                        'v.is_accept',
+                        'v.is_reject',
+                        'v.order',
+                        'v.check_status',
+                    )
+                    ->first();
+
+            $lDpsReasons = DpsReasonRejection::where(function($query) use($oDps){
+                                                $query->where('type_doc_id_n', $oDps->type_doc_id)->orWhere('type_doc_id_n', null);
+                                            })
+                                            ->where('is_active', 1)
+                                            ->where('is_deleted', 0)
+                                            ->orderBy('type_doc_id_n', 'desc')
+                                            ->get()
+                                            ->map(function ($item) {
+                                                return [
+                                                    'id' => $item->id_dps_reason_rejection,
+                                                    'text' => $item->reason,
+                                                ];
+                                            });
+
+            $lDpsReferences = DpsComplementsUtils::getlDpsReferences($oDps->id_dps);
+            $Sreference = DpsComplementsUtils::transformToString($lDpsReferences, "reference_folio_n");
+            $oDps->reference_string = $Sreference;
+
+        } catch (\Throwable $th) {
+            \Log::error($th);
+            return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
+        }
+
+        return json_encode(['success' => true, 'oDps' => $oDps, 'lDpsReasons' => $lDpsReasons]);
+    }
+
+    /**
+     * Obtiene las NC de un proveedor
+     */
+    public function getNotasCreditoProvider(Request $request){
+        try {
+            $oArea = \Auth::user()->getArea();
+            $provider_id = $request->provider_id;
+
+            if($provider_id != 0){
+                $oProvider = SProvider::findOrFail($provider_id);
+                $provider_id = $oProvider->id_provider;
+            }
+
+            $year = $request->year;
+
+            if(is_null($year)){
+                $year = Carbon::now()->format('Y');
+            }
+
+            $lNotaCredito = DpsComplementsUtils::getlDpsComplementsToVobo($year, $provider_id, 
+                                [SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->id_area);
+            foreach ($lNotaCredito as $nc) {
+                $lDpsReferences = DpsComplementsUtils::getlDpsReferences($nc->id_dps);
+                $Sreference = DpsComplementsUtils::transformToString($lDpsReferences, "reference_folio_n");
+                $nc->reference_string = $Sreference;
+                $nc->dateFormat = dateUtils::formatDate($nc->created_at, 'd-m-Y');
+            }
+        } catch (\Throwable $th) {
+            \Log::error($th);
+            return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
+        }
+
+        return json_encode(['success' => true, 'lNotaCredito' => $lNotaCredito]);
+    }
+
+    public function setVoboNotaCredito(Request $request){
+        try {
+            $id_dps = $request->id_dps;
+            $is_accept = $request->is_accept;
+            $is_reject = $request->is_reject;
+            $provider_id = $request->provider_id;
+            $year = $request->year;
+            $comments = $request->comments;
+
+            $oArea = \Auth::user()->getArea();
+
+            \DB::beginTransaction();
+
+            $oDps = Dps::findOrFail($id_dps);
+            
+            $arrTypes = SysConst::lTypesDoc;
+            $key = array_search($oDps->type_doc_id, $arrTypes);
+            $arrStatus = SysConst::statusTypesDoc[$key];
+            
+            $statusKey = $is_accept == true ? 'APROBADO' : 'RECHAZADO';
+            $status_id = $arrStatus[$statusKey];
+
+            $oVobo = VoboDps::where('dps_id', $id_dps)->where('area_id', $oArea->id_area)->first();
+            $oVobo->user_id = \Auth::user()->id;
+            $oVobo->is_accept = $is_accept;
+            $oVobo->is_reject = $is_reject;
+            $oVobo->date_accept_n = $is_accept == true ? Carbon::now()->toDateString() : null;
+            $oVobo->date_rej_n = $is_reject == true ? Carbon::now()->toDateString() : null;
+            $oVobo->check_status = SysConst::VOBO_REVISADO;
+            $oVobo->is_deleted = 0;
+            $oVobo->updated_by = \Auth::user()->id;
+            $oVobo->update();
+
+            $childAreaId = ordersVobosUtils::getDpsChildArea($oDps->type_doc_id, $oArea->id_area);
+            if($childAreaId != 0 && $is_accept == true){
+                $oDpsChild = VoboDps::where('dps_id', $id_dps)->where('area_id', $childAreaId)->first();
+                $oDpsChild->check_status = SysConst::VOBO_REVISION;
+                $oDpsChild->update();
+            }else{
+                $oDps->status_id = $status_id;
+                $oDps->update();
+            }
+
+            if($is_reject){
+                $oDpsComplementary = DpsComplementary::where('dps_id', $id_dps)->where('is_deleted', 0)->first();
+                $oDpsComplementary->requester_comment_n = $comments;
+                $oDpsComplementary->update();
+
+                $rejection_id = $request->rejection_id;
+                if(!is_null($rejection_id) && $rejection_id != "null"){
+                    $oDpsReasonRejection = DpsReasonRejection::find($rejection_id);
+                    $oDpsReasonRejection->count_usage = $oDpsReasonRejection->count_usage + 1;
+                    $oDpsReasonRejection->update();
+                }
+            }
+
+            $lNotaCredito = DpsComplementsUtils::getlDpsComplementsToVobo($year, $provider_id, 
+                        [SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->id_area);
+            
+            foreach ($lNotaCredito as $nc) {
+                $lDpsReferences = DpsComplementsUtils::getlDpsReferences($nc->id_dps);
+                $Sreference = DpsComplementsUtils::transformToString($lDpsReferences, "reference_folio_n");
+                $nc->reference_string = $Sreference;
+                $nc->dateFormat = dateUtils::formatDate($nc->created_at, 'd-m-Y');
+            }
+
+            \DB::commit();
+        } catch (\Throwable $th) {
+            \DB::rollBack();
+            \Log::error($th);
+            return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
+        }
+
+        return json_encode(['success' => true, 'lNotaCredito' => $lNotaCredito]);
     }
 }
