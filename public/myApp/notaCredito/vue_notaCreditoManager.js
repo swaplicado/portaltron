@@ -23,6 +23,10 @@ var app = new Vue({
         lDpsReasons: [],
         rejection_id: null,
         is_reject: 0,
+
+        name_area: '',
+
+        is_omision: false,
     },
     mounted(){
         self = this;
@@ -47,7 +51,7 @@ var app = new Vue({
         $('#select_area').select2({
             data: self.lAreas,
             placeholder: 'Selecciona area',
-            dropdownParent: $('#modal_change_dps_complementary')
+            dropdownParent: $('#modal_change_notaCredito')
         }).on('select2:select', function(e) {
             self.area_id =  e.params.data.id;
         });
@@ -205,6 +209,72 @@ var app = new Vue({
             this.lDpsReasons = [];
             this.rejection_id = null;
             this.is_reject = 0;
+        },
+
+        change(data){
+            this.clean();
+            this.id_dps = data[indexesNCTable.id_dps];
+            this.name_area = data[indexesNCTable.area];
+
+            this.getNotaCredito()
+                .then(data => {
+                    $('#select_area').val(this.area_id).trigger('change');
+                    $('#modal_change_notaCredito').modal('show');
+                });
+        },
+
+        sendChange(){
+            SGui.showWaitingUnlimit();
+
+            let route = this.oData.changeAreaDpsRoute;
+
+            axios.post(route, {
+                'area_id': this.area_id,
+                'provider_id': this.provider_id,
+                'dps_id': this.id_dps,
+            })
+            .then( result => {
+                let data = result.data;
+                if(data.success){
+                    this.lNotaCredito = data.lNotaCredito;
+                    drawTableNotaCredito(this.lNotaCredito);
+                    SGui.showOk();
+                    $('#modal_change_notaCredito').modal('hide');
+                }else{
+                    SGui.showMessage('', data.message, data.icon);
+                }
+            })
+            .catch( function(error){
+                console.log(error);
+                SGui.showError(error);
+            });
+        },
+
+        getNotasCreditoOmision(omision){
+            SGui.showWaitingUnlimit();
+
+            let route = this.oData.getNotasCreditoOmisionRoute;
+
+            axios.post(route, {
+                'omision': omision,
+            })
+            .then( result => {
+                let data = result.data;
+                if(data.success){
+                    this.is_omision = omision;
+                    this.lNotaCredito = data.lNotaCredito;
+                    drawTableNotaCredito(this.lNotaCredito);
+                    $('#provider_filter').val(0).trigger('change');
+                    this.provider_id = $('#provider_filter').val();
+                    SGui.showOk();
+                }else{
+                    SGui.showMessage('', data.message, data.icon);
+                }
+            })
+            .catch( function(error){
+                console.log(error);
+                SGui.showError(error);
+            });
         }
     }
 });

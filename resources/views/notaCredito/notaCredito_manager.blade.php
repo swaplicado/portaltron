@@ -15,6 +15,8 @@
         this.getNotaCreditoRoute = <?php echo json_encode(route('notaCredito.getNotaCreditoManager')) ?>;
         this.setVoboNotaCreditoRoute = <?php echo json_encode(route('notaCredito.setVoboNotaCredito')) ?>;
         this.getNotasCreditoProviderRoute = <?php echo json_encode(route('notaCredito.getNotasCreditoProvider')) ?>;
+        this.changeAreaDpsRoute = <?php echo json_encode(route('notaCredito.changeAreaDps')) ?>;
+        this.getNotasCreditoOmisionRoute = <?php echo json_encode(route('notaCredito.getNotasCreditoOmision')) ?>;
     }
     var oServerData = new GlobalData();
     var indexesNCTable = {
@@ -47,7 +49,8 @@
         <h3>Notas de crédito</h3>
     </div>
     <div class="card-body">
-        <div class="grid-margin">
+
+        <div class="grid-margin" v-show="!is_omision">
             <span class="">
                 <label for="provider_filter">Seleccione proveedor: </label>
                 <select class="select2-class form-control" name="provider_filter"
@@ -56,6 +59,14 @@
             <button type="button" class="btn btn-primary" v-on:click="getNotasCreditoProvider()">
                 Consultar
             </button>
+            <button type="button" class="btn btn-warning" v-on:click="getNotasCreditoOmision(true)">
+                Ver documentos sin area
+            </button>
+        </div>
+        <div class="grid-margin" v-if="is_omision">
+            <button type="button" class="btn btn-warning" v-on:click="getNotasCreditoOmision(false)">
+                Volver a mis documentos
+            </button>
         </div>
 
         <template style="overflow-y: scroll;">
@@ -63,8 +74,14 @@
         </template>
 
         <div class="grid-margin">
-            @include('layouts.buttons', ['show' => true])
-            <span class="nobreak">
+            <span v-show="!is_omision">
+                @include('layouts.buttons', ['show' => true])
+            </span>
+            <span>
+                @include('layouts.buttons', ['change' => true])
+            </span>
+
+            <span class="nobreak" v-show="!is_omision">
                 <label for="status_filter">Filtrar estatus: </label>
                 <select class="select2-class form-control" name="status_filter" id="status_filter"></select>
             </span>
@@ -125,6 +142,15 @@
             
             $('#status_filter').change( function() {
                 table['table_nota_credito'].draw();
+            });
+
+            $('#btn_change').click(function () {
+                if(table['table_nota_credito'].row('.selected').data() == undefined){
+                    SGui.showError("Debe seleccionar un renglón");
+                    return;
+                }
+
+                app.change(table['table_nota_credito'].row('.selected').data());
             });
 
         });

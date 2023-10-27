@@ -134,4 +134,57 @@ class DpsComplementsUtils {
 
         return $toVisualice;
     }
+
+    public static function getlDpsOmisionArea($lTypes, $provider_id = 0){
+        $config = \App\Utils\Configuration::getConfigurations();
+        $lOmisionAreaDps = collect($config->lOmisionAreaDps);
+        $lAreas = $lOmisionAreaDps->whereIn('type', $lTypes)->pluck('id');
+
+        $lDps = DB::table('dps as d')
+                    ->join('dps_complementary as com', 'd.id_dps', '=', 'com.dps_id')
+                    ->join('type_doc as t', 't.id_type', '=', 'd.type_doc_id')
+                    ->join('status_dps as s', 's.id_status_dps', '=', 'd.status_id')
+                    ->leftJoin('purchase_orders as p', 'p.id_purchase_order', '=', 'com.reference_doc_n')
+                    ->leftJoin('dps as d2', 'd2.id_dps', '=', 'p.dps_id')
+                    ->leftJoin('areas as a', 'a.id_area', '=', 'd.area_id')
+                    ->leftJoin('providers as prov', 'prov.id_provider', '=', 'd.provider_id_n')
+                    ->whereIn('d.type_doc_id', $lTypes)
+                    ->where('d.is_deleted', 0)
+                    ->whereIn('d.area_id', $lAreas);
+
+        if($provider_id != 0){
+            $lDps = $lDps->where('d.provider_id_n', $provider_id);
+        }
+
+        $lDps = $lDps->where('com.is_deleted', 0)
+                    ->select(
+                        'd.id_dps',
+                        'd.type_doc_id',
+                        'd.ext_id_year',
+                        'd.ext_id_doc',
+                        'd.serie_n',
+                        'd.num_ref_n',
+                        'd.folio_n',
+                        'd.pdf_url_n',
+                        'd.xml_url_n',
+                        'd.status_id',
+                        'd.is_deleted',
+                        'd.area_id',
+                        'com.reference_doc_n',
+                        'com.provider_comment_n',
+                        'com.requester_comment_n',
+                        'com.provider_date_n',
+                        'com.requester_date_n',
+                        'com.is_opened',
+                        't.name_type as type',
+                        's.name as status',
+                        'd2.folio_n as reference_folio',
+                        'd.created_at',
+                        'a.name_area',
+                        'prov.provider_name'
+                    )
+                    ->get();
+
+        return $lDps;
+    }
 }

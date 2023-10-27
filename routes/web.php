@@ -163,6 +163,8 @@ Route::middleware(['auth', 'menu', 'app.sprovider', 'app.companie'])->group( fun
         Route::post('notaCreditoManager/getNotaCredito', [notaCreditoController::class, 'getNotaCreditoManager'])->name('getNotaCreditoManager');
         Route::post('notaCreditoManager/setVoboNotaCredito', [notaCreditoController::class, 'setVoboNotaCredito'])->name('setVoboNotaCredito');
         Route::post('notaCreditoManager/getNotasCreditoProvider', [notaCreditoController::class, 'getNotasCreditoProvider'])->name('getNotasCreditoProvider');
+        Route::post('notaCreditoManager/changeAreaDps', [notaCreditoController::class, 'changeAreaDps'])->name('changeAreaDps');
+        Route::post('notaCreditoManager/getNotasCreditoOmision', [notaCreditoController::class, 'getNotasCreditoOmision'])->name('getNotasCreditoOmision');
 
         Route::get('notaCredito', [notaCreditoController::class, 'providerIndex'])->name('notaCredito');
         Route::post('notaCredito/saveNotaCredito', [notaCreditoController::class, 'saveNotaCredito'])->name('saveNotaCredito');
