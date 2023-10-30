@@ -32,6 +32,8 @@ var app = new Vue({
 
         lAreas: oServerData.lAreas,
         area_id: "",
+
+        is_omision: false,
     },
     mounted(){
         self = this;
@@ -262,6 +264,33 @@ var app = new Vue({
                     drawTableDpsPaycomplement(this.lDpsPayComp);
                     SGui.showOk();
                     $('#modal_change_pay_complement').modal('hide');
+                }else{
+                    SGui.showMessage('', data.message, data.icon);
+                }
+            })
+            .catch( function(error){
+                console.log(error);
+                SGui.showError(error);
+            });
+        },
+
+        getDpsPayComplementOmision(omision){
+            SGui.showWaitingUnlimit();
+
+            let route = this.oData.getPayComplementOmisionRoute;
+
+            axios.post(route, {
+                'omision': omision,
+            })
+            .then( result => {
+                let data = result.data;
+                if(data.success){
+                    this.is_omision = omision;
+                    this.lDpsPayComp = data.lDpsPayComp;
+                    drawTableDpsPaycomplement(this.lDpsPayComp);
+                    $('#provider_filter').val(0).trigger('change');
+                    this.provider_id = $('#provider_filter').val();
+                    SGui.showOk();
                 }else{
                     SGui.showMessage('', data.message, data.icon);
                 }

@@ -18,6 +18,7 @@
         this.getPayComplementManagerRoute = <?php echo json_encode(route('payComplement.getPayComplementManager')) ?>;
         this.setVoboPayComplementRoute = <?php echo json_encode(route('payComplement.setVoboPayComplement')) ?>;
         this.changeAreaPayComplementRoute = <?php echo json_encode(route('payComplement.changeAreaPayComplement')) ?>;
+        this.getPayComplementOmisionRoute = <?php echo json_encode(route('payComplement.getPayComplementOmision')) ?>;
     }
     var oServerData = new GlobalData();
     var indexesPayCompTable = {
@@ -50,13 +51,21 @@
         <h3>CFDI de pago</h3>
     </div>
     <div class="card-body">
-        <div class="grid-margin">
+        <div class="grid-margin" v-show="!is_omision">
             <span class="">
                 <label for="provider_filter">Seleccione proveedor: </label>
                 <select class="select2-class form-control" name="provider_filter" id="provider_filter" style="width: 300px !important"></select>
             </span>
             <button type="button" class="btn btn-primary" v-on:click="getPayCompProvider()">
                 Consultar
+            </button>
+            <button type="button" class="btn btn-warning" v-on:click="getDpsPayComplementOmision(true)">
+                Ver documentos sin area
+            </button>
+        </div>
+        <div class="grid-margin" v-if="is_omision">
+            <button type="button" class="btn btn-warning" v-on:click="getDpsPayComplementOmision(false)">
+                Volver a mis documentos
             </button>
         </div>
 
@@ -66,8 +75,13 @@
         </template>
 
         <div class="grid-margin">
-            @include('layouts.buttons', ['show' => true, 'change' => true])
-            <span class="nobreak">
+            <span v-show="!is_omision">
+                @include('layouts.buttons', ['show' => true])
+            </span>
+            <span>
+                @include('layouts.buttons', ['change' => true])
+            </span>
+            <span class="nobreak" v-show="!is_omision">
                 <label for="status_filter">Filtrar estatus: </label>
                 <select class="select2-class form-control" name="status_filter" id="status_filter"></select>
             </span>

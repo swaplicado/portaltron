@@ -19,6 +19,7 @@
             this.getDpsComplementManagerRoute = <?php echo json_encode(route('dpsComplementary.getDpsComplementManager')); ?>;
             this.setVoboComplementRoute = <?php echo json_encode(route('dpsComplementary.setVoboComplement')); ?>;
             this.changeAreaDpsRoute = <?php echo json_encode(route('dpsComplementary.changeAreaDps')); ?>;
+            this.getDpsComplementOmisionRoute = <?php echo json_encode(route('dpsComplementary.getDpsComplementOmision')); ?>;
         }
         var oServerData = new GlobalData();
         var indexesDpsCompTable = {
@@ -49,7 +50,7 @@
             <h3>Facturas y notas de crédito</h3>
         </div>
         <div class="card-body">
-            <div class="grid-margin">
+            <div class="grid-margin" v-show="!is_omision">
                 <span class="">
                     <label for="provider_filter">Seleccione proveedor: </label>
                     <select class="select2-class form-control" name="provider_filter"
@@ -57,6 +58,14 @@
                 </span>
                 <button type="button" class="btn btn-primary" v-on:click="getComplementsProvider()">
                     Consultar
+                </button>
+                <button type="button" class="btn btn-warning" v-on:click="getDpsComplementOmision(true)">
+                    Ver documentos sin area
+                </button>
+            </div>
+            <div class="grid-margin" v-if="is_omision">
+                <button type="button" class="btn btn-warning" v-on:click="getDpsComplementOmision(false)">
+                    Volver a mis documentos
                 </button>
             </div>
 
@@ -66,8 +75,14 @@
                 </template>
 
                 <div class="grid-margin">
-                    @include('layouts.buttons', ['show' => true, 'change' => true])
-                    <span class="nobreak">
+                    <span v-show="!is_omision">
+                        @include('layouts.buttons', ['show' => true])
+                    </span>
+                    <span>
+                        @include('layouts.buttons', ['change' => true])
+                    </span>
+
+                    <span class="nobreak" v-show="!is_omision">
                         <label for="status_filter">Filtrar Tipo: </label>
                         <select class="select2-class form-control" name="type_filter" id="type_filter"></select>
                     </span>

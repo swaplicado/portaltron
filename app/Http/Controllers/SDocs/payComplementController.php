@@ -484,4 +484,30 @@ class payComplementController extends Controller
 
         return json_encode(['success' => true, 'lDpsPayComp' => $lDpsPayComp]);
     }
+
+    public function getPayComplementOmision(Request $request){
+        try {
+            $omision = $request->omision;
+            if($omision){
+                $lDpsPayComp = DpsComplementsUtils::getlDpsOmisionArea([SysConst::DOC_TYPE_COMPLEMENTO_PAGO]);
+            }else{
+                $oArea = \Auth::user()->getArea();
+                $year = Carbon::now()->format('Y');
+                $lDpsPayComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, 0, 
+                    [SysConst::DOC_TYPE_COMPLEMENTO_PAGO], $oArea->id_area);
+            }
+
+            foreach ($lDpsPayComp as $dps) {
+                $lDpsReferences = DpsComplementsUtils::getlDpsReferences($dps->id_dps);
+                $Sreference = DpsComplementsUtils::transformToString($lDpsReferences, "reference_folio_n");
+                $dps->reference_string = $Sreference;
+                $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
+            }
+        } catch (\Throwable $th) {
+            \Log::error($th);
+            return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
+        }
+
+        return json_encode(['success' => true, 'lDpsPayComp' => $lDpsPayComp]);
+    }
 }

@@ -134,6 +134,7 @@ Route::middleware(['auth', 'menu', 'app.sprovider', 'app.companie'])->group( fun
         Route::post('complementsManager/getDpsComplementManager', [dpsComplementaryController::class, 'getDpsComplementManager'])->name('getDpsComplementManager');
         Route::post('complementsManager/setVoboComplement', [dpsComplementaryController::class, 'setVoboComplement'])->name('setVoboComplement');
         Route::post('complementsManager/changeAreaDps', [dpsComplementaryController::class, 'changeAreaDps'])->name('changeAreaDps');
+        Route::post('complementsManager/getDpsComplementOmision', [dpsComplementaryController::class, 'getDpsComplementOmision'])->name('getDpsComplementOmision');
 
         Route::get('complements', [dpsComplementaryController::class, 'providerIndex'])->name('complements');
         Route::post('complements/save', [dpsComplementaryController::class, 'saveComplementary'])->name('SaveComplements');
@@ -150,6 +151,7 @@ Route::middleware(['auth', 'menu', 'app.sprovider', 'app.companie'])->group( fun
         Route::post('payComplementManager/getPayComplementManager', [payComplementController::class, 'getPayComplementManager'])->name('getPayComplementManager');
         Route::post('payComplementManager/setVoboPayComplement', [payComplementController::class, 'setVoboPayComplement'])->name('setVoboPayComplement');
         Route::post('payComplementManager/changeAreaPayComplement', [payComplementController::class, 'changeAreaPayComplement'])->name('changeAreaPayComplement');
+        Route::post('payComplementManager/getPayComplementOmision', [payComplementController::class, 'getPayComplementOmision'])->name('getPayComplementOmision');
 
         Route::get('payComplement', [payComplementController::class, 'payComplement'])->name('payComplement');
         Route::post('payComplement/savePayComplement', [payComplementController::class, 'savePayComplement'])->name('savePayComplement');
