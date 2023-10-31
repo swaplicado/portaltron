@@ -88,6 +88,11 @@ var app = new Vue({
                     drawTableDpsPaycomplement(this.lDpsPayComp);
                     SGui.showOk();
                     $('#modal_pay_complements').modal('hide');
+
+                    if(!data.mailSuccess){
+                        SGui.showMessage('', data.message, data.icon);
+                    }
+
                 }else{
                     SGui.showMessage('', data.message, data.icon);
                 }

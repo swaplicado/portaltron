@@ -77,6 +77,11 @@ var app = new Vue({
                     drawTableNotaCredito(this.lNotaCredito);
                     SGui.showOk();
                     $('#modal_up_notaCredito').modal('hide');
+
+                    if(!data.mailSuccess){
+                        SGui.showMessage('', data.message, data.icon);
+                    }
+
                 }else{
                     SGui.showMessage('', data.message, data.icon);
                 }

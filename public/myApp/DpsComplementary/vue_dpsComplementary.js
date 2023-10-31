@@ -104,6 +104,10 @@ var app = new Vue({
                     drawTableDpsComplementary(this.lDpsComp);
                     SGui.showOk();
                     $('#modal_dps_complementary').modal('hide');
+
+                    if(!data.mailSuccess){
+                        SGui.showMessage('', data.message, data.icon);
+                    }
                 }else{
                     SGui.showMessage('', data.message, data.icon);
                 }

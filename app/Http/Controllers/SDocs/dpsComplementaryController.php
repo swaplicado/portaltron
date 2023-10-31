@@ -4,6 +4,9 @@ namespace App\Http\Controllers\SDocs;
 
 use App\Constants\SysConst;
 use App\Http\Controllers\Controller;
+use App\Mail\newDpsMail;
+use App\Mail\rejectDpsMail;
+use App\Mail\voboDpsMail;
 use App\Models\Areas\Areas;
 use App\Models\SDocs\Dps;
 use App\Models\SDocs\DpsComplementary;
@@ -19,6 +22,7 @@ use App\Utils\ordersVobosUtils;
 use App\Utils\SProvidersUtils;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 class dpsComplementaryController extends Controller
@@ -191,7 +195,24 @@ class dpsComplementaryController extends Controller
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
         }
 
-        return json_encode(['success' => true, 'lDpsComp' => $lDpsComp]);
+        try {
+            $order = collect($orders)->first();
+            $oArea = Areas::findOrFail($order->area);
+
+            Mail::to($oArea->email_n)->send(new newDpsMail(
+                                                $oProvider->provider_short_name,
+                                                $oDps->type_doc_id,
+                                                "Factura",
+                                                $oDps->folio_n,
+                                                [1,2,3]
+                                            )
+                                        );
+        } catch (\Throwable $th) {
+            \Log::error($th);
+            return json_encode(['success' => true, 'lDpsComp' => $lDpsComp, 'mailSuccess' => false, "message" => $th->getMessage(), "icon"=> "warning"]);
+        }
+
+        return json_encode(['success' => true, 'lDpsComp' => $lDpsComp, 'mailSuccess' => true]);
     }
 
     public function getDpsComplement(Request $request){
@@ -389,6 +410,9 @@ class dpsComplementaryController extends Controller
 
     public function setVoboComplement(Request $request){
         try {
+            $mailStatus = '';
+            $sendMail = false;
+
             $id_dps = $request->id_dps;
             $is_accept = $request->is_accept;
             $is_reject = $request->is_reject;
@@ -428,6 +452,8 @@ class dpsComplementaryController extends Controller
             }else{
                 $oDps->status_id = $status_id;
                 $oDps->update();
+                $mailStatus = $statusKey;
+                $sendMail = true;
             }
 
             if($is_reject){
@@ -456,7 +482,26 @@ class dpsComplementaryController extends Controller
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
         }
 
-        return json_encode(['success' => true, 'lDpsComp' => $lDpsComp]);
+        if($sendMail){
+            try {
+                $oProvider = SProvider::findOrFail($oDps->provider_id_n);
+                Mail::to($oProvider->provider_email)->send(new voboDpsMail(
+                                                        $oProvider->provider_short_name,
+                                                        $oDps->type_doc_id,
+                                                        "factura",
+                                                        $oDps->folio_n,
+                                                        $mailStatus,
+                                                        $comments
+                                                    )
+                                                );
+            } catch (\Throwable $th) {
+                \Log::error($th);
+                return json_encode(['success' => true, 'lDpsComp' => $lDpsComp, 'mailSuccess' => false, 
+                "message" => "Registro guardado con éxito, pero no se pudo enviar el email de notificación", "icon"=> "warning"]);
+            }
+        }
+
+        return json_encode(['success' => true, 'lDpsComp' => $lDpsComp, 'mailSuccess' => true]);
     }
 
     public function changeAreaDps(Request $request){

@@ -4,6 +4,8 @@ namespace App\Http\Controllers\SProviders;
 
 use App\Constants\SysConst;
 use App\Http\Controllers\Controller;
+use App\Mail\newProviderMail;
+use App\Mail\voboProviderMail;
 use App\Models\Areas\Areas;
 use App\Models\SDocs\DocsUrl;
 use App\Models\SDocs\ProvDocs;
@@ -22,6 +24,7 @@ use App\Utils\SysUtils;
 use Illuminate\Http\Request;
 use App\Models\SProviders\SProvider;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 
 class SProvidersController extends Controller
@@ -273,11 +276,28 @@ class SProvidersController extends Controller
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
         }
 
+        try {
+            $order = collect($orders)->first();
+            $oArea = Areas::findOrFail($order->area);
+            Mail::to($oArea->email_n)->send(new newProviderMail(
+                                                    $oProvider->provider_short_name,
+                                                    $oProvider->provider_rfc,
+                                                )
+                                            );
+        } catch (\Throwable $th) {
+            \Log::error($th);
+            return json_encode(['success' => true, 'mailSuccess' => false, 
+            "message" => "Registro guardado con éxito, pero no se pudo enviar el email de notificación", "icon"=> "info"]);
+        }
+
         return json_encode(['success' => true]);
     }
 
     public function approveProvider(Request $request){
         try {
+            $mailStatus = '';
+            $sendMail = false;
+
             $config = \App\Utils\Configuration::getConfigurations();
             $id_provider = $request->id_provider;
             $provider_area = $request->provider_area != "null" ? $request->provider_area : $config->fatherArea;
@@ -322,6 +342,9 @@ class SProvidersController extends Controller
                     }
                 }
                 $oProvider->save();
+
+                $mailStatus = "APROBADO";
+                $sendMail = true;
             }
             
             $lProviders = SProvidersUtils::getProvidersToVobo($oArea);
@@ -332,11 +355,30 @@ class SProvidersController extends Controller
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
         }
 
+        if($sendMail){
+            try {
+                Mail::to($oProvider->provider_email)->send(new voboProviderMail(
+                                                        SysConst::MAIL_PROVEEDOR,
+                                                        $oProvider->provider_short_name,
+                                                        $mailStatus,
+                                                        ""
+                                                    )
+                                                );
+            } catch (\Throwable $th) {
+                \Log::error($th);
+                return json_encode(['success' => true, 'lProviders' => $lProviders, 'mailSuccess' => false, 
+                "message" => "Registro guardado con éxito, pero no se pudo enviar el email de notificación", "icon"=> "info"]);
+            }
+        }
+
         return json_encode(['success' => true, 'lProviders' => $lProviders]);
     }
 
     public function rejectProvider(Request $request){
         try {
+            $mailStatus = '';
+            $sendMail = false;
+
             $id_provider = $request->id_provider;
 
             $oProvider = SProvider::findOrFail($id_provider);
@@ -356,6 +398,9 @@ class SProvidersController extends Controller
             $oProvider->status_provider_id = SysConst::PROVIDER_RECHAZADO;
             $oProvider->save();
 
+            $mailStatus = "RECHAZADO";
+            $sendMail = true;
+
             $lProviders = SProvidersUtils::getProvidersToVobo($oArea);
 
             \DB::commit();
@@ -364,11 +409,30 @@ class SProvidersController extends Controller
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
         }
 
+        if($sendMail){
+            try {
+                Mail::to($oProvider->provider_email)->send(new voboProviderMail(
+                                                        SysConst::MAIL_PROVEEDOR,
+                                                        $oProvider->provider_short_name,
+                                                        $mailStatus,
+                                                        ""
+                                                    )
+                                                );
+            } catch (\Throwable $th) {
+                \Log::error($th);
+                return json_encode(['success' => true, 'lProviders' => $lProviders, 'mailSuccess' => false, 
+                "message" => "Registro guardado con éxito, pero no se pudo enviar el email de notificación", "icon"=> "info"]);
+            }
+        }
+
         return json_encode(['success' => true, 'lProviders' => $lProviders]);
     }
 
     public function requireModifyProvider(Request $request){
         try {
+            $mailStatus = '';
+            $sendMail = false;
+
             $id_provider = $request->id_provider;
             $comments = $request->comments;
 
@@ -390,12 +454,31 @@ class SProvidersController extends Controller
             $oProvider->comments_n = $comments;
             $oProvider->save();
 
+            $mailStatus = "MODIFICAR";
+            $sendMail = true;
+
             $lProviders = SProvidersUtils::getProvidersToVobo($oArea);
 
             \DB::commit();
         } catch (\Throwable $th) {
             \DB::rollBack();
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
+        }
+
+        if($sendMail){
+            try {
+                Mail::to($oProvider->provider_email)->send(new voboProviderMail(
+                                                        SysConst::MAIL_PROVEEDOR,
+                                                        $oProvider->provider_short_name,
+                                                        $mailStatus,
+                                                        $comments
+                                                    )
+                                                );
+            } catch (\Throwable $th) {
+                \Log::error($th);
+                return json_encode(['success' => true, 'lProviders' => $lProviders, 'mailSuccess' => false, 
+                "message" => "Registro guardado con éxito, pero no se pudo enviar el email de notificación", "icon"=> "info"]);
+            }
         }
 
         return json_encode(['success' => true, 'lProviders' => $lProviders]);

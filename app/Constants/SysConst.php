@@ -100,5 +100,7 @@ class SysConst {
     public const AREA_MANTENIMIENTO = 2;
     public const AREA_PROYECTOS = 3;
     public const AREA_CONTABILIDAD = 4;
+
+    public const MAIL_PROVEEDOR = 100;
 }
 ?>

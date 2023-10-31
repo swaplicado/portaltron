@@ -53,6 +53,9 @@ var app = new Vue({
                 if(data.success){
                     this.successRegister = data.success;
                     SGui.showOk();
+                    if(!data.mailSuccess){
+                        SGui.showMessage('', data.message, data.icon);
+                    }
                 }else{
                     SGui.showMessage('', data.message, data.icon);
                 }
