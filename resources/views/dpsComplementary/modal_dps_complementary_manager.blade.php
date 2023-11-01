@@ -17,17 +17,20 @@
                                         <th>Referencias</th>
                                         <th>Documento</th>
                                         <th></th>
+                                        <th></th>
                                     </thead>
                                     <tbody>
                                         <tr>
                                             <td>@{{reference}}</td>
                                             <td>PDF</td>
                                             <td><a :href="pdf_url" target="_blank" class="btn btn-primary">Ver</a></td>
+                                            <td><a :href="pdf_url" :download="pdf_url" class="btn btn-info">Descargar</a></td>
                                         </tr>
                                         <tr>
                                             <td>@{{reference}}</td>
                                             <td>XML</td>
                                             <td><a :href="xml_url" target="_blank" class="btn btn-primary">Ver</a></td>
+                                            <td><a :href="xml_url" :download="xml_url" class="btn btn-info">Descargar</a></td>
                                         </tr>
                                     </tbody>
                                 </table>

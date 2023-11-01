@@ -13,7 +13,7 @@ class DpsComplementsUtils {
                             ->leftJoin('areas as a', 'a.id_area', '=', 'd.area_id')
                             ->whereIn('d.type_doc_id', $lTypes)
                             ->where('d.is_deleted', 0)
-                            ->whereYear('d.created_at', $year)
+                            // ->whereYear('d.created_at', $year)
                             ->where('d.provider_id_n', $provider_id)
                             ->where('com.is_deleted', 0)
                             ->select(
@@ -60,8 +60,8 @@ class DpsComplementsUtils {
                     ->where('v.is_deleted', 0)
                     ->whereIn('v.check_status', [SysConst::VOBO_REVISION, SysConst::VOBO_REVISADO])
                     ->whereIn('d.type_doc_id', $lTypes)
-                        ->where('d.is_deleted', 0)
-                        ->whereYear('d.created_at', $year);
+                        ->where('d.is_deleted', 0);
+                        // ->whereYear('d.created_at', $year);
         if($provider_id != 0){
             $lDps = $lDps->where('d.provider_id_n', $provider_id);
         }else{

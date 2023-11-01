@@ -14,6 +14,7 @@ class updateController extends Controller
      */
     public function index()
     {
+        fixesUtils::separateReferencia();
         fixesUtils::doTableRef();
 
         return 'Realizado';

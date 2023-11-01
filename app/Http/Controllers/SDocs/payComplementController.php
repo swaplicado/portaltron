@@ -440,6 +440,7 @@ class payComplementController extends Controller
                 $oArea = collect([\Auth::user()->getArea()]);
                 $oArea = $oArea->pluck('id_area'); 
             }
+            $voboArea = \Auth::user()->getArea();
 
             DB::beginTransaction();
 
@@ -452,7 +453,7 @@ class payComplementController extends Controller
             $statusKey = $is_accept == true ? 'APROBADO' : 'RECHAZADO';
             $status_id = $arrStatus[$statusKey];
 
-            $oVobo = VoboDps::where('dps_id', $id_dps)->where('area_id', $oArea->toArray())->first();
+            $oVobo = VoboDps::where('dps_id', $id_dps)->where('area_id', $voboArea->id_area)->first();
             $oVobo->user_id = \Auth::user()->id;
             $oVobo->is_accept = $is_accept;
             $oVobo->is_reject = $is_reject;
@@ -463,7 +464,7 @@ class payComplementController extends Controller
             $oVobo->updated_by = \Auth::user()->id;
             $oVobo->update();
 
-            $childAreaId = ordersVobosUtils::getDpsChildArea($oDps->type_doc_id, $oArea->toArray());
+            $childAreaId = ordersVobosUtils::getDpsChildArea($oDps->type_doc_id, $voboArea->id_area);
             if($childAreaId != 0 && $is_accept == true){
                 $oDpsChild = VoboDps::where('dps_id', $id_dps)->where('area_id', $childAreaId)->first();
                 $oDpsChild->check_status = SysConst::VOBO_REVISION;

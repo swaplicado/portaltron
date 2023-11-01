@@ -158,17 +158,20 @@
                                         <th style="text-align: center">Referencias</th>
                                         <th style="text-align: center">Documento</th>
                                         <th></th>
+                                        <th></th>
                                     </thead>
                                     <tbody>
                                         <tr>
                                             <td style="text-align: center">@{{reference}}</td>
                                             <td style="text-align: center">PDF</td>
                                             <td style="text-align: center"><a :href="pdf_url" target="_blank" class="btn btn-primary">Ver</a></td>
+                                            <td style="text-align: center"><a :href="pdf_url" :download="pdf_url" class="btn btn-info">Descargar</a></td>
                                         </tr>
                                         <tr>
                                             <td style="text-align: center">@{{reference}}</td>
                                             <td style="text-align: center">XML</td>
                                             <td style="text-align: center"><a :href="xml_url" target="_blank" class="btn btn-primary">Ver</a></td>
+                                            <td style="text-align: center"><a :href="xml_url" :download="xml_url" class="btn btn-info">Descargar</a></td>
                                         </tr>
                                     </tbody>
                                 </table>
