@@ -21,9 +21,10 @@ class Menu {
                 (object) ['type' => $element, 'route' => route('purchaseOrders.indexManager'), 'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Ordenes compra', 'order' => 5],
                 (object) ['type' => $element, 'route' => route('dpsComplementary.complementsManager'),'icon' => 'bx bxs-file-blank bx-sm', 'name' => 'Facturas', 'order' => 5],
                 // (object) ['type' => $element, 'route' => route('accountStates.index'), 'icon' => 'bx bx-wallet bx-sm', 'name' => 'Estados de cuenta'],
-                (object) ['type' => $element, 'route' => route('accountStates.managerIndex'), 'icon' => 'bx bx-wallet bx-sm', 'name' => 'Estados de cuenta', 'order' => 5],
-                (object) ['type' => $element, 'route' => route('estimateRequest.indexERManager'), 'icon' => 'bx bxs-dollar-circle bx-sm', 'name' => 'Sol. cotización', 'order' => 5],
-                (object) ['type' => $element, 'route' => route('payComplement.payComplement'), 'icon' => 'bx bx bx-receipt bx-sm', 'name' => 'CFDI de pago', 'order' => 5]
+                (object) ['type' => $element, 'route' => route('accountStates.managerIndex'), 'icon' => 'bx bx-wallet bx-sm', 'name' => 'Estados de cuenta'],
+                (object) ['type' => $element, 'route' => route('estimateRequest.indexERManager'), 'icon' => 'bx bxs-dollar-circle bx-sm', 'name' => 'Sol. cotización'],
+                (object) ['type' => $element, 'route' => route('payComplement.payComplement'), 'icon' => 'bx bx bx-receipt bx-sm', 'name' => 'CFDI de pago'],
+                (object) ['type' => $element, 'route' => route('releases'), 'icon' => 'bx bxs-analyse bx-sm', 'name' => 'Actualizaciones', 'order' => 9]
             ];
         }else{
             $lPermissions = collect($oUser->permissionsByRol());
@@ -32,7 +33,8 @@ class Menu {
     
             $lMenus = [
                 (object) ['type' => $element, 'route' => route('home'), 'icon' => 'bx bx-home bx-sm', 'name' => 'Inicio', 'order' => 0],
-                (object) ['type' => $element, 'route' => route('manualUsuario'), 'icon' => 'bx bxs-book-alt bx-sm', 'name' => 'Manual de usuario', 'order' => 8]
+                (object) ['type' => $element, 'route' => route('manualUsuario'), 'icon' => 'bx bxs-book-alt bx-sm', 'name' => 'Manual de usuario', 'order' => 8],
+                (object) ['type' => $element, 'route' => route('releases'), 'icon' => 'bx bxs-analyse bx-sm', 'name' => 'Actualizaciones', 'order' => 9]
             ];
             foreach($viewsAccess as $view){
                 switch ($view->key_code) {

@@ -180,6 +180,10 @@ Route::middleware(['auth', 'menu', 'app.sprovider', 'app.companie'])->group( fun
      * Manual de usuario
      */
     Route::get('/manualUsuario', [userManualsController::class, 'index'])->name('manualUsuario');
+
+    Route::get('/releases', function () {
+        return view('releases.releases');
+    })->name('releases');
 });
 
 Route::get('/unauthorized', function () {

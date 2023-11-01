@@ -53,7 +53,14 @@
                         <tr>
                             <td>
                                 <a href="{{asset('manuales/interno/manual_facturas_y_notas_de_credito_(interno).pdf')}}" target="_blank">
-                                    <h3>Facturas y notas de crédito</h3>
+                                    <h3>Facturas</h3>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <a href="{{asset('manuales/interno/manual_notas_de_credito_(interno).pdf')}}" target="_blank">
+                                    <h3>Notas de crédito</h3>
                                 </a>
                             </td>
                         </tr>
@@ -89,7 +96,14 @@
                         <tr>
                             <td>
                                 <a href="{{asset('manuales/proveedor/manual_facturas_y_notas_de_credito_(proveedor).pdf')}}" target="_blank">
-                                    <h3>Facturas y notas de crédito</h3>
+                                    <h3>Facturas</h3>
+                                </a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <a href="{{asset('manuales/proveedor/manual_notas_de_credito_(proveedor).pdf')}}" target="_blank">
+                                    <h3>Notas de crédito</h3>
                                 </a>
                             </td>
                         </tr>
