@@ -44,15 +44,15 @@ class SProvidersUtils {
     /**
      * Metodo que obtiene todos los proveedores
      */
-    public static function getlProviders($area_id = null){
+    public static function getlProviders($area_id = []){
         $config = \App\Utils\Configuration::getConfigurations();
 
         $lProviders = SProvider::where('providers.is_active', 1)
                             ->where('providers.is_deleted', 0);
 
         if(!is_null($area_id)){
-            if($area_id != $config->fatherArea){
-                $lProviders = $lProviders->where('providers.area_id', $area_id);
+            if(in_array( $config->fatherArea, $area_id)){
+                $lProviders = $lProviders->whereIn('providers.area_id', $area_id);
             }
         }
 

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\SDocs\notaCreditoController;
+use App\Http\Controllers\updateController;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\Auth\LoginController;
@@ -32,6 +33,8 @@ use App\Http\Controllers\UserManuals\userManualsController;
 Route::get('/', function () {
     return redirect(route('login'));
 });
+
+Route::get('/actualizacion', [updateController::class,'index'])->name('actualizacionIndex');
 
 Route::middleware(('guest'))->group ( function (){
     Route::group(['prefix' => 'sprovider', 'as' => 'registerProvider.'], function(){

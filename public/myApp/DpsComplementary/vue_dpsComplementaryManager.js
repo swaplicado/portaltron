@@ -290,7 +290,7 @@ var app = new Vue({
             });
         },
 
-        getDpsPayComplementOmision(omision){
+        getDpsComplementOmision(omision){
             SGui.showWaitingUnlimit();
 
             let route = this.oData.getDpsComplementOmisionRoute;

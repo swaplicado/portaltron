@@ -10,7 +10,10 @@ var app = new Vue({
         default_area_id: oServerData.default_area_id,
         area_id: '',
         name_area: '',
+        serieoc: null,
         reference: null,
+        serie: null,
+        folio: null,
         modal_title: null,
         type_name: null,
         type_id:  null,
@@ -85,8 +88,10 @@ var app = new Vue({
             let inputXml = document.getElementById('xml');
             let fileXml = inputXml.files[0];
             formData.append('xml', fileXml);
+            formData.append('serieoc', this.serieoc)
+            formData.append('serie',this.serie);
+            formData.append('folio',this.folio);
 
-            formData.append('reference', this.reference);
             formData.append('type_id', this.type_id);
             formData.append('year', this.year);
             formData.append('area_id', this.area_id);

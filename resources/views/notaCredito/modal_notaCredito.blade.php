@@ -12,9 +12,9 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Serie y folio:*</label>
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Referencia:*</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" id="serieFolio" placeholder="serie y folio" v-model="serieFolio">
+                                    <input type="text" class="form-control" id="reference" placeholder="reference" v-model="reference">
                                 </div>
                             </div>
                         </div>
@@ -22,9 +22,9 @@
                     <div class="row">
                         <div class="col-md-12">
                             <div class="form-group sm-form-group row">
-                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Referencia:*</label>
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Serie y folio:*</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" id="reference" placeholder="reference" v-model="reference">
+                                    <input type="text" class="form-control" id="serieFolio" placeholder="serie y folio" v-model="serieFolio">
                                 </div>
                             </div>
                         </div>

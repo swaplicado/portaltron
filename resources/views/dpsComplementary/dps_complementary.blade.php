@@ -14,6 +14,8 @@
         this.lTypes = <?php echo json_encode($lTypes) ?>;
         this.lAreas = <?php echo json_encode($lAreas) ?>;
         this.default_area_id = <?php echo json_encode($default_area_id) ?>;
+        this.showAreaDps = <?php echo json_encode($showAreaDps)?>;
+        this.requireAreaDps = <?php echo  json_encode($requireAreaDps)?>;
         this.saveComplementsRoute = <?php echo json_encode(route('dpsComplementary.SaveComplements')) ?>;
         this.GetComplementsRoute = <?php echo json_encode(route('dpsComplementary.GetComplements')) ?>;
         this.getCompByYearRoute = <?php echo json_encode(route('dpsComplementary.getCompByYear')) ?>;
@@ -44,7 +46,7 @@
   
 <div class="card" id="dpsComplementary">
     <div class="card-header">
-        <h3>Facturas y notas de crédito</h3>
+        <h3>Facturas</h3>
     </div>
     <div class="card-body">
 
@@ -54,10 +56,10 @@
 
         <div class="grid-margin">
             @include('layouts.buttons', ['show' => true, 'upload' => true])
-            <span class="nobreak">
+            {{--<span class="nobreak">
                 <label for="status_filter">Filtrar Tipo: </label>
                 <select class="select2-class form-control" name="type_filter" id="type_filter"></select>
-            </span>
+            </span>--}}
             <span class="nobreak">
                 <label for="status_filter">Filtrar estatus: </label>
                 <select class="select2-class form-control" name="status_filter" id="status_filter"></select>
@@ -95,7 +97,7 @@
                     <th style="text-align: center">Folio</th>
                     <th style="text-align: center">Estatus</th>
                     <th style="text-align: center">Comentario</th>
-                    <th style="text-align: center">Orden compra</th>
+                    <th style="text-align: center">Referencias</th>
                     <th style="text-align: center">PDF</th>
                     <th style="text-align: center">XML</th>
                 </thead>
@@ -124,20 +126,14 @@
                     col_type = parseInt( data[indexesDpsCompTable.type_doc_id] );
 
                     if(settings.nTable.id == 'table_dps_complementary'){
-                        let iType = parseInt( $('#type_filter').val(), 10 );
                         let iStatus = parseInt( $('#status_filter').val(), 10 );
-                        if(col_type == iType || iType == 0){
-                            return iStatus == col_status || iStatus == 0;
-                        }
+                        return iStatus == col_status || iStatus == 0;
                     }
 
                     return false;
                 }
             );
             
-            $('#type_filter').change( function() {
-                table['table_dps_complementary'].draw();
-            });
 
             $('#status_filter').change( function() {
                 table['table_dps_complementary'].draw();
@@ -148,7 +144,7 @@
 
     @include('layouts.table_jsControll', [
                                             'table_id' => 'table_dps_complementary',
-                                            'colTargets' => [0,1,2,5,6],
+                                            'colTargets' => [0,1,2,5,6,8,9],
                                             'colTargetsSercheable' => [3,4],
                                             'colTargetsNoOrder' => [7,8,13,14,15],
                                             'select' => true,
@@ -179,7 +175,7 @@
                         dps.folio_n,
                         dps.status,
                         dps.requester_comment_n,
-                        dps.reference_folio,
+                        dps.reference_string,
                         ((dps.pdf_url_n != null && dps.pdf_url_n != "") ? 'Cargado' : 'Sin cargar'),
                         ((dps.xml_url_n != null && dps.xml_url_n != "") ? 'Cargado' : 'Sin cargar'),
                     ]

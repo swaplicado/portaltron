@@ -19,6 +19,7 @@ use App\Utils\FilesUtils;
 use App\Utils\ordersVobosUtils;
 use App\Utils\SProvidersUtils;
 use Carbon\Carbon;
+use DB;
 use Illuminate\Http\Request;
 use App\Constants\SysConst;
 use Illuminate\Support\Facades\Mail;
@@ -111,7 +112,7 @@ class payComplementController extends Controller
                 return json_encode(['success' => false, 'message' => $result[1], 'icon' => 'error']);
             }
 
-            \DB::beginTransaction();
+            DB::beginTransaction();
 
             $filePdfName = 'COMP_PAGO_'.$oProvider->provider_rfc.'_'.time().'.'.$pdf->extension();
             $resPdf = Storage::disk('complemento_pago')->putFileAs('/', $pdf, $filePdfName);
@@ -170,7 +171,7 @@ class payComplementController extends Controller
                 $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
             }
 
-            \DB::commit();
+            DB::commit();
         } catch (\Throwable $th) {
             \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
@@ -200,7 +201,7 @@ class payComplementController extends Controller
         try {
             $id_dps = $request->id_dps;
 
-            $oDps = \DB::table('dps as d')
+            $oDps = DB::table('dps as d')
                     ->join('dps_complementary as dc', 'd.id_dps', '=', 'dc.dps_id')
                     ->where('d.id_dps', $id_dps)
                     ->where('dc.is_deleted', 0)
@@ -240,8 +241,21 @@ class payComplementController extends Controller
      */
     public function payComplementsManager(){
         try {
-            $oArea = \Auth::user()->getArea();
-            $olProviders = SProvidersUtils::getlProviders($oArea->id_area);
+            $config = \App\Utils\Configuration::getConfigurations();
+            $canSeeAll = $config->canSeeAll;
+            $lOmisionAreaDps = collect($config->lOmisionAreaDps)->pluck('id');
+            
+            if(in_array(\Auth::user()->id,$canSeeAll)){
+                $oArea = DB::table('areas')
+                                ->where('is_deleted',0)
+                                ->whereNotIn('id_area',$lOmisionAreaDps)
+                                ->get(); 
+                $oArea = $oArea->pluck('id_area');   
+            }else{
+                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = $oArea->pluck('id_area'); 
+            }
+            $olProviders = SProvidersUtils::getlProviders($oArea->toArray());
 
             $lProviders = [];
             array_push($lProviders, ['id' => 0, 'text' => "Todos"]);
@@ -271,7 +285,11 @@ class payComplementController extends Controller
             ];
 
             $lDpsPayComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, 0, 
-                                                [SysConst::DOC_TYPE_COMPLEMENTO_PAGO], $oArea->id_area);
+                                                [SysConst::DOC_TYPE_COMPLEMENTO_PAGO], $oArea->toArray());
+
+            foreach ($lDpsPayComp as $dps) {
+                $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
+            }
 
             $lAreas = Areas::where('is_deleted', 0)
                             ->where('is_active', 1)
@@ -300,16 +318,26 @@ class payComplementController extends Controller
      */
     public function getPayComplementsProvider(Request $request){
         try {
-            $oArea = \Auth::user()->getArea();
+            $config = \App\Utils\Configuration::getConfigurations();
+            $canSeeAll = $config->canSeeAll;
+            $lOmisionAreaDps = collect($config->lOmisionAreaDps)->pluck('id');
+            
+            if(in_array(\Auth::user()->id,$canSeeAll)){
+                $oArea = DB::table('areas')
+                                ->where('is_deleted',0)
+                                ->whereNotIn('id_area',$lOmisionAreaDps)
+                                ->get(); 
+                $oArea = $oArea->pluck('id_area');   
+            }else{
+                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = $oArea->pluck('id_area'); 
+            }
             $provider_id = $request->provider_id;
             
             if($provider_id != 0){
                 $oProvider = SProvider::findOrFail($provider_id);
                 $provider_id = $oProvider->id_provider;
             }
-            
-
-
 
             $year = $request->year;
 
@@ -318,7 +346,7 @@ class payComplementController extends Controller
             }
 
             $lDpsPayComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $provider_id, 
-                                                [SysConst::DOC_TYPE_COMPLEMENTO_PAGO], $oArea->id_area);
+                                                [SysConst::DOC_TYPE_COMPLEMENTO_PAGO], $oArea->toArray());
 
             foreach ($lDpsPayComp as $dps) {
                 $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
@@ -335,12 +363,25 @@ class payComplementController extends Controller
     public function getPayComplementManager(Request $request){
         try {
             $id_dps = $request->id_dps;
-            $oArea = \Auth::user()->getArea();
-            $oDps = \DB::table('dps as d')
+            $config = \App\Utils\Configuration::getConfigurations();
+            $canSeeAll = $config->canSeeAll;
+            $lOmisionAreaDps = collect($config->lOmisionAreaDps)->pluck('id');
+            
+            if(in_array(\Auth::user()->id,$canSeeAll)){
+                $oArea = DB::table('areas')
+                                ->where('is_deleted',0)
+                                ->whereNotIn('id_area',$lOmisionAreaDps)
+                                ->get(); 
+                $oArea = $oArea->pluck('id_area');   
+            }else{
+                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = $oArea->pluck('id_area'); 
+            }
+            $oDps = DB::table('dps as d')
                     ->join('dps_complementary as dc', 'dc.dps_id', '=', 'd.id_dps')
                     ->join('vobo_dps as v', 'v.dps_id', '=', 'd.id_dps')
                     ->where('d.id_dps', $id_dps)
-                    ->where('v.area_id', $oArea->id_area)
+                    ->where('v.area_id', $oArea->toArray())
                     ->where('d.is_deleted', 0)
                     ->select(
                         'd.*',
@@ -385,9 +426,22 @@ class payComplementController extends Controller
             $year = $request->year;
             $comments = $request->comments;
 
-            $oArea = \Auth::user()->getArea();
+            $config = \App\Utils\Configuration::getConfigurations();
+            $canSeeAll = $config->canSeeAll;
+            $lOmisionAreaDps = collect($config->lOmisionAreaDps)->pluck('id');
+            
+            if(in_array(\Auth::user()->id,$canSeeAll)){
+                $oArea = DB::table('areas')
+                                ->where('is_deleted',0)
+                                ->whereNotIn('id_area',$lOmisionAreaDps)
+                                ->get(); 
+                $oArea = $oArea->pluck('id_area');   
+            }else{
+                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = $oArea->pluck('id_area'); 
+            }
 
-            \DB::beginTransaction();
+            DB::beginTransaction();
 
             $oDps = Dps::findOrFail($id_dps);
             
@@ -398,7 +452,7 @@ class payComplementController extends Controller
             $statusKey = $is_accept == true ? 'APROBADO' : 'RECHAZADO';
             $status_id = $arrStatus[$statusKey];
 
-            $oVobo = VoboDps::where('dps_id', $id_dps)->where('area_id', $oArea->id_area)->first();
+            $oVobo = VoboDps::where('dps_id', $id_dps)->where('area_id', $oArea->toArray())->first();
             $oVobo->user_id = \Auth::user()->id;
             $oVobo->is_accept = $is_accept;
             $oVobo->is_reject = $is_reject;
@@ -409,7 +463,7 @@ class payComplementController extends Controller
             $oVobo->updated_by = \Auth::user()->id;
             $oVobo->update();
 
-            $childAreaId = ordersVobosUtils::getDpsChildArea($oDps->type_doc_id, $oArea->id_area);
+            $childAreaId = ordersVobosUtils::getDpsChildArea($oDps->type_doc_id, $oArea->toArray());
             if($childAreaId != 0 && $is_accept == true){
                 $oDpsChild = VoboDps::where('dps_id', $id_dps)->where('area_id', $childAreaId)->first();
                 $oDpsChild->check_status = SysConst::VOBO_REVISION;
@@ -435,13 +489,13 @@ class payComplementController extends Controller
             }
 
             $lDpsPayComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $provider_id, 
-                                                [SysConst::DOC_TYPE_COMPLEMENTO_PAGO], $oArea->id_area);
+                                                [SysConst::DOC_TYPE_COMPLEMENTO_PAGO], $oArea->toArray());
 
             foreach ($lDpsPayComp as $dps) {
                 $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
             }
 
-            \DB::commit();
+            DB::commit();
         } catch (\Throwable $th) {
             \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
@@ -480,10 +534,23 @@ class payComplementController extends Controller
                 return json_encode(['success' => false, 'message' => "Debe seleccionar un area de destino", 'icon' => 'info']);
             }
 
-            $oArea = \Auth::user()->getArea();
+            $config = \App\Utils\Configuration::getConfigurations();
+            $canSeeAll = $config->canSeeAll;
+            $lOmisionAreaDps = collect($config->lOmisionAreaDps)->pluck('id');
+            
+            if(in_array(\Auth::user()->id,$canSeeAll)){
+                $oArea = DB::table('areas')
+                                ->where('is_deleted',0)
+                                ->whereNotIn('id_area',$lOmisionAreaDps)
+                                ->get(); 
+                $oArea = $oArea->pluck('id_area');   
+            }else{
+                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = $oArea->pluck('id_area'); 
+            }
             $year = Carbon::now()->format('Y');
 
-            \DB::beginTransaction();
+            DB::beginTransaction();
 
             $oDps = Dps::find($dps_id);
 
@@ -515,13 +582,13 @@ class payComplementController extends Controller
             }
 
             $lDpsPayComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $provider_id, 
-                                                [SysConst::DOC_TYPE_COMPLEMENTO_PAGO], $oArea->id_area);
+                                                [SysConst::DOC_TYPE_COMPLEMENTO_PAGO], $oArea->toArray());
 
             foreach ($lDpsPayComp as $dps) {
                 $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
             }
 
-            \DB::commit();
+            DB::commit();
         } catch (\Throwable $th) {
             \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
@@ -536,10 +603,23 @@ class payComplementController extends Controller
             if($omision){
                 $lDpsPayComp = DpsComplementsUtils::getlDpsOmisionArea([SysConst::DOC_TYPE_COMPLEMENTO_PAGO]);
             }else{
-                $oArea = \Auth::user()->getArea();
+                $config = \App\Utils\Configuration::getConfigurations();
+                $canSeeAll = $config->canSeeAll;
+                $lOmisionAreaDps = collect($config->lOmisionAreaDps)->pluck('id');
+                
+                if(in_array(\Auth::user()->id,$canSeeAll)){
+                    $oArea = DB::table('areas')
+                                    ->where('is_deleted',0)
+                                    ->whereNotIn('id_area',$lOmisionAreaDps)
+                                    ->get(); 
+                    $oArea = $oArea->pluck('id_area');   
+                }else{
+                    $oArea = collect([\Auth::user()->getArea()]);
+                    $oArea = $oArea->pluck('id_area'); 
+                }
                 $year = Carbon::now()->format('Y');
                 $lDpsPayComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, 0, 
-                    [SysConst::DOC_TYPE_COMPLEMENTO_PAGO], $oArea->id_area);
+                    [SysConst::DOC_TYPE_COMPLEMENTO_PAGO], $oArea->toArray());
             }
 
             foreach ($lDpsPayComp as $dps) {

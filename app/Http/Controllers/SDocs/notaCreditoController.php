@@ -21,6 +21,7 @@ use App\Utils\DpsComplementsUtils;
 use App\Utils\FilesUtils;
 use App\Utils\ordersVobosUtils;
 use App\Utils\SProvidersUtils;
+use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
@@ -152,7 +153,7 @@ class notaCreditoController extends Controller
                 return json_encode(['success' => false, 'message' => $result[1], 'icon' => 'error']);
             }
 
-            \DB::beginTransaction();
+            DB::beginTransaction();
 
             $filePdfName = 'NC_'.$reference.'_'.$oProvider->provider_rfc.'_'.time().'.'.$pdf->extension();
             $resPdf = Storage::disk('notas_credito')->putFileAs('/', $pdf, $filePdfName);
@@ -216,9 +217,9 @@ class notaCreditoController extends Controller
                 $nc->dateFormat = dateUtils::formatDate($nc->created_at, 'd-m-Y');
             }
 
-            \DB::commit();
+            DB::commit();
         } catch (\Throwable $th) {
-            \DB::rollBack();
+            DB::rollBack();
             \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
         }
@@ -247,7 +248,7 @@ class notaCreditoController extends Controller
         try {
             $id_dps = $request->id_dps;
 
-            $oDps = \DB::table('dps as d')
+            $oDps = DB::table('dps as d')
                     ->join('dps_complementary as dc', 'd.id_dps', '=', 'dc.dps_id')
                     ->leftJoin('dps as d2', 'd2.id_dps', '=', 'dc.reference_doc_n')
                     ->where('d.id_dps', $id_dps)
@@ -274,8 +275,20 @@ class notaCreditoController extends Controller
     public function notaCreditoManager(){
         try {
             $config = \App\Utils\Configuration::getConfigurations();
-            $oArea = \Auth::user()->getArea();
-            $olProviders = SProvidersUtils::getlProviders($oArea->id_area);
+            $canSeeAll = $config->canSeeAll;
+            $lOmisionAreaDps = collect($config->lOmisionAreaDps)->pluck('id');
+            
+            if(in_array(\Auth::user()->id,$canSeeAll)){
+                $oArea = DB::table('areas')
+                                ->where('is_deleted',0)
+                                ->whereNotIn('id_area',$lOmisionAreaDps)
+                                ->get(); 
+                $oArea = $oArea->pluck('id_area');   
+            }else{
+                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = $oArea->pluck('id_area'); 
+            }
+            $olProviders = SProvidersUtils::getlProviders($oArea->toArray());
 
             $lProviders = [];
             array_push($lProviders, ['id' => 0, 'text' => "Todos"]);
@@ -305,7 +318,7 @@ class notaCreditoController extends Controller
             ];
 
             $lNotaCredito = DpsComplementsUtils::getlDpsComplementsToVobo($year, 0, 
-                    [SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->id_area);
+                    [SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->toArray());
             foreach ($lNotaCredito as $nc) {
                 $lDpsReferences = DpsComplementsUtils::getlDpsReferences($nc->id_dps);
                 $Sreference = DpsComplementsUtils::transformToString($lDpsReferences, "reference_folio_n");
@@ -339,13 +352,26 @@ class notaCreditoController extends Controller
     public function getNotaCreditoManager(Request $request){
         try {
             $id_dps = $request->id_dps;
-            $oArea = \Auth::user()->getArea();
-            $oDps = \DB::table('dps as d')
+            $config = \App\Utils\Configuration::getConfigurations();
+            $canSeeAll = $config->canSeeAll;
+            $lOmisionAreaDps = collect($config->lOmisionAreaDps)->pluck('id');
+            
+            if(in_array(\Auth::user()->id,$canSeeAll)){
+                $oArea = DB::table('areas')
+                                ->where('is_deleted',0)
+                                ->whereNotIn('id_area',$lOmisionAreaDps)
+                                ->get(); 
+                $oArea = $oArea->pluck('id_area');   
+            }else{
+                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = $oArea->pluck('id_area'); 
+            }
+            $oDps = DB::table('dps as d')
                     ->join('dps_complementary as dc', 'dc.dps_id', '=', 'd.id_dps')
                     ->leftJoin('dps as d2', 'd2.id_dps', '=', 'dc.reference_doc_n')
                     ->leftJoin('vobo_dps as v', 'v.dps_id', '=', 'd.id_dps')
                     ->where('d.id_dps', $id_dps)
-                    // ->where('v.area_id', $oArea->id_area)
+                    ->where('v.area_id', $oArea->toArray())
                     ->where('d.is_deleted', 0)
                     ->select(
                         'd.*',
@@ -389,7 +415,20 @@ class notaCreditoController extends Controller
      */
     public function getNotasCreditoProvider(Request $request){
         try {
-            $oArea = \Auth::user()->getArea();
+            $config = \App\Utils\Configuration::getConfigurations();
+            $canSeeAll = $config->canSeeAll;
+            $lOmisionAreaDps = collect($config->lOmisionAreaDps)->pluck('id');
+            
+            if(in_array(\Auth::user()->id,$canSeeAll)){
+                $oArea = DB::table('areas')
+                                ->where('is_deleted',0)
+                                ->whereNotIn('id_area',$lOmisionAreaDps)
+                                ->get(); 
+                $oArea = $oArea->pluck('id_area');   
+            }else{
+                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = $oArea->pluck('id_area'); 
+            }
             $provider_id = $request->provider_id;
 
             if($provider_id != 0){
@@ -404,7 +443,7 @@ class notaCreditoController extends Controller
             }
 
             $lNotaCredito = DpsComplementsUtils::getlDpsComplementsToVobo($year, $provider_id, 
-                                [SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->id_area);
+                                [SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->toArray());
             foreach ($lNotaCredito as $nc) {
                 $lDpsReferences = DpsComplementsUtils::getlDpsReferences($nc->id_dps);
                 $Sreference = DpsComplementsUtils::transformToString($lDpsReferences, "reference_folio_n");
@@ -431,9 +470,22 @@ class notaCreditoController extends Controller
             $year = $request->year;
             $comments = $request->comments;
 
-            $oArea = \Auth::user()->getArea();
+            $config = \App\Utils\Configuration::getConfigurations();
+            $canSeeAll = $config->canSeeAll;
+            $lOmisionAreaDps = collect($config->lOmisionAreaDps)->pluck('id');
+            
+            if(in_array(\Auth::user()->id,$canSeeAll)){
+                $oArea = DB::table('areas')
+                                ->where('is_deleted',0)
+                                ->whereNotIn('id_area',$lOmisionAreaDps)
+                                ->get(); 
+                $oArea = $oArea->pluck('id_area');   
+            }else{
+                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = $oArea->pluck('id_area'); 
+            }
 
-            \DB::beginTransaction();
+            DB::beginTransaction();
 
             $oDps = Dps::findOrFail($id_dps);
             
@@ -455,7 +507,7 @@ class notaCreditoController extends Controller
             $oVobo->updated_by = \Auth::user()->id;
             $oVobo->update();
 
-            $childAreaId = ordersVobosUtils::getDpsChildArea($oDps->type_doc_id, $oArea->id_area);
+            $childAreaId = ordersVobosUtils::getDpsChildArea($oDps->type_doc_id, $oArea->toArray());
             if($childAreaId != 0 && $is_accept == true){
                 $oDpsChild = VoboDps::where('dps_id', $id_dps)->where('area_id', $childAreaId)->first();
                 $oDpsChild->check_status = SysConst::VOBO_REVISION;
@@ -481,7 +533,7 @@ class notaCreditoController extends Controller
             }
 
             $lNotaCredito = DpsComplementsUtils::getlDpsComplementsToVobo($year, $provider_id, 
-                        [SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->id_area);
+                        [SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->toArray());
             
             foreach ($lNotaCredito as $nc) {
                 $lDpsReferences = DpsComplementsUtils::getlDpsReferences($nc->id_dps);
@@ -490,9 +542,9 @@ class notaCreditoController extends Controller
                 $nc->dateFormat = dateUtils::formatDate($nc->created_at, 'd-m-Y');
             }
 
-            \DB::commit();
+            DB::commit();
         } catch (\Throwable $th) {
-            \DB::rollBack();
+            DB::rollBack();
             \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
         }
@@ -529,10 +581,23 @@ class notaCreditoController extends Controller
                 return json_encode(['success' => false, 'message' => "Debe seleccionar un area de destino", 'icon' => 'info']);
             }
 
-            $oArea = \Auth::user()->getArea();
+            $config = \App\Utils\Configuration::getConfigurations();
+            $canSeeAll = $config->canSeeAll;
+            $lOmisionAreaDps = collect($config->lOmisionAreaDps)->pluck('id');
+            
+            if(in_array(\Auth::user()->id,$canSeeAll)){
+                $oArea = DB::table('areas')
+                                ->where('is_deleted',0)
+                                ->whereNotIn('id_area',$lOmisionAreaDps)
+                                ->get(); 
+                $oArea = $oArea->pluck('id_area');   
+            }else{
+                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = $oArea->pluck('id_area'); 
+            }
             $year = Carbon::now()->format('Y');
 
-            \DB::beginTransaction();
+            DB::beginTransaction();
 
             $oDps = Dps::find($dps_id);
 
@@ -564,7 +629,7 @@ class notaCreditoController extends Controller
             }
 
             $lNotaCredito = DpsComplementsUtils::getlDpsComplementsToVobo($year, $provider_id, 
-                                [SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->id_area);
+                                [SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->toArray());
             
             foreach ($lNotaCredito as $nc) {
                 $lDpsReferences = DpsComplementsUtils::getlDpsReferences($nc->id_dps);
@@ -573,9 +638,9 @@ class notaCreditoController extends Controller
                 $nc->dateFormat = dateUtils::formatDate($nc->created_at, 'd-m-Y');
             }
 
-            \DB::commit();
+            DB::commit();
         } catch (\Throwable $th) {
-            \DB::rollBack();
+            DB::rollBack();
             \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
         }
@@ -589,10 +654,23 @@ class notaCreditoController extends Controller
             if($omision){
                 $lNotaCredito = DpsComplementsUtils::getlDpsOmisionArea([SysConst::DOC_TYPE_NOTA_CREDITO]);
             }else{
-                $oArea = \Auth::user()->getArea();
+                $config = \App\Utils\Configuration::getConfigurations();
+                $canSeeAll = $config->canSeeAll;
+                $lOmisionAreaDps = collect($config->lOmisionAreaDps)->pluck('id');
+                
+                if(in_array(\Auth::user()->id,$canSeeAll)){
+                    $oArea = DB::table('areas')
+                                    ->where('is_deleted',0)
+                                    ->whereNotIn('id_area',$lOmisionAreaDps)
+                                    ->get(); 
+                    $oArea = $oArea->pluck('id_area');   
+                }else{
+                    $oArea = collect([\Auth::user()->getArea()]);
+                    $oArea = $oArea->pluck('id_area'); 
+                }
                 $year = Carbon::now()->format('Y');
                 $lNotaCredito = DpsComplementsUtils::getlDpsComplementsToVobo($year, 0, 
-                    [SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->id_area);
+                    [SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->toArray());
             }
 
             foreach ($lNotaCredito as $nc) {

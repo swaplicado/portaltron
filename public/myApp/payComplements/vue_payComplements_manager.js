@@ -22,7 +22,7 @@ var app = new Vue({
 
         provider_id: null,
         lProviders: oServerData.lProviders,
-        showProvider: false,
+        showProvider: true,
         check_status: 0,
 
         lDpsReasons: [],
@@ -47,7 +47,7 @@ var app = new Vue({
             self.provider_id = e.params.data.id;
         });
 
-        $('#provider_filter').val('').trigger('change');
+        //$('#provider_filter').val('').trigger('change');
 
         $('#status_filter').select2({
             data: self.lStatus,

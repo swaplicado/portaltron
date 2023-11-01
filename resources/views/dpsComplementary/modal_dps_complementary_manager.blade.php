@@ -2,7 +2,7 @@
     <div class="modal-dialog" style="max-width: 50rem">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modal_dps_complementary"><b> Facturas y notas de crédito </b></h5>
+                <h5 class="modal-title" id="modal_dps_complementary"><b> Facturas </b></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -14,21 +14,18 @@
                             <div class="table-responsive">
                                 <table class="display expandable-table dataTable no-footer" id="table_provider_documents" width="100%" cellspacing="0">
                                     <thead>
-                                        <th>Orden compra</th>
-                                        <th>Área destino</th>
+                                        <th>Referencias</th>
                                         <th>Documento</th>
                                         <th></th>
                                     </thead>
                                     <tbody>
                                         <tr>
                                             <td>@{{reference}}</td>
-                                            <td>@{{name_area}}</td>
                                             <td>PDF</td>
                                             <td><a :href="pdf_url" target="_blank" class="btn btn-primary">Ver</a></td>
                                         </tr>
                                         <tr>
                                             <td>@{{reference}}</td>
-                                            <td>@{{name_area}}</td>
                                             <td>XML</td>
                                             <td><a :href="xml_url" target="_blank" class="btn btn-primary">Ver</a></td>
                                         </tr>
@@ -121,7 +118,7 @@
     <div class="modal-dialog" style="max-width: 50rem">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="modal_dps_complementary"><b> Facturas y notas de crédito </b></h5>
+                <h5 class="modal-title" id="modal_dps_complementary"><b> Facturas </b></h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -144,21 +141,18 @@
                             <div class="table-responsive">
                                 <table class="display expandable-table dataTable no-footer" id="table_provider_documents" width="100%" cellspacing="0">
                                     <thead>
-                                        <th>Orden compra</th>
-                                        <th>Área destino</th>
+                                        <th>Referencias</th>
                                         <th>Documento</th>
                                         <th></th>
                                     </thead>
                                     <tbody>
                                         <tr>
                                             <td>@{{reference}}</td>
-                                            <td>@{{name_area}}</td>
                                             <td>PDF</td>
                                             <td><a :href="pdf_url" target="_blank" class="btn btn-primary">Ver</a></td>
                                         </tr>
                                         <tr>
                                             <td>@{{reference}}</td>
-                                            <td>@{{name_area}}</td>
                                             <td>XML</td>
                                             <td><a :href="xml_url" target="_blank" class="btn btn-primary">Ver</a></td>
                                         </tr>

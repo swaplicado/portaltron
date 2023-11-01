@@ -175,7 +175,7 @@
 
     @include('layouts.table_jsControll', [
                                             'table_id' => 'table_pay_complement',
-                                            'colTargets' => [0,1,2,3,5,6,14],
+                                            'colTargets' => [0,1,2,3,5,6,9,10,14],
                                             'colTargetsSercheable' => [4],
                                             'colTargetsNoOrder' => [7,8,11,13,14,15,16],
                                             'select' => true,
@@ -224,5 +224,10 @@
             }
             drawTable('table_pay_complement', arrDpsPayComp);
         };
+    </script>
+    <script>
+        $(document).ready(function() {
+            drawTableDpsPaycomplement(oServerData.lDpsPayComp);
+        })
     </script>
 @endsection

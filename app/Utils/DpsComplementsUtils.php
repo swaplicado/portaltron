@@ -56,7 +56,7 @@ class DpsComplementsUtils {
                     ->leftJoin('dps as d2', 'd2.id_dps', '=', 'p.dps_id')
                     ->leftJoin('areas as a', 'a.id_area', '=', 'd.area_id')
                     ->join('vobo_dps as v', 'v.dps_id', '=', 'd.id_dps')
-                    ->where('v.area_id', $area_id)
+                    ->whereIn('v.area_id', $area_id)
                     ->where('v.is_deleted', 0)
                     ->whereIn('v.check_status', [SysConst::VOBO_REVISION, SysConst::VOBO_REVISADO])
                     ->whereIn('d.type_doc_id', $lTypes)
@@ -122,7 +122,7 @@ class DpsComplementsUtils {
         return $lDpsReferences;
     }
     // se ocupa enviar 
-    public static function transformToString($lDpsReferences, $reference = "ref"){
+    public static function transformToString($lDpsReferences,$reference = "ref"){
         $toVisualice = '';
         foreach($lDpsReferences AS $ref){
             if($toVisualice == ''){

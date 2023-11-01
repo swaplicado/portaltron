@@ -47,7 +47,7 @@
 @section('content')
     <div class="card" id="dpsComplementaryManager">
         <div class="card-header">
-            <h3>Facturas y notas de crédito</h3>
+            <h3>Facturas</h3>
         </div>
         <div class="card-body">
             <div class="grid-margin" v-show="!is_omision">
@@ -83,10 +83,6 @@
                     </span>
 
                     <span class="nobreak" v-show="!is_omision">
-                        <label for="status_filter">Filtrar Tipo: </label>
-                        <select class="select2-class form-control" name="type_filter" id="type_filter"></select>
-                    </span>
-                    <span class="nobreak">
                         <label for="status_filter">Filtrar estatus: </label>
                         <select class="select2-class form-control" name="status_filter" id="status_filter"></select>
                     </span>
@@ -124,7 +120,7 @@
                             <th style="text-align: center">Área destino</th>
                             <th style="text-align: center">Folio</th>
                             <th style="text-align: center">Estatus</th>
-                            <th style="text-align: center">Orden compra</th>
+                            <th style="text-align: center">Referencia</th>
                             <th style="text-align: center">Comentario</th>
                             <th style="text-align: center">PDF</th>
                             <th style="text-align: center">XML</th>
@@ -152,14 +148,10 @@
                     let col_type = null;
 
                     col_status = parseInt(data[indexesDpsCompTable.status_id]);
-                    col_type = parseInt(data[indexesDpsCompTable.type_doc_id]);
 
                     if (settings.nTable.id == 'table_dps_complementary') {
-                        let iType = parseInt($('#type_filter').val(), 10);
                         let iStatus = parseInt($('#status_filter').val(), 10);
-                        if (col_type == iType || iType == 0) {
-                            return iStatus == col_status || iStatus == 0;
-                        }
+                        return iStatus == col_status || iStatus == 0;
                     }
 
                     return false;
@@ -188,7 +180,7 @@
 
     @include('layouts.table_jsControll', [
         'table_id' => 'table_dps_complementary',
-        'colTargets' => [0, 1, 2, 5, 6, 11],
+        'colTargets' => [0, 1, 2, 5, 6, 9,10],
         'colTargetsSercheable' => [3, 4],
         'colTargetsNoOrder' => [7, 8, 12, 13, 14, 15, 16],
         'select' => true,
@@ -235,7 +227,7 @@
                                 (dps.is_accept == 1 ? 'Pendiente' : dps.status) :
                                 dps.status)),
 
-                        dps.reference_folio,
+                        dps.reference_string,
                         dps.requester_comment_n,
                         ((dps.pdf_url_n != null && dps.pdf_url_n != "") ? 'Cargado' : 'Sin cargar'),
                         ((dps.xml_url_n != null && dps.xml_url_n != "") ? 'Cargado' : 'Sin cargar'),

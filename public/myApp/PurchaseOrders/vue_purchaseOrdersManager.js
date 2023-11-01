@@ -46,6 +46,8 @@ var app = new Vue({
         }).on('select2:select', function(e) {
             
         });
+
+        this.providerId = $('#provider_filter').val();
     }, 
     methods: {
         /**

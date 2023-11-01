@@ -11,6 +11,7 @@ use App\Models\Areas\Areas;
 use App\Models\SDocs\Dps;
 use App\Models\SDocs\DpsComplementary;
 use App\Models\SDocs\DpsReasonRejection;
+use App\Models\SDocs\DpsReference;
 use App\Models\SDocs\StatusDps;
 use App\Models\SDocs\TypeDoc;
 use App\Models\SDocs\VoboDps;
@@ -20,6 +21,7 @@ use App\Utils\DpsComplementsUtils;
 use App\Utils\FilesUtils;
 use App\Utils\ordersVobosUtils;
 use App\Utils\SProvidersUtils;
+use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
@@ -33,8 +35,11 @@ class dpsComplementaryController extends Controller
             $year = Carbon::now()->format('Y');
 
             $lDpsComp = DpsComplementsUtils::getlDpsComplements($year, $oProvider->id_provider, [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO]);
-
+            
             foreach ($lDpsComp as $dps) {
+                $lDpsReferences = DpsComplementsUtils::getlDpsReferences($dps->id_dps);
+                $Sreference = DpsComplementsUtils::transformToString($lDpsReferences);
+                $dps->reference_string = $Sreference; 
                 $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
             }
 
@@ -65,11 +70,22 @@ class dpsComplementaryController extends Controller
                             )
                             ->get()
                             ->toArray();
-    
-            $default_area_id = $oProvider->area_id;
+            
 
             $config = \App\Utils\Configuration::getConfigurations();
+            $lAreas = Areas::whereIn('id_area', $config->areasToRegisterProvider)
+                ->where('is_active', 1)
+                ->where('is_deleted', 0)
+                ->get();
+
             $showAreaDps = $config->showAreaDps;
+            $requireAreaDps = $config->requireAreaDps;
+
+            if($config->useSerie != 1){
+                $default_area_id = $oProvider->area_id;
+            }else{
+                $default_area_id = null;   
+            }
 
         } catch (\Throwable $th) {
             \Log::error($th);
@@ -77,12 +93,13 @@ class dpsComplementaryController extends Controller
         }
 
         return view('dpsComplementary.dps_complementary')->with('lDpsComp', $lDpsComp)
-                                                        ->with('year', $year)
-                                                        ->with('lStatus', $lStatus)
-                                                        ->with('lTypes', $lTypes)
-                                                        ->with('lAreas', $lAreas)
-                                                        ->with('default_area_id', $default_area_id)
-                                                        ->with('showAreaDps', $showAreaDps);
+                                                    ->with('year', $year)
+                                                    ->with('lStatus', $lStatus)
+                                                    ->with('lTypes', $lTypes)
+                                                    ->with('lAreas', $lAreas)
+                                                    ->with('default_area_id', $default_area_id)
+                                                    ->with('showAreaDps', $showAreaDps)
+                                                    ->with('requireAreaDps',$requireAreaDps);
     }
 
     public function saveComplementary(Request $request){
@@ -90,21 +107,64 @@ class dpsComplementaryController extends Controller
             $config = \App\Utils\Configuration::getConfigurations();
             $oProvider = \Auth::user()->getProviderData();
             $type_id = $request->type_id;
-            $reference = $request->reference;
-            $year = $request->year;
-            $area_id = $request->area_id;
+            
+            $serieoc = $request->serieoc;
             $folio = $request->folio;
+            $haveSerie = strpos($request->folio,'-');
+            $auxFolio = explode('-', $request->folio);
+            $area_id = $request->area_id;
+            $year = $request->year;
 
-            // if(is_null($area_id) || $area_id == "null"){
-            //     return json_encode(['success' => false, 'message' => 'Debe ingresar un área destino', 'icon' => 'warning']);
-            // }
+            $config = \App\Utils\Configuration::getConfigurations();
 
-            $oReference = Dps::where('folio_n', $reference)
+            $references = explode(',', $serieoc);
+            //se utilizará para saber si es la primera vez que entras en el foreach
+            $auxCont = 0;
+            $aReference = [];
+            foreach($references as $reference){
+                $reference = trim($reference);
+                $oReference = Dps::where('folio_n', $reference)
+                            ->where('provider_id_n', $oProvider->id_provider)
                             ->where('is_deleted', 0)    
-                            ->first();
+                            ->first(); 
+                if(is_null($oReference)){
+                    return json_encode(['success' => false, 'message' => 'No se encuentra el documento con la referencia '.$reference , 'icon' => 'warning']);
+                }    
+                if($auxCont == 0){
+                    $serieComparacion = $oReference->serie_n;
+                }else{
+                    if($serieComparacion != $oReference->serie_n ){
+                        return json_encode(['success' => false, 'message' => 'No se puede enlazar a documentos con series diferentes' , 'icon' => 'warning']);    
+                    }
+                }
+                $auxCont++; 
 
-            if(is_null($oReference)){
-                return json_encode(['success' => false, 'message' => 'No se encuentra el documento con la referencia '.$reference, 'icon' => 'warning']);
+                array_push($aReference, $oReference);
+            }
+            if(is_null($area_id) || $area_id == "null"){
+                if($config->useSerie != 1){
+                    if($config->requireAreaDps){
+                        return json_encode(['success' => false, 'message' => "Debes seleccionar un área de destino", 'icon' => 'info']);
+                    }else{
+                        $lOmisionAreaDps = collect($config->lOmisionAreaDps);
+                        $omisionArea = $lOmisionAreaDps->where('type', SysConst::DOC_TYPE_FACTURA)->first();
+                        $area_id = $omisionArea->id != null ? $omisionArea->id : $config->defaultAreaDps;
+                        if(is_null($area_id)){
+                            return json_encode(['success' => false, 'message' => "No se encontró un área de destino", 'icon' => 'info']);
+                        }
+                    }
+                }else{
+                    $serie_area = DB::table('series')
+                        ->where('type_doc_id',$type_id)
+                        ->where('code', $serieComparacion)
+                        ->where('is_deleted', 0)
+                        ->first();
+
+                    if(is_null($serie_area)){
+                        return json_encode(['success' => false, 'message' => "La serie especificada no existe", 'icon' => 'info']);
+                    }
+                    $area_id = $serie_area->area_id_n;
+                }
             }
 
             $orders = ordersVobosUtils::getDpsOrder($type_id, $area_id);
@@ -127,22 +187,22 @@ class dpsComplementaryController extends Controller
                 return json_encode(['success' => false, 'message' => $result[1], 'icon' => 'error']);
             }
 
-            \DB::beginTransaction();
+            DB::beginTransaction();
 
             if($type_id == SysConst::DOC_TYPE_FACTURA){
-                $filePdfName = 'FAC_'.$reference.'_'.$oProvider->provider_rfc.'_'.time().'.'.$pdf->extension();
+                $filePdfName = 'FAC_'.$folio.'_'.$oProvider->provider_rfc.'_'.time().'.'.$pdf->extension();
                 $resPdf = Storage::disk('facturas')->putFileAs('/', $pdf, $filePdfName);
                 $rutaPdf = Storage::disk('facturas')->url($filePdfName);
 
-                $fileXmlName = 'XML_'.$reference.'_'.$oProvider->provider_rfc.'_'.time().'.'.$xml->extension();
+                $fileXmlName = 'XML_'.$folio.'_'.$oProvider->provider_rfc.'_'.time().'.'.$xml->extension();
                 $resXml = Storage::disk('facturas')->putFileAs('/', $xml, $fileXmlName);
                 $rutaXml = Storage::disk('facturas')->url($fileXmlName);
             }else if($type_id == SysConst::DOC_TYPE_NOTA_CREDITO){
-                $filePdfName = 'NC_'.$reference.'_'.$oProvider->provider_rfc.'_'.time().'.'.$pdf->extension();
+                $filePdfName = 'NC_'.$folio.'_'.$oProvider->provider_rfc.'_'.time().'.'.$pdf->extension();
                 $resPdf = Storage::disk('notas_credito')->putFileAs('/', $pdf, $filePdfName);
                 $rutaPdf = Storage::disk('notas_credito')->url($filePdfName);
 
-                $fileXmlName = 'XML_'.$reference.'_'.$oProvider->provider_rfc.'_'.time().'.'.$xml->extension();
+                $fileXmlName = 'XML_'.$folio.'_'.$oProvider->provider_rfc.'_'.time().'.'.$xml->extension();
                 $resXml = Storage::disk('notas_credito')->putFileAs('/', $xml, $fileXmlName);
                 $rutaXml = Storage::disk('notas_credito')->url($fileXmlName);
             }
@@ -150,6 +210,14 @@ class dpsComplementaryController extends Controller
             $oDps = new Dps();
             $oDps->type_doc_id = $type_id;
             $oDps->provider_id_n = $oProvider->id_provider;
+            if($haveSerie === false){
+                $oDps->serie_n = null;
+                $oDps->num_ref_n = $auxFolio[0];
+            }else{
+                $oDps->serie_n = $auxFolio[0];
+                $oDps->num_ref_n = $auxFolio[1];
+            }
+            
             $oDps->folio_n = $folio;
             $oDps->area_id = $area_id;
             $oDps->pdf_url_n = $rutaPdf;
@@ -184,12 +252,28 @@ class dpsComplementaryController extends Controller
                 $oVoboDps->save();
             }
 
+            foreach($aReference as $ref){
+                $DpsReference = new DpsReference();
+                $DpsReference->dps_id = $oDps->id_dps;
+                $DpsReference->reference_doc = $ref->id_dps;
+                $DpsReference->reference_serie_n = $ref->serie_n;
+                $DpsReference->reference_num_ref_n = $ref->num_ref_n;
+                $DpsReference->reference_folio_n = $ref->folio_n;
+                $DpsReference->is_deleted = 0;
+                $oVoboDps->created_by = 1;
+                $oVoboDps->updated_by = 1;
+                $DpsReference->save();
+            }
+
             $lDpsComp = DpsComplementsUtils::getlDpsComplements($year, $oProvider->id_provider, [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO]);
 
             foreach ($lDpsComp as $dps) {
+                $lDpsReferences = DpsComplementsUtils::getlDpsReferences($dps->id_dps);
+                $Sreference = DpsComplementsUtils::transformToString($lDpsReferences);
+                $dps->reference_string = $Sreference; 
                 $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
             }
-            \DB::commit();
+            DB::commit();
         } catch (\Throwable $th) {
             \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
@@ -219,7 +303,7 @@ class dpsComplementaryController extends Controller
         try {
             $id_dps = $request->id_dps;
 
-            $oDps = \DB::table('dps as d')
+            $oDps = DB::table('dps as d')
                     ->join('dps_complementary as dc', 'd.id_dps', '=', 'dc.dps_id')
                     ->join('dps as d2', 'd2.id_dps', '=', 'dc.reference_doc_n')
                     ->where('d.id_dps', $id_dps)
@@ -230,6 +314,10 @@ class dpsComplementaryController extends Controller
                         'dc.requester_comment_n',
                     )
                     ->first();
+            $lDpsRef = DpsComplementsUtils::getlDpsReferences($id_dps);
+            $SDpsRef = DpsComplementsUtils::transformToString($lDpsRef);
+
+            $oDps->reference = $SDpsRef;
 
         } catch (\Throwable $th) {
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
@@ -245,6 +333,9 @@ class dpsComplementaryController extends Controller
             $oProvider = \Auth::user()->getProviderData();
             $lDpsComp = DpsComplementsUtils::getlDpsComplements($year, $oProvider->id_provider, [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO]);
             foreach ($lDpsComp as $dps) {
+                $lDpsReferences = DpsComplementsUtils::getlDpsReferences($dps->id_dps);
+                $Sreference = DpsComplementsUtils::transformToString($lDpsReferences);
+                $dps->reference_string = $Sreference; 
                 $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
             }
         } catch (\Throwable $th) {
@@ -260,8 +351,23 @@ class dpsComplementaryController extends Controller
      */
     public function complementsManager(){
         try {
-            $oArea = \Auth::user()->getArea();
-            $olProviders = SProvidersUtils::getlProviders($oArea->id_area);
+
+            $config = \App\Utils\Configuration::getConfigurations();
+            $canSeeAll = $config->canSeeAll;
+            $lOmisionAreaDps = collect($config->lOmisionAreaDps)->pluck('id');
+            
+            if(in_array(\Auth::user()->id,$canSeeAll)){
+                $oArea = DB::table('areas')
+                                ->where('is_deleted',0)
+                                ->whereNotIn('id_area',$lOmisionAreaDps)
+                                ->get(); 
+                $oArea = $oArea->pluck('id_area');   
+            }else{
+                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = $oArea->pluck('id_area'); 
+            }
+            
+            $olProviders = SProvidersUtils::getlProviders($oArea->toArray());
 
             $lProviders = [];
             array_push($lProviders, ['id' => 0, 'text' => "Todos"]);
@@ -304,19 +410,22 @@ class dpsComplementaryController extends Controller
             ];
 
             $lDpsComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, 0, 
-                    [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->id_area);
+                    [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->toArray());
                     foreach ($lDpsComp as $dps) {
+                        $lDpsReferences = DpsComplementsUtils::getlDpsReferences($dps->id_dps);
+                        $Sreference = DpsComplementsUtils::transformToString($lDpsReferences);
+                        $dps->reference_string = $Sreference; 
                         $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
                     }
 
-            $lAreas = Areas::where('is_deleted', 0)
-                            ->where('is_active', 1)
-                            ->select(
-                                'id_area as id',
-                                'name_area as text'
-                            )
-                            ->get()
-                            ->toArray();
+            $lAreas = Areas::whereIn('id_area', $config->areasToDps)
+            ->where('is_deleted', 0)
+            ->select(
+                'id_area as id',
+                'name_area as text'
+            )
+            ->get()
+            ->toArray();
 
         } catch (\Throwable $th) {
             \Log::error($th);
@@ -337,7 +446,21 @@ class dpsComplementaryController extends Controller
      */
     public function getComplementsProvider(Request $request){
         try {
-            $oArea = \Auth::user()->getArea();
+            $config = \App\Utils\Configuration::getConfigurations();
+            $canSeeAll = $config->canSeeAll;
+            $lOmisionAreaDps = collect($config->lOmisionAreaDps)->pluck('id');
+            
+            if(in_array(\Auth::user()->id,$canSeeAll)){
+                $oArea = DB::table('areas')
+                                ->where('is_deleted',0)
+                                ->whereNotIn('id_area',$lOmisionAreaDps)
+                                ->get(); 
+                $oArea = $oArea->pluck('id_area');   
+            }else{
+                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = $oArea->pluck('id_area'); 
+            }
+            
             $provider_id = $request->provider_id;
 
             if($provider_id != 0){
@@ -352,8 +475,11 @@ class dpsComplementaryController extends Controller
             }
 
             $lDpsComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $provider_id, 
-            [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->id_area);
+            [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->toArray());
             foreach ($lDpsComp as $dps) {
+                $lDpsReferences = DpsComplementsUtils::getlDpsReferences($dps->id_dps);
+                $Sreference = DpsComplementsUtils::transformToString($lDpsReferences);
+                $dps->reference_string = $Sreference; 
                 $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
             }
         } catch (\Throwable $th) {
@@ -367,13 +493,26 @@ class dpsComplementaryController extends Controller
     public function getDpsComplementManager(Request $request){
         try {
             $id_dps = $request->id_dps;
-            $oArea = \Auth::user()->getArea();
-            $oDps = \DB::table('dps as d')
+            $config = \App\Utils\Configuration::getConfigurations();
+            $canSeeAll = $config->canSeeAll;
+            $lOmisionAreaDps = collect($config->lOmisionAreaDps)->pluck('id');
+            
+            if(in_array(\Auth::user()->id,$canSeeAll)){
+                $oArea = DB::table('areas')
+                                ->where('is_deleted',0)
+                                ->whereNotIn('id_area',$lOmisionAreaDps)
+                                ->get(); 
+                $oArea = $oArea->pluck('id_area');   
+            }else{
+                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = $oArea->pluck('id_area'); 
+            }
+            $oDps = DB::table('dps as d')
                     ->join('dps_complementary as dc', 'dc.dps_id', '=', 'd.id_dps')
                     ->join('dps as d2', 'd2.id_dps', '=', 'dc.reference_doc_n')
                     ->join('vobo_dps as v', 'v.dps_id', '=', 'd.id_dps')
                     ->where('d.id_dps', $id_dps)
-                    ->where('v.area_id', $oArea->id_area)
+                    ->whereIn('v.area_id', $oArea->toArray())
                     ->where('d.is_deleted', 0)
                     ->select(
                         'd.*',
@@ -385,6 +524,10 @@ class dpsComplementaryController extends Controller
                         'v.check_status',
                     )
                     ->first();
+            $lDpsRef = DpsComplementsUtils::getlDpsReferences($id_dps);
+            $SDpsRef = DpsComplementsUtils::transformToString($lDpsRef);
+        
+            $oDps->reference = $SDpsRef;
 
             $lDpsReasons = DpsReasonRejection::where(function($query) use($oDps){
                                                 $query->where('type_doc_id_n', $oDps->type_doc_id)->orWhere('type_doc_id_n', null);
@@ -420,9 +563,22 @@ class dpsComplementaryController extends Controller
             $year = $request->year;
             $comments = $request->comments;
 
-            $oArea = \Auth::user()->getArea();
+            $config = \App\Utils\Configuration::getConfigurations();
+            $canSeeAll = $config->canSeeAll;
+            $lOmisionAreaDps = collect($config->lOmisionAreaDps)->pluck('id');
+            
+            if(in_array(\Auth::user()->id,$canSeeAll)){
+                $oArea = DB::table('areas')
+                                ->where('is_deleted',0)
+                                ->whereNotIn('id_area',$lOmisionAreaDps)
+                                ->get(); 
+                $oArea = $oArea->pluck('id_area');   
+            }else{
+                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = $oArea->pluck('id_area'); 
+            }
 
-            \DB::beginTransaction();
+            DB::beginTransaction();
 
             $oDps = Dps::findOrFail($id_dps);
             
@@ -433,7 +589,7 @@ class dpsComplementaryController extends Controller
             $statusKey = $is_accept == true ? 'APROBADO' : 'RECHAZADO';
             $status_id = $arrStatus[$statusKey];
 
-            $oVobo = VoboDps::where('dps_id', $id_dps)->where('area_id', $oArea->id_area)->first();
+            $oVobo = VoboDps::where('dps_id', $id_dps)->where('area_id', $oArea->toArray())->first();
             $oVobo->user_id = \Auth::user()->id;
             $oVobo->is_accept = $is_accept;
             $oVobo->is_reject = $is_reject;
@@ -470,13 +626,16 @@ class dpsComplementaryController extends Controller
             }
 
             $lDpsComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $provider_id, 
-                        [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->id_area);
+                        [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->toArray());
             
             foreach ($lDpsComp as $dps) {
+                $lDpsReferences = DpsComplementsUtils::getlDpsReferences($dps->id_dps);
+                $Sreference = DpsComplementsUtils::transformToString($lDpsReferences);
+                $dps->reference_string = $Sreference; 
                 $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
             }
 
-            \DB::commit();
+            DB::commit();
         } catch (\Throwable $th) {
             \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
@@ -515,10 +674,23 @@ class dpsComplementaryController extends Controller
                 return json_encode(['success' => false, 'message' => "Debe seleccionar un area de destino", 'icon' => 'info']);
             }
 
-            $oArea = \Auth::user()->getArea();
+            $config = \App\Utils\Configuration::getConfigurations();
+            $canSeeAll = $config->canSeeAll;
+            $lOmisionAreaDps = collect($config->lOmisionAreaDps)->pluck('id');
+            
+            if(in_array(\Auth::user()->id,$canSeeAll)){
+                $oArea = DB::table('areas')
+                                ->where('is_deleted',0)
+                                ->whereNotIn('id_area',$lOmisionAreaDps)
+                                ->get(); 
+                $oArea = $oArea->pluck('id_area');   
+            }else{
+                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = $oArea->pluck('id_area');
+            }
             $year = Carbon::now()->format('Y');
 
-            \DB::beginTransaction();
+            DB::beginTransaction();
 
             $oDps = Dps::find($dps_id);
 
@@ -551,13 +723,17 @@ class dpsComplementaryController extends Controller
             }
 
             $lDpsComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $provider_id, 
-                        [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->id_area);
+                        [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->toArray());
             
             foreach ($lDpsComp as $dps) {
+                $lDpsReferences = DpsComplementsUtils::getlDpsReferences($dps->id_dps);
+                $Sreference = DpsComplementsUtils::transformToString($lDpsReferences);
+                $dps->reference_string = $Sreference; 
                 $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
             }
 
-            \DB::commit();
+            
+            DB::commit();
         } catch (\Throwable $th) {
             \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
@@ -572,10 +748,23 @@ class dpsComplementaryController extends Controller
             if($omision){
                 $lDpsComp = DpsComplementsUtils::getlDpsOmisionArea([SysConst::DOC_TYPE_FACTURA]);
             }else{
-                $oArea = \Auth::user()->getArea();
+                $config = \App\Utils\Configuration::getConfigurations();
+                $canSeeAll = $config->canSeeAll;
+                $lOmisionAreaDps = collect($config->lOmisionAreaDps)->pluck('id');
+                
+                if(in_array(\Auth::user()->id,$canSeeAll)){
+                    $oArea = DB::table('areas')
+                                    ->where('is_deleted',0)
+                                    ->whereNotIn('id_area',$lOmisionAreaDps)
+                                    ->get(); 
+                    $oArea = $oArea->pluck('id_area');   
+                }else{
+                    $oArea = collect([\Auth::user()->getArea()]);
+                    $oArea = $oArea->pluck('id_area');
+                }
                 $year = Carbon::now()->format('Y');
                 $lDpsComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, 0, 
-                    [SysConst::DOC_TYPE_FACTURA], $oArea->id_area);
+                    [SysConst::DOC_TYPE_FACTURA], $oArea->toArray());
             }
 
             foreach ($lDpsComp as $dps) {

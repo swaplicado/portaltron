@@ -13,6 +13,7 @@ use App\Utils\dateUtils;
 use App\Utils\PurchaseOrdersUtils;
 use App\Utils\SProvidersUtils;
 use Carbon\Carbon;
+use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
@@ -207,8 +208,22 @@ class purchaseOrdersController extends Controller
 
     public function purcharseOrdersManager(){
         try {
-            $oArea = \Auth::user()->getArea();
-            $olProviders = SProvidersUtils::getlProviders($oArea->id_area);
+            $config = \App\Utils\Configuration::getConfigurations();
+            $canSeeAll = $config->canSeeAll;
+            $lOmisionAreaDps = collect($config->lOmisionAreaDps)->pluck('id');
+                
+            if(in_array(\Auth::user()->id,$canSeeAll)){
+                $oArea = DB::table('areas')
+                                ->where('is_deleted',0)
+                                ->whereNotIn('id_area',$lOmisionAreaDps)
+                                ->get(); 
+                $oArea = $oArea->pluck('id_area');   
+            }else{
+                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = $oArea->pluck('id_area'); 
+            }
+            
+            $olProviders = SProvidersUtils::getlProviders($oArea->toArray());
     
             $lProviders = [];
             $lProvidersId = [];
@@ -254,8 +269,22 @@ class purchaseOrdersController extends Controller
                 $oProvider = SProvider::findOrFail($providerId);
                 $result = json_decode($this->getPurchaseOrders($year, [$oProvider->external_id]));
             }else{
-                $oArea = \Auth::user()->getArea();
-                $olProviders = SProvidersUtils::getlProviders($oArea->id_area);
+                $config = \App\Utils\Configuration::getConfigurations();
+                $canSeeAll = $config->canSeeAll;
+                $lOmisionAreaDps = collect($config->lOmisionAreaDps)->pluck('id');
+                    
+                if(in_array(\Auth::user()->id,$canSeeAll)){
+                    $oArea = DB::table('areas')
+                                    ->where('is_deleted',0)
+                                    ->whereNotIn('id_area',$lOmisionAreaDps)
+                                    ->get(); 
+                    $oArea = $oArea->pluck('id_area');   
+                }else{
+                    $oArea = collect([\Auth::user()->getArea()]);
+                    $oArea = $oArea->pluck('id_area'); 
+                }
+            
+                $olProviders = SProvidersUtils::getlProviders($oArea->toArray());
         
                 $lProvidersId = [];
                 foreach ($olProviders as $value) {
