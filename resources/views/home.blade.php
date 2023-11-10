@@ -12,7 +12,7 @@
             <div class="col-md-10" style="text-align: center">
                 <figure>
                     <blockquote class="blockquote">
-                    <h1>Bienvenido</h1>
+                    <h1>Bienvenid@</h1>
                     @if(!\Auth::user()->is_provider())
                         <h1>{{\Auth::user()->names}}</h1>
                     @else

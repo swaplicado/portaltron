@@ -111,7 +111,7 @@ class SProvidersController extends Controller
     }
 
     public function tempProviderIndex($name){
-        return view('SProviders.tempProvider')->with('name', $name);
+        return view('sproviders.tempProvider')->with('name', $name);
     }
 
     /**

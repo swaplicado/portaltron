@@ -52,7 +52,7 @@ class DpsComplementsUtils {
                     ->join('type_doc as t', 't.id_type', '=', 'd.type_doc_id')
                     ->join('status_dps as s', 's.id_status_dps', '=', 'd.status_id')
                     ->leftJoin('providers as prov', 'prov.id_provider', '=', 'd.provider_id_n')
-                    ->leftJoin('purchase_orders as p', 'p.id_purchase_order', '=', 'com.reference_doc_n')
+                    ->leftJoin('purchase_orders as p', 'p.dps_id', '=', 'com.reference_doc_n')
                     ->leftJoin('dps as d2', 'd2.id_dps', '=', 'p.dps_id')
                     ->leftJoin('areas as a', 'a.id_area', '=', 'd.area_id')
                     ->join('vobo_dps as v', 'v.dps_id', '=', 'd.id_dps')

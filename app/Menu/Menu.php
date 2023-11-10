@@ -38,7 +38,7 @@ class Menu {
             ];
             foreach($viewsAccess as $view){
                 switch ($view->key_code) {
-                    case 'manager.proveedores':
+                    case 'manager':
                         $lMenus[] = (object) ['type' => $element, 'route' => route('sproviders.index'), 
                                     'icon' => 'bx bxs-truck bx-sm', 'name' => 'Proveedores', 'order' => 1];
                         $lMenus[] = (object) ['type' => $element, 'route' => route('sproviders.documentsProv'), 
@@ -51,17 +51,17 @@ class Menu {
                                     'icon' => 'bx bxs-dollar-circle bx-sm', 'name' => 'Sol. cotización', 'order' => 3];
                         $lMenus[] = (object) ['type' => $element, 'route' => route('notaCredito.notaCreditoManager'), 
                                     'icon' => 'bx bxs-credit-card bx-sm', 'name' => 'Notas de crédito', 'order' => 6];
+                        $lMenus[] = (object) ['type' => $element, 'route' => route('purchaseOrders.indexManager'), 
+                                    'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Ordenes compra', 'order' => 4];
+                        $lMenus[] = (object) ['type' => $element, 'route' => route('accountStates.managerIndex'), 
+                                    'icon' => 'bx bx-wallet bx-sm', 'name' => 'Estados de cuenta', 'order' => 7];
                         break;
-                    case 'proveedores.oc':
+                        
+                    case 'proveedor':
                         $lMenus[] = (object) ['type' => $element, 'route' => route('purchaseOrders.index'), 
                                     'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Ordenes compra', 'order' => 4];
-                        break;
-
-                    case 'proveedor.cotizaciones':
                         $lMenus[] = (object) ['type' => $element, 'route' => route('estimateRequest.index'), 
                                     'icon' => 'bx bxs-dollar-circle bx-sm', 'name' => 'Sol. cotización', 'order' => 3];
-                        break;
-                    case 'proveedor.complementos':
                         $lMenus[] = (object) ['type' => $element, 'route' => route('dpsComplementary.complements'), 
                                     'icon' => 'bx bxs-file-blank bx-sm', 'name' => 'Facturas', 'order' => 5];
                         $lMenus[] = (object) ['type' => $element, 'route' => route('notaCredito.notaCredito'), 
@@ -75,10 +75,44 @@ class Menu {
                         $lMenus[] = (object) ['type' => $element, 'route' => route('sproviders.profile'), 
                                     'icon' => 'bx bxs-user-detail bx-sm', 'name' => 'Mis datos proveedor', 'order' => 1];
                         break;
+                    
+                    case 'manager.proveedores':
+                        // $lMenus[] = (object) ['type' => $element, 'route' => route('sproviders.index'), 
+                        //             'icon' => 'bx bxs-truck bx-sm', 'name' => 'Proveedores', 'order' => 1];
+                        // $lMenus[] = (object) ['type' => $element, 'route' => route('sproviders.documentsProv'), 
+                        //             'icon' => 'bx bxs-archive bx-sm', 'name' => 'Documentos prov.','order' => 2];
+                        // $lMenus[] = (object) ['type' => $element, 'route' => route('dpsComplementary.complementsManager'), 
+                        //             'icon' => 'bx bxs-file-blank bx-sm', 'name' => 'Facturas y NC', 'order' => 5];
+                        // $lMenus[] = (object) ['type' => $element, 'route' => route('payComplement.payComplementsManager'), 
+                        //             'icon' => 'bx bx bx-receipt bx-sm', 'name' => 'CFDI de pago', 'order' => 6];
+                        // $lMenus[] = (object) ['type' => $element, 'route' => route('estimateRequest.indexERManager'), 
+                        //             'icon' => 'bx bxs-dollar-circle bx-sm', 'name' => 'Sol. cotización', 'order' => 3];
+                        break;
+                    case 'proveedores.oc':
+                        // $lMenus[] = (object) ['type' => $element, 'route' => route('purchaseOrders.index'), 
+                        //             'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Ordenes compra', 'order' => 4];
+                        break;
+
+                    case 'proveedor.cotizaciones':
+                        // $lMenus[] = (object) ['type' => $element, 'route' => route('estimateRequest.index'), 
+                        //             'icon' => 'bx bxs-dollar-circle bx-sm', 'name' => 'Sol. cotización', 'order' => 3];
+                        break;
+                    case 'proveedor.complementos':
+                        // $lMenus[] = (object) ['type' => $element, 'route' => route('dpsComplementary.complements'), 
+                        //             'icon' => 'bx bxs-file-blank bx-sm', 'name' => 'Facturas y NC', 'order' => 5];
+                        // $lMenus[] = (object) ['type' => $element, 'route' => route('payComplement.payComplement'), 
+                        //             'icon' => 'bx bx bx-receipt bx-sm', 'name' => 'CFDI de pago', 'order' => 6];
+                        break;
+                    case 'proveedor.estadoscuentas':
+                        // $lMenus[] = (object) ['type' => $element, 'route' => route('accountStates.index'), 
+                        //             'icon' => 'bx bx-wallet bx-sm', 'name' => 'Estados de cuenta', 'order' => 7];
+                        // $lMenus[] = (object) ['type' => $element, 'route' => route('sproviders.profile'), 
+                        //             'icon' => 'bx bxs-user-detail bx-sm', 'name' => 'Mis datos proveedor', 'order' => 1];
+                        break;
 
                     case 'manager.proveedores.oc':
-                        $lMenus[] = (object) ['type' => $element, 'route' => route('purchaseOrders.indexManager'), 
-                                    'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Ordenes compra', 'order' => 4];
+                        // $lMenus[] = (object) ['type' => $element, 'route' => route('purchaseOrders.indexManager'), 
+                        //             'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Ordenes compra', 'order' => 4];
                         break;
                     case 'manager.proveedor.estadoscuentas':
                         $lMenus[] = (object) ['type' => $element, 'route' => route('accountStates.managerIndex'), 

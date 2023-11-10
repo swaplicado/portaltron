@@ -1,8 +1,8 @@
 {
-    "appmanagerRoute": "http://127.0.0.1:8000",
-    "appmanagerProfileRoute": "http://127.0.0.1:8000/profile",
+    "appmanagerRoute": "https://aeth.siieapp.com/appsmanager/public",
+    "appmanagerProfileRoute": "https://aeth.siieapp.com/appsmanager/public/profile",
     
-    "AppLinkRoute": "127.0.0.1:9002",
+    "AppLinkRoute": "168.195.204.164:9002",
     "AppLinkRouteLogin": "login",
     "AppLinkRouteProviderFind": "providers/find",
 
@@ -17,30 +17,37 @@
         {"id": 3, "orders": [{"area": 3, "order": 1}, {"area": 4, "order": 2}]},
         {"id": 4, "orders": [{"area": 4, "order": 1}]}
     ],
+    
+    "defaultOrderDps": [
+        {"type": 1, "orders": [{"area": 0, "order": 1}, {"area": 4, "order": 2}]},
+        {"type": 2, "orders": [{"area": 0, "order": 1}, {"area": 4, "order": 2}]},
+        {"type": 3, "orders": [{"area": 0, "order": 1}, {"area": 4, "order": 2}]},
+        {"type": 4, "orders": [{"area": 0, "order": 1}, {"area": 4, "order": 2}]}
+    ],
 
     "ordersDps": [
         {"type": 1, "id": 0, "orders": [{"area": 4, "order": 1}]},
         {"type": 2, "id": 0, "orders": [{"area": 4, "order": 1}]},
         {"type": 3, "id": 0, "orders": [{"area": 4, "order": 1}]},
         
-        {"type": 1, "id": 1, "orders": [{"area": 1, "order": 1}, {"area": 4, "order": 2}]},
-        {"type": 1, "id": 2, "orders": [{"area": 2, "order": 1}, {"area": 4, "order": 2}]},
-        {"type": 1, "id": 3, "orders": [{"area": 3, "order": 1}, {"area": 4, "order": 2}]},
+        {"type": 1, "id": 1, "orders": [{"area": 1, "order": 1}, {"area": 5, "order": 2}, {"area": 4, "order": 3}]},
+        {"type": 1, "id": 2, "orders": [{"area": 2, "order": 1}, {"area": 5, "order": 2}, {"area": 4, "order": 3}]},
+        {"type": 1, "id": 3, "orders": [{"area": 3, "order": 1}, {"area": 5, "order": 2}, {"area": 4, "order": 3}]},
         {"type": 1, "id": 4, "orders": [{"area": 4, "order": 1}]},
         
-        {"type": 2, "id": 1, "orders": [{"area": 1, "order": 1}, {"area": 4, "order": 2}]},
-        {"type": 2, "id": 2, "orders": [{"area": 2, "order": 1}, {"area": 4, "order": 2}]},
-        {"type": 2, "id": 3, "orders": [{"area": 3, "order": 1}, {"area": 4, "order": 2}]},
+        {"type": 2, "id": 1, "orders": [{"area": 1, "order": 1}, {"area": 5, "order": 2}, {"area": 4, "order": 3}]},
+        {"type": 2, "id": 2, "orders": [{"area": 2, "order": 1}, {"area": 5, "order": 2}, {"area": 4, "order": 3}]},
+        {"type": 2, "id": 3, "orders": [{"area": 3, "order": 1}, {"area": 5, "order": 2}, {"area": 4, "order": 3}]},
         {"type": 2, "id": 4, "orders": [{"area": 4, "order": 1}]},
         
-        {"type": 3, "id": 1, "orders": [{"area": 1, "order": 1}, {"area": 4, "order": 2}]},
-        {"type": 3, "id": 2, "orders": [{"area": 2, "order": 1}, {"area": 4, "order": 2}]},
-        {"type": 3, "id": 3, "orders": [{"area": 3, "order": 1}, {"area": 4, "order": 2}]},
+        {"type": 3, "id": 1, "orders": [{"area": 1, "order": 1}, {"area": 5, "order": 2}, {"area": 4, "order": 3}]},
+        {"type": 3, "id": 2, "orders": [{"area": 2, "order": 1}, {"area": 5, "order": 2}, {"area": 4, "order": 3}]},
+        {"type": 3, "id": 3, "orders": [{"area": 3, "order": 1}, {"area": 5, "order": 2}, {"area": 4, "order": 3}]},
         {"type": 3, "id": 4, "orders": [{"area": 4, "order": 1}]},
 
-        {"type": 4, "id": 1, "orders": [{"area": 1, "order": 1}, {"area": 4, "order": 2}]},
-        {"type": 4, "id": 2, "orders": [{"area": 2, "order": 1}, {"area": 4, "order": 2}]},
-        {"type": 4, "id": 3, "orders": [{"area": 3, "order": 1}, {"area": 4, "order": 2}]},
+        {"type": 4, "id": 1, "orders": [{"area": 1, "order": 1}, {"area": 5, "order": 2}, {"area": 4, "order": 3}]},
+        {"type": 4, "id": 2, "orders": [{"area": 2, "order": 1}, {"area": 5, "order": 2}, {"area": 4, "order": 3}]},
+        {"type": 4, "id": 3, "orders": [{"area": 3, "order": 1}, {"area": 5, "order": 2}, {"area": 4, "order": 3}]},
         {"type": 4, "id": 4, "orders": [{"area": 4, "order": 1}]}
     ],
 
@@ -50,5 +57,32 @@
     "AppLinkGetEstimateRequest": "estimaterequest/getER",
     "AppLinkGetEstimateRequestRows": "estimaterequest/getRows",
     "MonthsAccountState": 6,
-    "MonthNames": ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]
+    "MonthNames": ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+    "subMounthsDps": 18,
+    
+    "showAreaRegisterProvider": false,
+    "requireAreaRegisterProvider": false,
+    "omisionAreaRegisterProvider": 100,
+    "defaultAreaProvider": 4,
+    "areasToRegisterProvider": [1,2,3,4],
+
+    "showAreaDps": false,
+    "requireAreaDps": false,
+    "lOmisionAreaDps": [
+        {"type": 1, "id": 101},
+        {"type": 2, "id": 102},
+        {"type": 3, "id": 103},
+        {"type": 4, "id": 104}
+    ],
+    "defaultAreaDps": 4,
+    "areasToDps": [1,2,3,4],
+    
+    "mailConfig": [
+        {"type": 2, "config": [{"newDpsMail": false, "rejectDpsMail": false, "approveDpsMail": false}]},
+        {"type": 3, "config": [{"newDpsMail": false, "rejectDpsMail": false, "approveDpsMail": false}]},
+        {"type": 4, "config": [{"newDpsMail": false, "rejectDpsMail": false, "approveDpsMail": false}]},
+        {"type": 100, "config": [{"newProviderMail": false, "approveProviderMail": false, "rejectProviderMail": false, "modifyProviderMail": false}]}
+    ],
+    "canSeeAll": [1],
+    "useSerie": true
 }
