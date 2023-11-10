@@ -20,8 +20,8 @@ class PurchaseOrdersUtils {
                     $oDps->ext_id_year = $oc->idYear;
                     $oDps->ext_id_doc = $oc->idDoc;
                     $oDps->provider_id_n = $oProvider->id_provider;
-                    $oDps->serie_n = $oc->Serie;
-                    $oDps->num_serie_n = $oc->Folio;
+                    $oDps->serie_n = $oc->serie;
+                    $oDps->num_ref_n = $oc->folio;
                     $oDps->folio_n = $oc->numRef;
                     $oDps->status_id = SysConst::DOC_STATUS_NUEVO;
                     $oDps->is_deleted = 0;
