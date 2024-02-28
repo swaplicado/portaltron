@@ -32,49 +32,49 @@
                         <tr>
                             <td>
                                 <a href="{{asset('manuales/interno/manual_visto_bueno_de_proveedores_(interno).pdf')}}" target="_blank">
-                                    <h3>Visto bueno de proveedores</h3>
+                                    <h3>Visto bueno para el alta de proveedores</h3>
                                 </a>
                             </td>
                         </tr>
                         <tr>
                             <td>
                                 <a href="{{asset('manuales/interno/manual_solicitud_de_cotizacion_(interno).pdf')}}" target="_blank">
-                                    <h3>Solicitud de cotización</h3>
+                                    <h3>Alta y consulta de solicitudes de cotización</h3>
                                 </a>
                             </td>
                         </tr>
                         <tr>
                             <td>
                                 <a href="{{asset('manuales/interno/manual_ordenes_de_compra_(interno).pdf')}}" target="_blank">
-                                    <h3>Órdenes de compra</h3>
+                                    <h3>Consulta de órdenes de compra</h3>
                                 </a>
                             </td>
                         </tr>
                         <tr>
                             <td>
                                 <a href="{{asset('manuales/interno/manual_facturas_y_notas_de_credito_(interno).pdf')}}" target="_blank">
-                                    <h3>Facturas</h3>
+                                    <h3>Consulta y aprobación de facturas</h3>
                                 </a>
                             </td>
                         </tr>
                         <tr>
                             <td>
                                 <a href="{{asset('manuales/interno/manual_notas_de_credito_(interno).pdf')}}" target="_blank">
-                                    <h3>Notas de crédito</h3>
+                                    <h3>Consulta y aprobación de notas de crédito</h3>
                                 </a>
                             </td>
                         </tr>
                         <tr>
                             <td>
                                 <a href="{{asset('manuales/interno/manual_cfdi_de_pago_(interno).pdf')}}" target="_blank">
-                                    <h3>CFDI de pago</h3>
+                                    <h3>Consulta y aprobación de CFDI de pagos</h3>
                                 </a>
                             </td>
                         </tr>
                         <tr>
                             <td>
                                 <a href="{{asset('manuales/interno/manual_estados_de_cuenta_(interno).pdf')}}" target="_blank">
-                                    <h3>Estados de cuenta</h3>
+                                    <h3>Consulta de estados de cuenta</h3>
                                 </a>
                             </td>
                         </tr>
