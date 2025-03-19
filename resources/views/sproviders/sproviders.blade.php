@@ -37,7 +37,7 @@
     </div>
     <div class="card-body">
 
-        @include('sproviders.modal_authorize_provider')
+        @include('SProviders.modal_authorize_provider')
 
         <div class="grid-margin">
             @include('layouts.buttons', ['show' => true])
