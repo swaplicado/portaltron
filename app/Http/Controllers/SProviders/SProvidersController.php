@@ -65,7 +65,7 @@ class SProvidersController extends Controller
             \Log::error($th);
             return view('errorPages.serverError');
         }
-        return view('sproviders.sproviders')->with('lProviders', $lProviders)
+        return view('SProviders.sproviders')->with('lProviders', $lProviders)
                                             ->with('lConstants', $lConstants)
                                             ->with('lStatus', $lStatus)
                                             ->with('oArea', $oArea)
@@ -502,7 +502,7 @@ class SProvidersController extends Controller
 
         $showAreaRegisterProvider = $config->showAreaRegisterProvider;
 
-        return view('sproviders.tempModifyProvider')->with('oProvider', $oProvider)
+        return view('SProviders.tempModifyProvider')->with('oProvider', $oProvider)
                                                     ->with('lAreas', $lAreas)
                                                     ->with('lDocs', $lDocs)
                                                     ->with('showAreaRegisterProvider', $showAreaRegisterProvider);
@@ -680,7 +680,7 @@ class SProvidersController extends Controller
             return view('errorPages.serverError');
         }
 
-        return view('sproviders.documents_providers')->with('lProviders', $lProviders)
+        return view('SProviders.documents_providers')->with('lProviders', $lProviders)
                                                     ->with('lConstants', $lConstants)
                                                     ->with('area_id', $oArea->id_area);
     }
@@ -691,7 +691,7 @@ class SProvidersController extends Controller
         $lDocuments = SProvidersUtils::getDocumentsProviderByLastVobo($oProvider->id_provider);
         $lDocs = $lDocuments->where('is_reject', 1);
 
-        return view('sproviders.provider_profile')->with('oProvider', $oProvider)
+        return view('SProviders.provider_profile')->with('oProvider', $oProvider)
                                                     ->with('lDocs', $lDocs);
     }
 }
