@@ -43,6 +43,7 @@
     <!-- Header scripts section -->
     <script>
         function GlobalData() {
+            this.aux = 0;
             this.registerRoute = <?php echo json_encode(route('registerProvider.saveRegister')); ?>;
             this.lDocs = <?php echo json_encode($lDocs); ?>;
         }
