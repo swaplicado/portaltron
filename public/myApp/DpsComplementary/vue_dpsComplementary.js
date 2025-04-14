@@ -23,9 +23,16 @@ var app = new Vue({
         id_dps: null,
         folio: null,
         comments: null,
+        oDpsConfig: oServerData.oDpsConfig,
+        sMounth: oServerData.sMounth
     },
     mounted(){
         self = this;
+
+        if (this.oDpsConfig) {
+            let oButton = document.getElementById('btn_upload');
+            oButton.style.display = this.oDpsConfig.upload_disabled ? 'none' : '';
+        }
 
         $('.select2-class').select2({});
 
