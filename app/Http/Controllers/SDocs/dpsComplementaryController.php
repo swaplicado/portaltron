@@ -15,6 +15,7 @@ use App\Models\SDocs\DpsReference;
 use App\Models\SDocs\StatusDps;
 use App\Models\SDocs\TypeDoc;
 use App\Models\SDocs\VoboDps;
+use App\Models\SDocs\UploadDpsComplementaryConfig;
 use App\Models\SProviders\SProvider;
 use App\Utils\dateUtils;
 use App\Utils\DpsComplementsUtils;
@@ -32,6 +33,9 @@ class dpsComplementaryController extends Controller
     public static function providerIndex(){
         try {
             $oProvider = \Auth::user()->getProviderData();
+
+            $oProvider->fiscal_type = strlen($oProvider->provider_rfc) == 12 ? 1 : 2;
+
             $year = Carbon::now()->format('Y');
 
             $lDpsComp = DpsComplementsUtils::getlDpsComplements($year, $oProvider->id_provider, [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO]);
@@ -40,7 +44,7 @@ class dpsComplementaryController extends Controller
                 $lDpsReferences = DpsComplementsUtils::getlDpsReferences($dps->id_dps);
                 $Sreference = DpsComplementsUtils::transformToString($lDpsReferences);
                 $dps->reference_string = $Sreference; 
-                $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
+                $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'ddd D-m-Y');
             }
 
             $lStatus = StatusDps::where('type_doc_id', SysConst::DOC_TYPE_FACTURA)
@@ -87,6 +91,42 @@ class dpsComplementaryController extends Controller
                 $default_area_id = null;   
             }
 
+            $mounth = Carbon::now()->format('m');
+            $year = Carbon::now()->format('Y');
+
+            $oDpsConfig = UploadDpsComplementaryConfig::where('provider_id', $oProvider->id_provider)
+                                                    ->whereMonth('date_ini', $mounth)
+                                                    ->whereYear('date_ini', $year)
+                                                    ->where('is_deleted', 0)
+                                                    ->first();
+                                                    
+            if (is_null($oDpsConfig)) {
+                $oDpsConfig = UploadDpsComplementaryConfig::where('fiscal_type', $oProvider->fiscal_type)
+                                                        ->whereMonth('date_ini', $mounth)
+                                                        ->whereYear('date_ini', $year)
+                                                        ->where('is_deleted', 0)
+                                                        ->first();
+
+                if (is_null($oDpsConfig)) {
+                    $oDpsConfig = UploadDpsComplementaryConfig::where('fiscal_type', null)
+                                                            ->whereMonth('date_ini', $mounth)
+                                                            ->whereYear('date_ini', $year)
+                                                            ->where('is_deleted', 0)
+                                                            ->first();
+                }
+            }
+
+            if (!is_null($oDpsConfig)) {
+                $oDpsConfig->upload_disabled = false;
+                $today = Carbon::today();
+                if ($today->gt($oDpsConfig->date_end)) {
+                    $oDpsConfig->upload_disabled = true;
+                }
+    
+                $oDpsConfig->sDate = dateUtils::formatDate($oDpsConfig->date_end, 'ddd D-m-Y');
+            }
+            $sMounth = strtolower(dateUtils::monthsComplete[ intval($mounth) ]);
+
         } catch (\Throwable $th) {
             \Log::error($th);
             return view('errorPages.serverError');
@@ -99,13 +139,50 @@ class dpsComplementaryController extends Controller
                                                     ->with('lAreas', $lAreas)
                                                     ->with('default_area_id', $default_area_id)
                                                     ->with('showAreaDps', $showAreaDps)
-                                                    ->with('requireAreaDps',$requireAreaDps);
+                                                    ->with('requireAreaDps',$requireAreaDps)
+                                                    ->with('oDpsConfig',$oDpsConfig)
+                                                    ->with('sMounth',$sMounth);
     }
 
     public function saveComplementary(Request $request){
         try {
             $config = \App\Utils\Configuration::getConfigurations();
             $oProvider = \Auth::user()->getProviderData();
+            $oProvider->fiscal_type = strlen($oProvider->provider_rfc) == 12 ? 1 : 2;
+
+            $mounth = Carbon::now()->format('m');
+            $year = Carbon::now()->format('Y');
+
+            $oDpsConfig = UploadDpsComplementaryConfig::where('provider_id', $oProvider->id_provider)
+                                                    ->whereMonth('date_ini', $mounth)
+                                                    ->whereYear('date_ini', $year)
+                                                    ->where('is_deleted', 0)
+                                                    ->first();
+                                                    
+            if (is_null($oDpsConfig)) {
+                $oDpsConfig = UploadDpsComplementaryConfig::where('fiscal_type', $oProvider->fiscal_type)
+                                                        ->whereMonth('date_ini', $mounth)
+                                                        ->whereYear('date_ini', $year)
+                                                        ->where('is_deleted', 0)
+                                                        ->first();
+
+                if (is_null($oDpsConfig)) {
+                    $oDpsConfig = UploadDpsComplementaryConfig::where('fiscal_type', null)
+                                                            ->whereMonth('date_ini', $mounth)
+                                                            ->whereYear('date_ini', $year)
+                                                            ->where('is_deleted', 0)
+                                                            ->first();
+                }
+            }
+
+            if (!is_null($oDpsConfig)) {
+                $today = Carbon::today();
+                if ($today->gt($oDpsConfig->date_end)) {
+                    $oDpsConfig->sDate = dateUtils::formatDate($oDpsConfig->date_end, 'ddd D-m-Y');
+                    return json_encode(['success' => false, 'message' => 'El último día para recepción de facturas del mes actual fue: ' . $oDpsConfig->sDate , 'icon' => 'warning']);
+                }
+            }
+
             $type_id = $request->type_id;
             
             $serieoc = $request->serieoc;

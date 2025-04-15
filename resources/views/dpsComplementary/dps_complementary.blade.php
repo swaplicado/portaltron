@@ -16,6 +16,8 @@
         this.default_area_id = <?php echo json_encode($default_area_id) ?>;
         this.showAreaDps = <?php echo json_encode($showAreaDps)?>;
         this.requireAreaDps = <?php echo  json_encode($requireAreaDps)?>;
+        this.oDpsConfig = <?php echo  json_encode($oDpsConfig)?>;
+        this.sMounth = <?php echo  json_encode($sMounth)?>;
         this.saveComplementsRoute = <?php echo json_encode(route('dpsComplementary.SaveComplements')) ?>;
         this.GetComplementsRoute = <?php echo json_encode(route('dpsComplementary.GetComplements')) ?>;
         this.getCompByYearRoute = <?php echo json_encode(route('dpsComplementary.getCompByYear')) ?>;
@@ -46,7 +48,17 @@
   
 <div class="card" id="dpsComplementary">
     <div class="card-header">
-        <h3>Facturas</h3>
+        <h3>
+            Facturas
+            <span style="float: right" v-if = "oDpsConfig">
+                <label v-if = "!oDpsConfig.upload_disabled">
+                    Último día para recepción de facturas del mes actual: @{{oDpsConfig.sDate}}
+                </label>
+                <label style="color: red" v-else>
+                    El último día para recepción de facturas del mes actual fue: @{{oDpsConfig.sDate}}
+                </label>
+            </span>
+        </h3>
     </div>
     <div class="card-body">
 
