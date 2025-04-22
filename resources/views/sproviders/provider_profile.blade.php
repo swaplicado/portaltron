@@ -22,7 +22,7 @@
                     <div class="container-fluid page-body-wrapper full-page-wrapper">
                         <div class="content-wrapper d-flex align-items-center auth px-0">
                             <div class="row w-100 mx-0">
-                                <div class="col-lg-6 mx-auto">
+                                <div class="col-lg-8 mx-auto">
                                     <div class="auth-form-light text-left py-5 px-4 px-sm-5">
                                         <div class="brand-logo">
                                             <img src="{{ asset('images/aeth.png') }}" alt="logo">
@@ -75,32 +75,36 @@
                                             </div>
 
                                             @foreach ($lDocs as $doc)
-                                                @if ($doc->is_reject)
-                                                    <div class="row">
-                                                        <div class="col-md-12">
-                                                            <div class="form-group sm-form-group row">
-                                                                <label class="col-sm-3 my-col-sm-3 col-form-label ">
-                                                                    {{ $doc->name }}
-                                                                </label>
-                                                                <div class="col-sm-9">
-                                                                    <input type="file"
-                                                                        id="doc_{{ $doc->id_request_type_doc }}"
-                                                                        name="doc_{{ $doc->id_request_type_doc }}"
-                                                                        class="file-upload-default" accept=".pdf">
-                                                                    <div class="input-group col-xs-12">
-                                                                        <input type="text"
-                                                                            class="form-control file-upload-info" disabled
-                                                                            placeholder="Cargar archivo">
-                                                                        <span class="input-group-append">
-                                                                            <button class="file-upload-browse btn btn-info"
-                                                                                type="button">Cargar</button>
-                                                                        </span>
-                                                                    </div>
+                                                <div class="row">
+                                                    <div class="col-md-12">
+                                                        <div class="form-group sm-form-group row">
+                                                            <label class="col-sm-3 my-col-sm-3 col-form-label ">
+                                                                {{ $doc->name }}
+                                                            </label>
+                                                            <label class="col-sm-1 my-col-sm-3 col-form-label ">
+                                                                @if (!is_null($doc->url))
+                                                                    <a href="{{$doc->url}}" target="_blank" type="button" class="btn btn-success"
+                                                                        >Ver</a>
+                                                                @endif
+                                                            </label>
+                                                            <div class="col-sm-8">
+                                                                <input type="file"
+                                                                    id="doc_{{ $doc->id_request_type_doc }}"
+                                                                    name="doc_{{ $doc->id_request_type_doc }}"
+                                                                    class="file-upload-default" accept=".pdf">
+                                                                <div class="input-group col-xs-12">
+                                                                    <input type="text"
+                                                                        class="form-control file-upload-info" disabled
+                                                                        placeholder="Cargar archivo">
+                                                                    <span class="input-group-append">
+                                                                        <button class="file-upload-browse btn btn-info"
+                                                                            type="button">Cargar</button>
+                                                                    </span>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                @endif
+                                                </div>
                                             @endforeach
                                             <div class="row">
                                                 <div class="col-md-6">

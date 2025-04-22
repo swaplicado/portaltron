@@ -38,7 +38,7 @@ Route::get('/actualizacion', [updateController::class,'index'])->name('actualiza
 
 Route::middleware(('guest'))->group ( function (){
     Route::group(['prefix' => 'sprovider', 'as' => 'registerProvider.'], function(){
-        Route::get('/registerProvider', [SProvidersController::class, 'registerProviderIndex'])->name('registerProvider');
+        Route::get('/registerProvider/{type}', [SProvidersController::class, 'registerProviderIndex'])->name('registerProvider');
         Route::post('/registerProvider/save', [SProvidersController::class, 'saveRegisterProvider'])->name('saveRegister');
         Route::get('/tempProvider/{name}', [SProvidersController::class, 'tempProviderIndex'])->name('tempProvider');
     });

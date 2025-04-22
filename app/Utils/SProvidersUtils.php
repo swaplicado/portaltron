@@ -3,6 +3,10 @@
 use App\Constants\SysConst;
 use App\Models\SDocs\RequestTypeDocs;
 use App\Models\SProviders\SProvider;
+use App\Models\User;
+use App\Utils\AppLinkUtils;
+use App\Mail\notifyTesoreria;
+use Illuminate\Support\Facades\Mail;
 
 class SProvidersUtils {
 
@@ -146,19 +150,37 @@ class SProvidersUtils {
             }
         }
 
-        $lDocs = RequestTypeDocs::where('is_default', 1)
-                                ->where('is_deleted', 0)
-                                ->select(
-                                    'id_request_type_doc',
-                                    'name'
-                                )
-                                ->get();
+        $oUser = User::find(1);
+        $config = \App\Utils\Configuration::getConfigurations();
+        $route =  $config->AppLinkRouteProviderFind;
+        $body = '{
+            "fiscalid": "'. $rfc .'",
+            "reqUser": "admin"
+        }';
+        $result = AppLinkUtils::requestAppLink($route, 'POST', $oUser, $body);
 
-        foreach ($lDocs as $doc) {
-            $docType = 'doc_'.$doc->id_request_type_doc;
-            $pdf = $oData->file($docType);
-            if(is_null($pdf)){
-                $message = 'Faltó cargar '.$doc->name;
+        if ($result->code != 200) {
+            $lDocs = RequestTypeDocs::where('is_default', 1)
+                                    ->where('is_deleted', 0)
+                                    ->select(
+                                        'id_request_type_doc',
+                                        'name'
+                                    )
+                                    ->get();
+            
+            $withOutDoc = false;
+            $docMessage = '';
+            foreach ($lDocs as $doc) {
+                $docType = 'doc_'.$doc->id_request_type_doc;
+                $pdf = $oData->file($docType);
+                if(is_null($pdf)){
+                    $docMessage = $docMessage . $doc->name . ', ';
+                    $withOutDoc = true;
+                }
+            }
+
+            if ($withOutDoc) {
+                $message = 'Faltá subir documento(s): '.$docMessage;
                 return [false, $message];
             }
         }
@@ -296,5 +318,27 @@ class SProvidersUtils {
         $lProvidersToVobo = $lProvidersToVobo->concat($arr);
 
         return $lProvidersToVobo;
+    }
+
+    /**
+     * Metodo para notificar a tesoreria de que un proveedor ha sido aprobado,
+     * solo si se tiene el documento de Carta de confirmación de datos
+     */
+    public static function notifyProviderToTesoreria($oProvider){
+        $config = \App\Utils\Configuration::getConfigurations();
+        $lDocs = SProvidersUtils::getDocumentsProvider($oProvider->id_provider, $oProvider->area_id, [SysConst::VOBO_REVISADO]);
+        $oDoc = $lDocs->where('id_request_type_doc', 4);
+
+        if (!is_null($oDoc)) {
+            $lUsers = UserUtils::getUsersByArea($config->tesoreriaArea);
+            foreach ($lUsers as $oUser) {
+                $email = $oUser->email;
+                Mail::to($email)->send(new notifyTesoreria(
+                                    $oProvider->provider_short_name,
+                                    $oProvider->provider_rfc
+                                    )
+                                );
+            }
+        }
     }
 }

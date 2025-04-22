@@ -58,4 +58,21 @@ class UserUtils {
 
         return $username;
     }
+
+    public static function getUsersByArea($area_id) {
+        $arrUsersIds = \DB::table('users_areas')
+                                ->select('user_id')
+                                ->where('area_id', $area_id)
+                                ->where('is_deleted', 0)
+                                ->get()
+                                ->pluck('user_id')
+                                ->toArray();
+
+        $lUsers = User::whereIn('id', $arrUsersIds)
+                        ->where('is_active', 1)
+                        ->where('is_deleted', 0)
+                        ->get();
+
+        return $lUsers;
+    }
 }
