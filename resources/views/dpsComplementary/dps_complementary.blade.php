@@ -18,6 +18,8 @@
         this.requireAreaDps = <?php echo  json_encode($requireAreaDps)?>;
         this.oDpsConfig = <?php echo  json_encode($oDpsConfig)?>;
         this.sMounth = <?php echo  json_encode($sMounth)?>;
+        this.lCompany = <?php echo  json_encode($lCompany)?>;
+        this.default_company_id = <?php echo  json_encode($default_company_id)?>;
         this.saveComplementsRoute = <?php echo json_encode(route('dpsComplementary.SaveComplements')) ?>;
         this.GetComplementsRoute = <?php echo json_encode(route('dpsComplementary.GetComplements')) ?>;
         this.getCompByYearRoute = <?php echo json_encode(route('dpsComplementary.getCompByYear')) ?>;

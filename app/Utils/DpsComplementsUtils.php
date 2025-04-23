@@ -1,6 +1,9 @@
 <?php namespace App\Utils;
       use App\Constants\SysConst;
+      use Carbon\Carbon;
       use DB;
+      use CfdiUtils\Cfdi;
+      use CfdiUtils\Nodes\NodeInterface;
 
 class DpsComplementsUtils {
     public static function getlDpsComplements($year, $provider_id, $lTypes){
@@ -186,5 +189,47 @@ class DpsComplementsUtils {
                     ->get();
 
         return $lDps;
+    }
+
+    public static function validateXml($xml, $oProvider, $oCompany) {
+        // $xmlPath = storage_path('app/archivo.xml');
+        // $xmlContent = file_get_contents($xmlPath);
+        
+        // Convertir XML a array
+        $xmlContent = file_get_contents($xml->getRealPath());
+        
+        $cfdi = \CfdiUtils\Cfdi::newFromString($xmlContent);
+        $cfdi->getVersion(); // (string)
+        $cfdi->getDocument(); // clon del objeto DOMDocument
+        $cfdi->getSource(); // (string) <cfdi:Comprobante...
+        $complemento = $cfdi->getNode(); // Nodo de trabajo del nodo cfdi:Comprobante
+
+        $oEmisor = $complemento->searchNodes('cfdi:Emisor');
+        foreach ($oEmisor as $emisor) {
+            $rfcEmisor = $emisor['Rfc'];
+        }
+
+        $oReceptor = $complemento->searchNodes('cfdi:Receptor');
+        foreach ($oReceptor as $receptor) {
+            $rfcReceptor = $receptor['Rfc'];
+        }
+
+        $fecha = $complemento['Fecha'];
+
+        if($rfcEmisor != $oProvider->provider_rfc){
+            return json_encode(['success' => false, 'message' => 'El RFC emisor del XML no coincide con tú RFC']);
+        }
+        
+        if($rfcReceptor != $oCompany->company_rfc){
+            return json_encode(['success' => false, 'message' => 'El RFC del receptor no coincide con la entidad comercial']);
+        }
+
+        $now = Carbon::now();
+        $oFecha = Carbon::parse($fecha);
+        if($oFecha->month != $now->month || $oFecha->year != $now->year){
+            return json_encode(['success' => false, 'message' => 'La fecha del comprobante no es del mes actual']);
+        }
+
+        return json_encode(['success' => true, 'message' => 'ok']);
     }
 }
