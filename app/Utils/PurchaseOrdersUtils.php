@@ -6,7 +6,7 @@ use App\Models\SDocs\PurchaseOrders;
 use App\Models\SProviders\SProvider;
 
 class PurchaseOrdersUtils {
-    public static function insertPurchaseOrders($lPurchaseOrders, $provider_id){
+    public static function insertPurchaseOrders($lPurchaseOrders, $provider_id, $company_id = null){
         try {
             \DB::beginTransaction();
             foreach($lPurchaseOrders as $oc){
@@ -20,6 +20,7 @@ class PurchaseOrdersUtils {
                     $oDps->ext_id_year = $oc->idYear;
                     $oDps->ext_id_doc = $oc->idDoc;
                     $oDps->provider_id_n = $oProvider->id_provider;
+                    $oDps->company_id = $company_id;
                     $oDps->serie_n = $oc->serie;
                     $oDps->num_ref_n = $oc->folio;
                     $oDps->folio_n = $oc->numRef;
@@ -36,6 +37,9 @@ class PurchaseOrdersUtils {
                     $oPurchaseOrder->created_by = \Auth::user()->id;
                     $oPurchaseOrder->updated_by = \Auth::user()->id;
                     $oPurchaseOrder->save();
+                } else {
+                    $oDps->company_id = $company_id;
+                    $oDps->update();
                 }
             }
             \DB::commit();

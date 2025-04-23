@@ -217,7 +217,8 @@ class dpsComplementaryController extends Controller
                             ->where('provider_id_n', $oProvider->id_provider)
                             ->where('is_deleted', 0)
                             ->where('type_doc_id', SysConst::DOC_TYPE_PURCHASE_ORDER)
-                            ->first(); 
+                            ->where('company_id', $request->company_id)
+                            ->first();
                 if(is_null($oReference)){
                     return json_encode(['success' => false, 'message' => 'No se encuentra el documento con la referencia '.$reference , 'icon' => 'warning']);
                 }    
