@@ -63,6 +63,8 @@ Route::middleware(['auth'])->group( function() {
 Route::middleware(['auth', 'menu', 'app.sprovider', 'app.companie'])->group( function () {
     Route::get('/registry', [HomeController::class, 'index'])->name('user_registry');
     Route::get('/home', [HomeController::class, 'index'])->name('home');
+    Route::get('/pruebas', [HomeController::class, 'pruebas'])->name('pruebas');
+
 
     /** Proveedores */
     Route::group(['as' => 'sproviders.'], function () {

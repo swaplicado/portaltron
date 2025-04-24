@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\newProviderMail;
 
 class HomeController extends Controller
 {
@@ -25,5 +27,16 @@ class HomeController extends Controller
     {
         return view('home');
         // return view('layouts.index');
+    }
+
+    public function pruebas()
+    {
+        Mail::to("adrian.aviles@swaplicado.com.mx")->send(new newProviderMail(
+                                                        "prueba",
+                                                        "rfcprueba",
+                                                    )
+
+                                                );
+        return view('home');
     }
 }
