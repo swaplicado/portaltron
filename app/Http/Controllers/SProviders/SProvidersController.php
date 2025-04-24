@@ -6,6 +6,8 @@ use App\Constants\SysConst;
 use App\Http\Controllers\Controller;
 use App\Mail\newProviderMail;
 use App\Mail\voboProviderMail;
+use App\Mail\nextStepVoboProviderMail;
+use App\Mail\notifyTesoreria;
 use App\Models\Areas\Areas;
 use App\Models\SDocs\DocsUrl;
 use App\Models\SDocs\ProvDocs;
@@ -21,6 +23,7 @@ use App\Utils\FilesUtils;
 use App\Utils\ordersVobosUtils;
 use App\Utils\SProvidersUtils;
 use App\Utils\SysUtils;
+use App\Utils\UserUtils;
 use Illuminate\Http\Request;
 use App\Models\SProviders\SProvider;
 use Illuminate\Support\Carbon;
@@ -91,7 +94,7 @@ class SProvidersController extends Controller
         return json_encode(['success' => true, 'oProvider' => $oProvider, 'lDocuments' => $lDocuments]);
     }
 
-    public function registerProviderIndex(){
+    public function registerProviderIndex($type_register){
         $lDocs = RequestTypeDocs::where('is_default', 1)
                                 ->where('is_deleted', 0)
                                 ->select(
@@ -107,11 +110,14 @@ class SProvidersController extends Controller
 
         $showAreaRegisterProvider = $config->showAreaRegisterProvider;
 
-        return view('SProviders.guestRegister')->with('lDocs', $lDocs)->with('lAreas', $lAreas)->with('showAreaRegisterProvider', $showAreaRegisterProvider);
+        return view('SProviders.guestRegister')->with('lDocs', $lDocs)
+                                                ->with('lAreas', $lAreas)
+                                                ->with('showAreaRegisterProvider', $showAreaRegisterProvider)
+                                                ->with('type_register', $type_register);
     }
 
     public function tempProviderIndex($name){
-        return view('sproviders.tempProvider')->with('name', $name);
+        return view('SProviders.tempProvider')->with('name', $name);
     }
 
     /**
@@ -126,6 +132,7 @@ class SProvidersController extends Controller
             $password = $request->password;
             $confirmPassword = $request->confirmPassword;
             $area_id = $request->area_id;
+            $type_register = $request->type_register;
             $config = \App\Utils\Configuration::getConfigurations();
             
             if(is_null($area_id)){
@@ -213,56 +220,58 @@ class SProvidersController extends Controller
                 $oProvider->provider_email = $email;
                 $oProvider->user_id = $oUser->id;
                 $oProvider->area_id = $area_id;
-                $oProvider->status_provider_id = SysConst::PROVIDER_PENDIENTE;
+                $oProvider->status_provider_id = $type_register == 1 ? SysConst::PROVIDER_PENDIENTE : SysConst::PROVIDER_APROBADO;
                 $oProvider->is_active = 1;
                 $oProvider->is_deleted = 0;
                 $oProvider->created_by = $oUser->id;
                 $oProvider->updated_by = $oUser->id;
                 $oProvider->save();
 
-                foreach($lDocs as $doc){
-                    $docType = 'doc_'.$doc->id_request_type_doc;
-                    $pdf = $request->file($docType);
-                    $result = FilesUtils::validateFile($pdf, 'pdf', '5 MB');
-                    if(!$result[0]){
-                        return json_encode(['success' => false, 'message' => $result[1], 'icon' => 'error']);
-                    }
+                if ($type_register == 1) {
+                    foreach($lDocs as $doc){
+                        $docType = 'doc_'.$doc->id_request_type_doc;
+                        $pdf = $request->file($docType);
+                        $result = FilesUtils::validateFile($pdf, 'pdf', '5 MB');
+                        if(!$result[0]){
+                            return json_encode(['success' => false, 'message' => $result[1], 'icon' => 'error']);
+                        }
+        
+                        $fileName = $docType.'_'.$rfc.'_'.time().'.'.$pdf->extension();
+        
+                        $rutaArchivo = Storage::disk('documents')->putFileAs('/', $pdf, $fileName);
+                        
+                        $oProvDoc = new ProvDocs();
+                        $oProvDoc->request_type_doc_id = $doc->id_request_type_doc;
+                        $oProvDoc->prov_id = $oProvider->id_provider;
+                        $oProvDoc->is_deleted = 0;
+                        $oProvDoc->created_by = 1;
+                        $oProvDoc->updated_by = 1;
+                        $oProvDoc->save();
     
-                    $fileName = $docType.'_'.$rfc.'_'.time().'.'.$pdf->extension();
+                        $docUrl = Storage::disk('documents')->url($fileName);
     
-                    $rutaArchivo = Storage::disk('documents')->putFileAs('/', $pdf, $fileName);
-                    
-                    $oProvDoc = new ProvDocs();
-                    $oProvDoc->request_type_doc_id = $doc->id_request_type_doc;
-                    $oProvDoc->prov_id = $oProvider->id_provider;
-                    $oProvDoc->is_deleted = 0;
-                    $oProvDoc->created_by = 1;
-                    $oProvDoc->updated_by = 1;
-                    $oProvDoc->save();
-
-                    $docUrl = Storage::disk('documents')->url($fileName);
-
-                    $oDocsUrl = new DocsUrl();
-                    $oDocsUrl->prov_doc_id = $oProvDoc->id_prov_doc;
-                    $oDocsUrl->url = $docUrl;
-                    $oDocsUrl->date_ini_n = Carbon::now()->toDateString();
-                    $oDocsUrl->is_deleted = 0;
-                    $oDocsUrl->created_by = 1;
-                    $oDocsUrl->updated_by = 1;
-                    $oDocsUrl->save();
-
-                    foreach($orders as $order){
-                        $oVoboDoc = new VoboDoc();
-                        $oVoboDoc->doc_url_id = $oDocsUrl->id_doc_url;
-                        $oVoboDoc->area_id = $order->area;
-                        $oVoboDoc->is_accept = 0;
-                        $oVoboDoc->is_reject = 0;
-                        $oVoboDoc->order = $order->order;
-                        $oVoboDoc->check_status = $order->order == 1 ? SysConst::VOBO_REVISION : SysConst::VOBO_NO_REVISION;
-                        $oVoboDoc->is_deleted = 0;
-                        $oVoboDoc->created_by = 1;
-                        $oVoboDoc->updated_by = 1;
-                        $oVoboDoc->save();
+                        $oDocsUrl = new DocsUrl();
+                        $oDocsUrl->prov_doc_id = $oProvDoc->id_prov_doc;
+                        $oDocsUrl->url = $docUrl;
+                        $oDocsUrl->date_ini_n = Carbon::now()->toDateString();
+                        $oDocsUrl->is_deleted = 0;
+                        $oDocsUrl->created_by = 1;
+                        $oDocsUrl->updated_by = 1;
+                        $oDocsUrl->save();
+    
+                        foreach($orders as $order){
+                            $oVoboDoc = new VoboDoc();
+                            $oVoboDoc->doc_url_id = $oDocsUrl->id_doc_url;
+                            $oVoboDoc->area_id = $order->area;
+                            $oVoboDoc->is_accept = 0;
+                            $oVoboDoc->is_reject = 0;
+                            $oVoboDoc->order = $order->order;
+                            $oVoboDoc->check_status = $order->order == 1 ? SysConst::VOBO_REVISION : SysConst::VOBO_NO_REVISION;
+                            $oVoboDoc->is_deleted = 0;
+                            $oVoboDoc->created_by = 1;
+                            $oVoboDoc->updated_by = 1;
+                            $oVoboDoc->save();
+                        }
                     }
                 }
 
@@ -277,13 +286,21 @@ class SProvidersController extends Controller
         }
 
         try {
-            $order = collect($orders)->first();
-            $oArea = Areas::findOrFail($order->area);
-            Mail::to($oArea->email_n)->send(new newProviderMail(
-                                                    $oProvider->provider_short_name,
-                                                    $oProvider->provider_rfc,
-                                                )
-                                            );
+            if ($type_register == 1) {
+                $order = collect($orders)->first();
+                $oArea = Areas::findOrFail($order->area);
+                $lUsers = UserUtils::getUsersByArea($oArea->id_area);
+    
+                foreach ($lUsers as $user) {
+                    $email = $user->email;
+                    Mail::to($email)->send(new newProviderMail(
+                                                            $oProvider->provider_short_name,
+                                                            $oProvider->provider_rfc,
+                                                        )
+                                                    );
+                }
+            }
+
         } catch (\Throwable $th) {
             \Log::error($th);
             return json_encode(['success' => true, 'mailSuccess' => false, 
@@ -297,6 +314,7 @@ class SProvidersController extends Controller
         try {
             $mailStatus = '';
             $sendMail = false;
+            $sendMailNextStep = false;
 
             $config = \App\Utils\Configuration::getConfigurations();
             $id_provider = $request->id_provider;
@@ -325,6 +343,8 @@ class SProvidersController extends Controller
                     $oVoboDoc->check_status = SysConst::VOBO_REVISION;
                     $oVoboDoc->update();
                 }
+
+                $sendMailNextStep = true;
             }else{
                 $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $oArea->id_area);
                 foreach ($lDocuments as $doc) {
@@ -355,6 +375,19 @@ class SProvidersController extends Controller
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
         }
 
+        if ($sendMailNextStep) {
+            $lUsers = UserUtils::getUsersByArea($oArea->id_area);
+            foreach ($lUsers as $user) {
+                $email = $user->email;
+                Mail::to($email)->send(new nextStepVoboProviderMail(
+                                                        $oProvider->provider_short_name,
+                                                        $oProvider->provider_rfc,
+                                                        $oArea->name_area
+                                                    )
+                                                );
+            }
+        }
+
         if($sendMail){
             try {
                 Mail::to($oProvider->provider_email)->send(new voboProviderMail(
@@ -368,6 +401,14 @@ class SProvidersController extends Controller
                 \Log::error($th);
                 return json_encode(['success' => true, 'lProviders' => $lProviders, 'mailSuccess' => false, 
                 "message" => "Registro guardado con éxito, pero no se pudo enviar el email de notificación", "icon"=> "info"]);
+            }
+
+            try {
+                SProvidersUtils::notifyProviderToTesoreria($oProvider);
+            } catch (\Throwable $th) {
+                \Log::error($th);
+                return json_encode(['success' => true, 'lProviders' => $lProviders, 'mailSuccess' => false,
+                "message" => "Registro guardado con éxito, pero no se pudo enviar el email de notificación al área de tesoreria", "icon"=> "info"]);
             }
         }
 
@@ -539,8 +580,8 @@ class SProvidersController extends Controller
             $oProvider = \Auth::user()->getProviderData();
 
             // $lDocuments = SProvidersUtils::getDocumentsProvider($oProvider->id_provider, $oProvider->area_id);
-            $lDocuments = SProvidersUtils::getDocumentsProviderByLastVobo($oProvider->id_provider);
-            $lDocs = $lDocuments->where('is_reject', 1);
+            // $lDocuments = SProvidersUtils::getDocumentsProviderByLastVobo($oProvider->id_provider);
+            // $lDocs = $lDocuments->where('is_reject', 1);
 
             if($name == null || $name == ''){
                 $message = 'Debe introducir su razón social';
@@ -572,7 +613,7 @@ class SProvidersController extends Controller
                 \DB::connection('mysqlmngr')->beginTransaction();
                 try {
                     $oUser = User::findOrFail($oProvider->user_id);
-                    $oUser->username = $rfc;
+                    // $oUser->username = $rfc;
                     $oUser->email = $email;
                     $oUser->first_name = $rfc;
                     $oUser->last_name = $rfc;
@@ -591,16 +632,27 @@ class SProvidersController extends Controller
                 try {
                     $oProvider->provider_name = $name;
                     $oProvider->provider_short_name = $shortName;
-                    $oProvider->provider_rfc = $rfc;
+                    // $oProvider->provider_rfc = $rfc;
                     $oProvider->provider_email = $email;
                     $oProvider->user_id = $oUser->id;
-                    $oProvider->status_provider_id = SysConst::PROVIDER_PENDIENTE;
+                    // $oProvider->status_provider_id = SysConst::PROVIDER_PENDIENTE;
                     $oProvider->updated_by = \Auth::user()->id;
                     $oProvider->update();
+
+                    $lDocs = RequestTypeDocs::where('is_default', 1)
+                                ->where('is_deleted', 0)
+                                ->select(
+                                    'id_request_type_doc',
+                                    'name'
+                                )
+                                ->get();
 
                     foreach($lDocs as $doc){
                         $docType = 'doc_'.$doc->id_request_type_doc;
                         $pdf = $request->file($docType);
+                        if (is_null($pdf)) {
+                            continue;
+                        }
                         $result = FilesUtils::validateFile($pdf, 'pdf', '5 MB');
                         if(!$result[0]){
                             return json_encode(['success' => false, 'message' => $result[1], 'icon' => 'error']);
@@ -624,20 +676,48 @@ class SProvidersController extends Controller
                         $oDocsUrl->created_by = 1;
                         $oDocsUrl->updated_by = 1;
                         $oDocsUrl->save();
-    
+
                         foreach($orders as $order){
                             $oVoboDoc = new VoboDoc();
                             $oVoboDoc->doc_url_id = $oDocsUrl->id_doc_url;
                             $oVoboDoc->area_id = $order->area;
-                            $oVoboDoc->is_accept = 0;
+                            $oVoboDoc->is_accept = 1;
                             $oVoboDoc->is_reject = 0;
                             $oVoboDoc->order = $order->order;
-                            $oVoboDoc->check_status = $order->order == 1 ? SysConst::VOBO_REVISION : SysConst::VOBO_NO_REVISION;
+                            $oVoboDoc->check_status = SysConst::VOBO_REVISADO;
                             $oVoboDoc->is_deleted = 0;
                             $oVoboDoc->created_by = 1;
                             $oVoboDoc->updated_by = 1;
                             $oVoboDoc->save();
                         }
+
+                        if ($docType == 'doc_4') {
+                            $lUsers = UserUtils::getUsersByArea($config->tesoreriaArea);
+                            foreach ($lUsers as $oUser) {
+                                $email = $oUser->email;
+                                Mail::to($email)->send(new notifyTesoreria(
+                                                                                $oProvider->provider_short_name,
+                                                                                $oProvider->provider_rfc,
+                                                                                2
+                                                                                )
+                                                                            );
+                            }
+                        }
+    
+                        // se comentaron los pasos de autorizacion al actualizar documentos, si se requiere actualizar descomentar
+                        // foreach($orders as $order){
+                        //     $oVoboDoc = new VoboDoc();
+                        //     $oVoboDoc->doc_url_id = $oDocsUrl->id_doc_url;
+                        //     $oVoboDoc->area_id = $order->area;
+                        //     $oVoboDoc->is_accept = 0;
+                        //     $oVoboDoc->is_reject = 0;
+                        //     $oVoboDoc->order = $order->order;
+                        //     $oVoboDoc->check_status = $order->order == 1 ? SysConst::VOBO_REVISION : SysConst::VOBO_NO_REVISION;
+                        //     $oVoboDoc->is_deleted = 0;
+                        //     $oVoboDoc->created_by = 1;
+                        //     $oVoboDoc->updated_by = 1;
+                        //     $oVoboDoc->save();
+                        // }
                     }
     
                     \DB::connection('mysql')->commit();
@@ -688,8 +768,24 @@ class SProvidersController extends Controller
     public static function providerProfile(){
         $oProvider = \Auth::user()->getProviderData();
 
-        $lDocuments = SProvidersUtils::getDocumentsProviderByLastVobo($oProvider->id_provider);
-        $lDocs = $lDocuments->where('is_reject', 1);
+        $lDocsProvider = SProvidersUtils::getDocumentsProvider($oProvider->id_provider, $oProvider->area_id, [SysConst::VOBO_REVISADO]);
+        // $lDocs = $lDocuments->where('is_reject', 1);
+        $lDocs = RequestTypeDocs::where('is_default', 1)
+                                ->where('is_deleted', 0)
+                                ->select(
+                                    'id_request_type_doc',
+                                    'name'
+                                )
+                                ->get();
+
+        foreach($lDocs as $doc){
+            $oDoc = $lDocsProvider->where('id_request_type_doc', $doc->id_request_type_doc)->first();
+            if($oDoc != null){
+                $doc->url = $oDoc->url;
+            }else{
+                $doc->url = null;
+            }
+        }
 
         return view('SProviders.provider_profile')->with('oProvider', $oProvider)
                                                     ->with('lDocs', $lDocs);

@@ -24,7 +24,10 @@ var app = new Vue({
         folio: null,
         comments: null,
         oDpsConfig: oServerData.oDpsConfig,
-        sMounth: oServerData.sMounth
+        sMounth: oServerData.sMounth,
+        lCompany: oServerData.lCompany,
+        default_company_id: oServerData.default_company_id,
+        company_id: oServerData.default_company_id
     },
     mounted(){
         self = this;
@@ -58,7 +61,20 @@ var app = new Vue({
 
         $('#select_area').val(self.default_area_id).trigger('change');
 
-        this.type_id = $('#type_filter').val();
+        $('#select_company').select2({
+            data: self.lCompany,
+            placeholder: 'Selecciona entidad comercial',
+            disabled: self.lCompany.length == 1
+        }).on('select2:select', function(e) {
+            self.company_id =  e.params.data.id;
+        });
+
+        $('#select_company').val(self.default_company_id).trigger('change');
+
+        // this.type_id = $('#type_filter').val();
+
+        this.type_id = 2;
+
         this.type_name = $('#type_filter').find(':selected').text();
     },
     methods: {
@@ -102,6 +118,7 @@ var app = new Vue({
             formData.append('type_id', this.type_id);
             formData.append('year', this.year);
             formData.append('area_id', this.area_id);
+            formData.append('company_id', this.company_id);
             formData.append('folio', this.folio);
 
             axios.post(route, formData, {

@@ -22,6 +22,7 @@ use App\Utils\DpsComplementsUtils;
 use App\Utils\FilesUtils;
 use App\Utils\ordersVobosUtils;
 use App\Utils\SProvidersUtils;
+use App\Utils\UserUtils;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -126,6 +127,16 @@ class dpsComplementaryController extends Controller
                 $oDpsConfig->sDate = dateUtils::formatDate($oDpsConfig->date_end, 'ddd D-m-Y');
             }
             $sMounth = strtolower(dateUtils::monthsComplete[ intval($mounth) ]);
+            $lCompany = DB::table('companies')
+                        ->where('is_active', 1)
+                        ->where('is_deleted', 0)
+                        ->select(
+                                'id_company as id',
+                                'company_name_ui as text'
+                            )
+                        ->get();
+
+            $default_company_id = $lCompany->first()->id;
 
         } catch (\Throwable $th) {
             \Log::error($th);
@@ -141,7 +152,9 @@ class dpsComplementaryController extends Controller
                                                     ->with('showAreaDps', $showAreaDps)
                                                     ->with('requireAreaDps',$requireAreaDps)
                                                     ->with('oDpsConfig',$oDpsConfig)
-                                                    ->with('sMounth',$sMounth);
+                                                    ->with('sMounth',$sMounth)
+                                                    ->with('lCompany',$lCompany)
+                                                    ->with('default_company_id',$default_company_id);
     }
 
     public function saveComplementary(Request $request){
@@ -183,7 +196,7 @@ class dpsComplementaryController extends Controller
                 }
             }
 
-            $type_id = $request->type_id;
+            $type_id = SysConst::DOC_TYPE_FACTURA;
             
             $serieoc = $request->serieoc;
             $folio = $request->folio;
@@ -202,8 +215,10 @@ class dpsComplementaryController extends Controller
                 $reference = trim($reference);
                 $oReference = Dps::where('folio_n', $reference)
                             ->where('provider_id_n', $oProvider->id_provider)
-                            ->where('is_deleted', 0)    
-                            ->first(); 
+                            ->where('is_deleted', 0)
+                            ->where('type_doc_id', SysConst::DOC_TYPE_PURCHASE_ORDER)
+                            ->where('company_id', $request->company_id)
+                            ->first();
                 if(is_null($oReference)){
                     return json_encode(['success' => false, 'message' => 'No se encuentra el documento con la referencia '.$reference , 'icon' => 'warning']);
                 }    
@@ -218,6 +233,7 @@ class dpsComplementaryController extends Controller
 
                 array_push($aReference, $oReference);
             }
+            // Descomentar para publicar
             if(is_null($area_id) || $area_id == "null"){
                 if($config->useSerie != 1){
                     if($config->requireAreaDps){
@@ -231,6 +247,12 @@ class dpsComplementaryController extends Controller
                         }
                     }
                 }else{
+                    if($serieComparacion == ""){
+                        $serieComparacion = null;
+                    }
+
+                    $serieComparacion = !is_null($serieComparacion) ? $serieComparacion : $config->defaultAreaProvider;
+
                     $serie_area = DB::table('series')
                         ->where('type_doc_id',$type_id)
                         ->where('code', $serieComparacion)
@@ -264,6 +286,17 @@ class dpsComplementaryController extends Controller
                 return json_encode(['success' => false, 'message' => $result[1], 'icon' => 'error']);
             }
 
+            $oCompany = DB::table('companies')
+                        ->where('is_active', 1)
+                        ->where('is_deleted', 0)
+                        ->where('id_company', $request->company_id)
+                        ->first();
+            
+            $data = json_decode(DpsComplementsUtils::validateXml($xml, $oProvider, $oCompany));
+            if(!$data->success){
+                return json_encode(['success' => false, 'message' => $data->message, 'icon' => 'error']);
+            }
+            
             DB::beginTransaction();
 
             if($type_id == SysConst::DOC_TYPE_FACTURA){
@@ -287,6 +320,7 @@ class dpsComplementaryController extends Controller
             $oDps = new Dps();
             $oDps->type_doc_id = $type_id;
             $oDps->provider_id_n = $oProvider->id_provider;
+            $oDps->company_id = $oCompany->id_company;
             if($haveSerie === false){
                 $oDps->serie_n = null;
                 $oDps->num_ref_n = $auxFolio[0];
@@ -360,7 +394,10 @@ class dpsComplementaryController extends Controller
             $order = collect($orders)->first();
             $oArea = Areas::findOrFail($order->area);
 
-            Mail::to($oArea->email_n)->send(new newDpsMail(
+            $lUsers = UserUtils::getUsersByArea($oArea->id_area);
+            foreach ($lUsers as $user) {
+                $email = $user->email;
+                Mail::to($email)->send(new newDpsMail(
                                                 $oProvider->provider_short_name,
                                                 $oDps->type_doc_id,
                                                 "Factura",
@@ -368,6 +405,7 @@ class dpsComplementaryController extends Controller
                                                 [1,2,3]
                                             )
                                         );
+            }
         } catch (\Throwable $th) {
             \Log::error($th);
             return json_encode(['success' => true, 'lDpsComp' => $lDpsComp, 'mailSuccess' => false, "message" => $th->getMessage(), "icon"=> "warning"]);

@@ -6,7 +6,6 @@ use Carbon\Carbon;
 class AppLinkUtils {
     public static function AppLinkLogin($oUser){
         $config = \App\Utils\Configuration::getConfigurations();
-
         $headers = [
             'Content-Type' => 'application/json',
             'Accept' => 'application/json'
@@ -32,11 +31,10 @@ class AppLinkUtils {
         } catch (\Throwable $th) {
             return null;
         }
-
+        
         $jsonString = $response->getBody()->getContents();
 
         $data = json_decode($jsonString);
-
         return $data;
     }
 
@@ -82,9 +80,10 @@ class AppLinkUtils {
 
     public static function requestAppLink($route, $method, $oUser, $body = null, $requireAuth = true){
         $config = \App\Utils\Configuration::getConfigurations();
-
+        
         if($requireAuth){
             $data = AppLinkUtils::AppLinkLogin($oUser);
+            
             if(!is_null($data)){
                 if($data->code != 200){
                     return $data;
@@ -111,10 +110,10 @@ class AppLinkUtils {
         ]);
 
         $oBody = json_decode($body);
-        $oBody->idDB = session()->get('companie_idDB');
-        $body = json_encode($oBody);
-        
-        \Log::error(json_encode($body));
+        if (!isset($oBody->idDB)) {
+            $oBody->idDB = session()->get('companie_idDB');
+            $body = json_encode($oBody);
+        }
 
         $request = new \GuzzleHttp\Psr7\Request($method, $route, $headers, $body);
         $response = $client->send($request);

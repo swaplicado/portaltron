@@ -2,7 +2,7 @@
     "appmanagerRoute": "https://aeth.siieapp.com/appsmanager/public",
     "appmanagerProfileRoute": "https://aeth.siieapp.com/appsmanager/public/profile",
     
-    "AppLinkRoute": "168.195.204.164:9002",
+    "AppLinkRoute": "177.244.31.58:9002",
     "AppLinkRouteLogin": "login",
     "AppLinkRouteProviderFind": "providers/find",
 
@@ -10,7 +10,7 @@
     "AppLinkGetPurchaseOrderRows": "purcharseorder/getRows",
 
     "dpsLimitYearToSaveInDB": 2023,
-
+    
     "orders": [
         {"id": 1, "orders": [{"area": 1, "order": 1}, {"area": 4, "order": 2}]},
         {"id": 2, "orders": [{"area": 2, "order": 1}, {"area": 4, "order": 2}]},
@@ -60,8 +60,8 @@
     "MonthNames": ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
     "subMounthsDps": 18,
     
-    "showAreaRegisterProvider": false,
-    "requireAreaRegisterProvider": false,
+    "showAreaRegisterProvider": true,
+    "requireAreaRegisterProvider": true,
     "omisionAreaRegisterProvider": 100,
     "defaultAreaProvider": 4,
     "areasToRegisterProvider": [1,2,3,4],

@@ -22,7 +22,7 @@ class Menu {
                 (object) ['type' => $element, 'route' => route('dpsComplementary.complementsManager'),'icon' => 'bx bxs-file-blank bx-sm', 'name' => 'Facturas', 'order' => 5],
                 // (object) ['type' => $element, 'route' => route('accountStates.index'), 'icon' => 'bx bx-wallet bx-sm', 'name' => 'Estados de cuenta'],
                 (object) ['type' => $element, 'route' => route('accountStates.managerIndex'), 'icon' => 'bx bx-wallet bx-sm', 'name' => 'Estados de cuenta'],
-                (object) ['type' => $element, 'route' => route('estimateRequest.indexERManager'), 'icon' => 'bx bxs-dollar-circle bx-sm', 'name' => 'Sol. cotización'],
+                //(object) ['type' => $element, 'route' => route('estimateRequest.indexERManager'), 'icon' => 'bx bxs-dollar-circle bx-sm', 'name' => 'Sol. cotización'],
                 (object) ['type' => $element, 'route' => route('payComplement.payComplement'), 'icon' => 'bx bx bx-receipt bx-sm', 'name' => 'CFDI de pago'],
                 (object) ['type' => $element, 'route' => route('releases'), 'icon' => 'bx bxs-analyse bx-sm', 'name' => 'Actualizaciones', 'order' => 9]
             ];
@@ -47,8 +47,8 @@ class Menu {
                                     'icon' => 'bx bxs-file-blank bx-sm', 'name' => 'Facturas', 'order' => 5];
                         $lMenus[] = (object) ['type' => $element, 'route' => route('payComplement.payComplementsManager'), 
                                     'icon' => 'bx bx bx-receipt bx-sm', 'name' => 'CFDI de pago', 'order' => 7];
-                        $lMenus[] = (object) ['type' => $element, 'route' => route('estimateRequest.indexERManager'), 
-                                    'icon' => 'bx bxs-dollar-circle bx-sm', 'name' => 'Sol. cotización', 'order' => 3];
+                        //[] = (object) ['type' => $element, 'route' => route('estimateRequest.indexERManager'), 
+                                    //'icon' => 'bx bxs-dollar-circle bx-sm', 'name' => 'Sol. cotización', 'order' => 3];
                         $lMenus[] = (object) ['type' => $element, 'route' => route('notaCredito.notaCreditoManager'), 
                                     'icon' => 'bx bxs-credit-card bx-sm', 'name' => 'Notas de crédito', 'order' => 6];
                         $lMenus[] = (object) ['type' => $element, 'route' => route('purchaseOrders.indexManager'), 
@@ -60,8 +60,8 @@ class Menu {
                     case 'proveedor':
                         $lMenus[] = (object) ['type' => $element, 'route' => route('purchaseOrders.index'), 
                                     'icon' => 'bx bx-cart-alt bx-sm', 'name' => 'Ordenes compra', 'order' => 4];
-                        $lMenus[] = (object) ['type' => $element, 'route' => route('estimateRequest.index'), 
-                                    'icon' => 'bx bxs-dollar-circle bx-sm', 'name' => 'Sol. cotización', 'order' => 3];
+                        //$lMenus[] = (object) ['type' => $element, 'route' => route('estimateRequest.index'), 
+                                    //'icon' => 'bx bxs-dollar-circle bx-sm', 'name' => 'Sol. cotización', 'order' => 3];
                         $lMenus[] = (object) ['type' => $element, 'route' => route('dpsComplementary.complements'), 
                                     'icon' => 'bx bxs-file-blank bx-sm', 'name' => 'Facturas', 'order' => 5];
                         $lMenus[] = (object) ['type' => $element, 'route' => route('notaCredito.notaCredito'), 

@@ -81,4 +81,22 @@ class ordersVobosUtils {
 
         return $child_area_id;
     }
+
+    /**
+     * Metodo para obtener la siguiente area que tiene que dar su vobo a los docs del proveedor
+     * recibe area del proveedor y un area especificada, regresa el area superior en la configuracion de order
+     */
+    public static function getProviderDocsNextArea($provider_area_id, $my_area_id){
+        $config = \App\Utils\Configuration::getConfigurations();
+        if($my_area_id != $config->fatherArea && $provider_area_id != $config->fatherArea){
+            $lOrders = ordersVobosUtils::getProviderDocsOrderToVobo($provider_area_id);
+            $myOrder = $lOrders->where('area', $my_area_id)->first();
+            $oOrder = $lOrders->where('order', ($myOrder->order + 1))->first();
+            $next_area_id = $oOrder->area;
+        }else{
+            $next_area_id = 0;
+        }
+
+        return $next_area_id;
+    }
 }

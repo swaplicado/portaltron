@@ -12,6 +12,7 @@ var app = new Vue({
         confirmPassword: null,
         successRegister: false,
         area_id: "",
+        type_register: oServerData.type_register
     },
     mounted(){
 
@@ -25,10 +26,12 @@ var app = new Vue({
             const formData = new FormData();
 
             let inputFile = null;
-            for(let doc of this.lDocs){
-                inputFile = document.getElementById('doc_'+doc.id_request_type_doc);
-                let file = inputFile.files[0];
-                formData.append('doc_'+doc.id_request_type_doc, file);
+            if (this.type_register == 1) {
+                for(let doc of this.lDocs){
+                    inputFile = document.getElementById('doc_'+doc.id_request_type_doc);
+                    let file = inputFile.files[0];
+                    formData.append('doc_'+doc.id_request_type_doc, file);
+                }
             }
 
             formData.append('name', this.name);
@@ -38,6 +41,7 @@ var app = new Vue({
             formData.append('password', this.password);
             formData.append('confirmPassword', this.confirmPassword);
             formData.append('area_id', this.area_id);
+            formData.append('type_register', this.type_register);
 
             SGui.showWaitingUnlimit();
 

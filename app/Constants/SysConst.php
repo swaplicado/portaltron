@@ -102,5 +102,11 @@ class SysConst {
     public const AREA_CONTABILIDAD = 4;
 
     public const MAIL_PROVEEDOR = 100;
+
+    /**
+     * Tipos de registro
+     */
+    public const REGISTRO_PROVEEDOR = 1;
+    public const REGISTRO_USUARIO_PROVEEDOR = 2;
 }
 ?>

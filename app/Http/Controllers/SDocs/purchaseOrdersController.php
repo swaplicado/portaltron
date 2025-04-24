@@ -51,30 +51,49 @@ class purchaseOrdersController extends Controller
 
     public function getPurchaseOrders($year, $lProvider = null){
         try {
+            if(is_null($lProvider)){
+                $oProvider = \Auth::user()->getProviderData();
+                $lProvider = [$oProvider->external_id];
+            }
             $config = \App\Utils\Configuration::getConfigurations();
             $arr = json_encode($lProvider);
             $date = Carbon::now()->subMonthsNoOverflow($config->subMounthsDps)->toDateString();
-            $body = '{
-                "idBp": 0,
-                "aBp": '.$arr.',
-                "year": '.$year.',
-                "date": "'.$date.'",
-                "user": "'.\Auth::user()->username.'"
-            }';
 
-            $result = AppLinkUtils::requestAppLink($config->AppLinkGetPurchaseOrders, "POST", \Auth::user(), $body);
-            if(!is_null($result)){
-                if($result->code != 200){
-                    return json_encode(['success' => false, 'message' => $result->message, 'icon' => 'error']);
+            $lCompanies = \DB::table('companies')
+                                ->where('is_active', 1)
+                                ->where('is_deleted', 0)
+                                ->select(
+                                    'id_company as id',
+                                    'company_name_ui as text',
+                                    'external_id',
+                                )
+                                ->get();
+
+            foreach ($lCompanies as $company) {
+                $body = '{
+                    "idBp": 0,
+                    "aBp": '.$arr.',
+                    "year": '.$year.',
+                    "date": "'.$date.'",
+                    "user": "'.\Auth::user()->username.'",
+                    "idDB": '.$company->external_id.'
+                }';
+    
+                $result = AppLinkUtils::requestAppLink($config->AppLinkGetPurchaseOrders, "POST", \Auth::user(), $body);
+                if(!is_null($result)){
+                    if($result->code != 200){
+                        return json_encode(['success' => false, 'message' => $result->message, 'icon' => 'error']);
+                    }
+                }else{
+                    return json_encode(['success' => false, 'message' => 'No se obtuvo respuesta desde AppLink', 'icon' => 'error']);
                 }
-            }else{
-                return json_encode(['success' => false, 'message' => 'No se obtuvo respuesta desde AppLink', 'icon' => 'error']);
+    
+                $data = json_decode($result->data);
+                $lRows = $data->lPOData;
+
+                $result = PurchaseOrdersUtils::insertPurchaseOrders($lRows, $lProvider, $company->id);
             }
 
-            $data = json_decode($result->data);
-            $lRows = $data->lPOData;
-
-            $result = PurchaseOrdersUtils::insertPurchaseOrders($lRows, $lProvider);
             
             foreach($lRows as $row){
                 $oPurchaseOrder = \DB::table('dps as d')

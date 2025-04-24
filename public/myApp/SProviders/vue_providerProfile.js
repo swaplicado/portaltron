@@ -62,6 +62,7 @@ var app = new Vue({
                 if(data.success){
                     this.successUpdate = data.success;
                     SGui.showOk();
+                    window.location.href = '/';
                 }else{
                     SGui.showMessage('', data.message, data.icon);
                 }

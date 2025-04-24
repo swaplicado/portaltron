@@ -49,7 +49,7 @@ class estimateRequestController extends Controller{
                 $idProvider[0] = $oProvider->external_id;
                 $idProvider = json_encode($idProvider);
             }
-
+            
             $config = \App\Utils\Configuration::getConfigurations();
             $date = Carbon::now()->subMonthsNoOverflow($config->subMounthsDps)->toDateString();
             //$idProvider = 887;
@@ -70,12 +70,11 @@ class estimateRequestController extends Controller{
             }else{
                 return json_encode(['success' => false, 'message' => 'No se obtuvo respuesta desde AppLink', 'icon' => 'error']);
             }
-
             $data = json_decode($result->data);
-            $lRows = $data->lERData;
-
-            $result = EstimateRequestUtils::insertEstimateRequest($lRows);
             
+            $lRows = $data->lERData;
+            $result = EstimateRequestUtils::insertEstimateRequest($lRows);
+            dd($result);
             foreach($lRows as $row){
                 $oEstimateRequest = \DB::table('est_req as er')
                                 ->join('providers','providers.id_provider','=','er.provider_id')

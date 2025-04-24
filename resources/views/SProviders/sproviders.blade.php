@@ -4,12 +4,15 @@
 <script>
     function GlobalData(){
         this.lProviders = <?php echo json_encode($lProviders); ?>;
+        this.oArea = <?php echo json_encode($oArea); ?>;
         this.getProviderRoute = <?php echo json_encode(route('sproviders.getProvider')); ?>;
         this.lConstants = <?php echo json_encode($lConstants); ?>;
         this.approveRoute = <?php echo json_encode(route('sproviders.approve')); ?>;
         this.rejectRoute = <?php echo json_encode(route('sproviders.reject')); ?>;
         this.requireModifyRoute = <?php echo json_encode(route('sproviders.requireModify')); ?>;
         this.lStatus = <?php echo json_encode($lStatus); ?>;
+        this.voboDocRoute = <?php echo json_encode(route('voboDocs.voboDoc')); ?>;
+        this.lAreas = <?php echo json_encode($lAreas); ?>;
     }
     var oServerData = new GlobalData();
     var indexesProvidersTable = {
@@ -50,13 +53,13 @@
                     <th>id_provider</th>
                     <th>status_id</th>
                     <th>short_name</th>
-                    <th>Proveedor</th>
-                    <th>RFC</th>
-                    <th>Email</th>
-                    <th>Usuario</th>
-                    <th>Estatus</th>
-                    <th>Fecha creación</th>
-                    <th>Fecha actualización</th>
+                    <th style="text-align: center">Proveedor</th>
+                    <th style="text-align: center">RFC</th>
+                    <th style="text-align: center">Correo</th>
+                    <th style="text-align: center">Usuario</th>
+                    <th style="text-align: center">Estatus</th>
+                    <th style="text-align: center">Fecha creación</th>
+                    <th style="text-align: center">Fecha actualización</th>
                 </thead>
                 <tbody>
                     
@@ -98,6 +101,7 @@
                                             'colTargetsSercheable' => [1],
                                             'select' => true,
                                             'show' => true,
+                                            'colTargetsAlignCenter' =>[3,4,5,6,7,8,9],
                                             // 'edit_modal' => true,
                                             // 'delete' => true,
                                         ] )
