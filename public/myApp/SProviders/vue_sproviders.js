@@ -23,6 +23,12 @@ var app = new Vue({
         canAuthorize: false,
         enableModify: false,
         lAreas: oServerData.lAreas,
+        allProviders: [],
+        allProvidersDocs: [],
+        lTypesDocs: [],
+        lProvidersToDownloadDocuments: [],
+        lDocumentsToDownload: [],
+        checkAllProviders: false
     },
     watch: {
         lDocuments:function(val){
@@ -56,6 +62,21 @@ var app = new Vue({
             }else{
                 this.enableAuthorize = false;
             }
+        },
+
+        checkAllProviders: function(val){
+            let elements = document.querySelectorAll('.checkbox_provider');
+            for(let element of elements){
+                element.checked = val;
+                if (!val) {
+                    self.lProvidersToDownloadDocuments = [];
+                } else {
+                    self.lProvidersToDownloadDocuments = [];
+                    for (let provider of self.lProviders) {
+                        self.lProvidersToDownloadDocuments.push(provider.id_provider);
+                    }
+                }
+            }
         }
     },
     mounted(){
@@ -67,6 +88,10 @@ var app = new Vue({
             data: self.lStatus,
         }).on('select2:select', function(e) {
             
+        });
+
+        $('#btn_download').click(function () {
+            self.getAllProvidersDocuments();
         });
     },
     methods: {
@@ -254,6 +279,135 @@ var app = new Vue({
                 console.log(error);
                 SGui.showError(error);
             });
+        },
+
+        getAllProvidersDocuments(){
+            let route = this.oData.getAllProvidersDocumentsRoute;
+            axios.get(route, {})
+                .then( result =>  {
+                    let data = result.data;
+                    if(data.success){
+                        this.allProviders = data.allProviders;
+                        this.lTypesDocs = data.lTypesDocs;
+                        this.showModalAllProviders();
+                    }else{
+                        SGui.showMessage('', data.message, data.icon);
+                    }
+                })
+                .catch( function(error){
+                    console.log(error);
+                    SGui.showError(error);
+                });
+        },
+
+        setSelectedProvidersToDownloadDocuments(provider_id){
+            //buscar si existe el valor
+            let index = this.lProvidersToDownloadDocuments.indexOf(provider_id);
+            console.log(provider_id);
+            
+            //si existe eliminarlo del array, si no, agregarlo
+            if(index == -1){
+                this.lProvidersToDownloadDocuments.push(provider_id);
+            }else{
+                this.lProvidersToDownloadDocuments.splice(index, 1);
+            }
+        },
+
+        setDocumentsToDownload(document_id){
+            //buscar si existe el valor
+            let index = this.lDocumentsToDownload.indexOf(document_id);
+            
+            //si existe eliminarlo del array, si no, agregarlo
+            if(index == -1){
+                this.lDocumentsToDownload.push(document_id);
+            }else{
+                this.lDocumentsToDownload.splice(index, 1);
+            }
+        },
+
+        showModalAllProviders(){
+            this.cleanCheckboxes();
+            this.allProvidersDocs = [];
+            let elements = [];
+            for(let provider of this.allProviders){
+                this.allProvidersDocs.push([
+                    provider.id_provider,
+                    provider.provider_name,
+                    ''
+                ]);
+
+                elements.push(
+                    '<div class="checkbox-wrapper-33">' +
+                        '<label class="checkbox" style="width: 20%">' +
+                            '<input id="prov_' + provider.id_provider + '" class="checkbox__trigger visuallyhidden checkbox_provider" type="checkbox" ' +
+                                'onclick="app.setSelectedProvidersToDownloadDocuments(' + provider.id_provider + ')"' +
+                            ' >' +
+                            '<span class="checkbox__symbol">' +
+                                '<svg aria-hidden="true" class="icon-checkbox" width="28px" height="28px" viewBox="0 0 28 28" version="1" xmlns="http://www.w3.org/2000/svg">' +
+                                    '<path d="M4 14l8 7L24 7"></path>' +
+                                '</svg>' +
+                            '</span>' +
+                        '</label>' +
+                    '</div>'
+                );
+            }
+
+            drawTable('table_allProviders', self.allProvidersDocs);
+            renderInTable('table_allProviders', 1, elements);
+
+            $('#modal_allProvidersDoduments').modal('show');
+        },
+
+        downloadDocuments(){
+            let route = this.oData.downloadProvidersDocumentsRoute;
+
+            axios.post(route, {
+                'lProviders': this.lProvidersToDownloadDocuments,
+                'lDocuments': this.lDocumentsToDownload,
+            }, {
+                responseType: 'blob'
+            })
+            .then((response) => {
+                const blob = new Blob([response.data], { type: 'application/zip' });
+                const link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = 'documentos.zip';
+                link.click();
+            })
+            .catch(async (error) => {
+                console.error(error);
+            
+                if (error.response && error.response.data) {
+                    try {
+                        // Convertir el blob de error a texto
+                        const errorText = await error.response.data.text();
+                        const errorJson = JSON.parse(errorText);
+            
+                        // Mostrar mensaje personalizado
+                        if (errorJson.message) {
+                            SGui.showError(errorJson.message);
+                        } else {
+                            SGui.showError('Ocurrió un error desconocido.');
+                        }
+                    } catch (e) {
+                        console.error('Error al procesar la respuesta del error:', e);
+                        SGui.showError('Error de conexión o respuesta inválida.');
+                    }
+                } else {
+                    SGui.showError('No se pudo conectar al servidor.');
+                }
+            });
+            
+        },
+
+        cleanCheckboxes(){
+            this.lProvidersToDownloadDocuments = [];
+            this.lDocumentsToDownload = [];
+            this.checkAllProviders = false;
+            let lCheckProvider = document.getElementsByClassName('checkbox__trigger');
+            for(let check of lCheckProvider){
+                check.checked = false;
+            }
         }
     }
 })

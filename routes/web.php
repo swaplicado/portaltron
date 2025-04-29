@@ -75,6 +75,8 @@ Route::middleware(['auth', 'menu', 'app.sprovider', 'app.companie'])->group( fun
         Route::post('/sproviders/reject', [SProvidersController::class, 'rejectProvider'])->name('reject');
         Route::post('/sproviders/requireModifyProvider', [SProvidersController::class, 'requireModifyProvider'])->name('requireModify');
         Route::get('/providerProfile', [SProvidersController::class, 'providerProfile'])->name('profile');
+        Route::get('/allProvidersDocuments', [SProvidersController::class, 'allProvidersDocuments'])->name('allProvidersDocuments');
+        Route::post('/download/providersFiles', [SProvidersController::class, 'downloadProvidersDocuments'])->name('downloadProvidersDocuments');
     });
     
     /** Usuarios */
@@ -145,6 +147,8 @@ Route::middleware(['auth', 'menu', 'app.sprovider', 'app.companie'])->group( fun
         Route::post('complements/save', [dpsComplementaryController::class, 'saveComplementary'])->name('SaveComplements');
         Route::post('complements/getDpsComplement', [dpsComplementaryController::class, 'getDpsComplement'])->name('GetComplements');
         Route::post('complements/getlDpsCompByYear', [dpsComplementaryController::class, 'getlDpsCompByYear'])->name('getCompByYear');
+        
+        Route::post('complements/downloadDpsComplement', [dpsComplementaryController::class, 'downloadDpsComplement'])->name('downloadDpsComplement');
     });
 
     /**

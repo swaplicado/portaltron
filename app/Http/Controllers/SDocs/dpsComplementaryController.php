@@ -28,6 +28,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use ZipArchive;
+use Response;   
 
 class dpsComplementaryController extends Controller
 {
@@ -521,7 +523,7 @@ class dpsComplementaryController extends Controller
             ];
 
             $lDpsComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, 0, 
-                    [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->toArray());
+                    [SysConst::DOC_TYPE_FACTURA], $oArea->toArray());
                     foreach ($lDpsComp as $dps) {
                         $lDpsReferences = DpsComplementsUtils::getlDpsReferences($dps->id_dps);
                         $Sreference = DpsComplementsUtils::transformToString($lDpsReferences);
@@ -538,6 +540,8 @@ class dpsComplementaryController extends Controller
             ->get()
             ->toArray();
 
+            $now = Carbon::now()->format('d-m-Y');
+
         } catch (\Throwable $th) {
             \Log::error($th);
             return view('errorPages.serverError');
@@ -549,7 +553,8 @@ class dpsComplementaryController extends Controller
                                                                 ->with('lTypes', $lTypes)
                                                                 ->with('lConstants', $lConstants)
                                                                 ->with('lDpsComp', $lDpsComp)
-                                                                ->with('lAreas', $lAreas);
+                                                                ->with('lAreas', $lAreas)
+                                                                ->with('now', $now);
     }
 
     /**
@@ -891,5 +896,150 @@ class dpsComplementaryController extends Controller
         }
 
         return json_encode(['success' => true, 'lDpsComp' => $lDpsComp]);
+    }
+
+    public function downloadDpsComplement(Request $request) {
+        try {
+            $arrProviders = $request->lProviders;
+            $startDate = $request->startDate;
+            $endDate = $request->endDate;
+            $statusToDownload = $request->statusToDownload;
+    
+            if (empty($arrProviders)) {
+                throw new \Exception("Debe seleccionar al menos a un proveedor", 1);
+            }
+            if (empty($startDate) || empty($endDate)) {
+                throw new \Exception("Debe seleccionar un rango de fechas", 1);
+            }
+
+            $meses = [
+                'Ene' => 'Jan', 'Feb' => 'Feb', 'Mar' => 'Mar', 
+                'Abr' => 'Apr', 'May' => 'May', 'Jun' => 'Jun',
+                'Jul' => 'Jul', 'Ago' => 'Aug', 'Sep' => 'Sep',
+                'Oct' => 'Oct', 'Nov' => 'Nov', 'Dic' => 'Dec'
+            ];
+            
+            $startDate = str_replace(
+                array_keys($meses), 
+                array_values($meses), 
+                $startDate
+            );
+
+            $endDate = str_replace(
+                array_keys($meses), 
+                array_values($meses), 
+                $endDate
+            );
+
+            $startDate = Carbon::createFromFormat('d-M-Y', $startDate)->format('Y-m-d');
+            $endDate = Carbon::createFromFormat('d-M-Y', $endDate)->format('Y-m-d');
+    
+            $lProviders = SProvider::whereIn('id_provider', $arrProviders)->get();
+    
+            $MAX_ZIP_SIZE = 100 * 1024 * 1024; // 100MB máximo por ZIP interno
+            $currentSize = 0;
+            $currentIndex = 1;
+            $timestamp = time();
+            $individualZipPaths = [];
+    
+            // Crear carpeta temporal si no existe
+            if (!Storage::exists('temp')) {
+                Storage::makeDirectory('temp');
+            }
+    
+            // Función para iniciar un nuevo ZIP
+            $startNewZip = function() use (&$currentIndex, &$timestamp) {
+                $fileName = "archivos_{$timestamp}_{$currentIndex}.zip";
+                $filePath = storage_path("app/temp/$fileName");
+                $zip = new ZipArchive;
+                $zip->open($filePath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+                return [$zip, $fileName, $filePath];
+            };
+    
+            list($zip, $zipFileName, $zipPath) = $startNewZip();
+    
+            foreach ($lProviders as $provider) {
+                $lDps = \DB::table('dps as d')
+                            ->where('d.is_deleted', 0)
+                            ->where('d.provider_id_n', $provider->id_provider)
+                            ->where('d.type_doc_id', SysConst::DOC_TYPE_FACTURA)
+                            ->whereBetween('d.created_at', [$startDate, $endDate])
+                            ->where('status_id', $statusToDownload)
+                            ->get();
+
+                $provider->lDocs = $lDps;
+    
+                foreach ($provider->lDocs as $doc) {
+                    $filename = basename(parse_url($doc->pdf_url_n, PHP_URL_PATH));
+                    $absolutePath = storage_path("app/facturas/{$filename}");
+    
+                    if (file_exists($absolutePath)) {
+                        $fileSize = filesize($absolutePath);
+    
+                        if ($currentSize + $fileSize > $MAX_ZIP_SIZE) {
+                            $zip->close();
+                            $individualZipPaths[] = $zipPath;
+    
+                            $currentIndex++;
+                            list($zip, $zipFileName, $zipPath) = $startNewZip();
+                            $currentSize = 0;
+                        }
+    
+                        $relativePath = $provider->provider_name . '/' . $filename;
+                        $zip->addFile($absolutePath, $relativePath);
+                        $currentSize += $fileSize;
+                    }
+                }
+            }
+    
+            // Cerrar el último zip si está abierto
+            if ($zip->status == 0) {
+                $zip->close();
+                $individualZipPaths[] = $zipPath;
+            }
+    
+            // Ahora empaquetar todos los ZIPs individuales en uno grande
+            $finalZipName = "documentos_comprimidos_{$timestamp}.zip";
+            $finalZipPath = storage_path("app/temp/$finalZipName");
+    
+            $finalZip = new ZipArchive;
+            $finalZip->open($finalZipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+    
+            foreach ($individualZipPaths as $path) {
+                $internalName = basename($path);
+                $finalZip->addFile($path, $internalName);
+            }
+    
+            $finalZip->close();
+    
+            // Opcional: Borrar los ZIPs individuales ya que ya están dentro del final
+            foreach ($individualZipPaths as $path) {
+                unlink($path);
+            }
+        } catch (\Throwable $th) {
+            \Log::error($th);
+            if (isset($zip) && $zip->status == 0) {
+                $zip->close();
+            }
+            if (isset($finalZip) && $finalZip->status == 0) {
+                $finalZip->close();
+            }
+            if (isset($path) && file_exists($path)) {
+                unlink($path);
+            }
+            if (isset($zipPath) && file_exists($zipPath)) {
+                unlink($zipPath);
+            }
+            if (isset($finalZipPath) && file_exists($finalZipPath)) {
+                unlink($finalZipPath);
+            }
+
+            return response()->json([
+                'message' => $th->getMessage(),
+                'error' => $th->getMessage(),
+            ], 500);
+        }
+
+        return response()->download($finalZipPath)->deleteFileAfterSend(true);
     }
 }

@@ -55,6 +55,9 @@
                     @if(isset($responsive))
                         "responsive": true,
                     @endif
+                    @if(isset($noLengthChange))
+                        "lengthChange": false,
+                    @endif
                     @if(isset($lengthMenu))
                         "lengthMenu": <?php echo json_encode($lengthMenu) ?>,
                     @else
@@ -65,6 +68,11 @@
                     @endif
                     @if(isset($ordering))
                         "ordering": true,
+                    @endif
+                    @if(isset($rowGroup))
+                        "rowGroup": {
+                            "dataSrc": <?php echo json_encode($rowGroup) ?>,
+                        },
                     @endif
                     "columnDefs": [
                         {

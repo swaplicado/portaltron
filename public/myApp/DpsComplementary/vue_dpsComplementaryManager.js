@@ -33,6 +33,32 @@ var app = new Vue({
         area_id: "",
 
         is_omision: false,
+
+        checkAllProviders: false,
+        startDate: null,
+        endDate: oServerData.now,
+        lProvidersToDownloadDocuments: [],
+        statusToDownload: 3,
+        now: oServerData.now
+    },
+    watch: {
+        checkAllProviders: function(val){
+            let elements = document.querySelectorAll('.checkbox_provider');
+            for(let element of elements){
+                element.checked = val;
+                if (!val) {
+                    self.lProvidersToDownloadDocuments = [];
+                } else {
+                    self.lProvidersToDownloadDocuments = [];
+                    for (let provider of self.lProviders) {
+                        if (provider.id == 0) {
+                            continue;
+                        }
+                        self.lProvidersToDownloadDocuments.push(provider.id);
+                    }
+                }
+            }
+        }
     },
     mounted(){
         self = this;
@@ -54,6 +80,19 @@ var app = new Vue({
             
         });
 
+        let arrStatusFilterDownload = [];
+        for(let status of self.lStatus){
+            if(status.id != 0){
+                arrStatusFilterDownload.push(status);
+            }
+        }
+
+        $('#status_filter_download').select2({
+            data: arrStatusFilterDownload,
+        }).on('select2:select', function(e) {
+            self.statusToDownload = e.params.data.id;
+        });
+
         $('#type_filter').select2({
             data: self.lTypes,
         }).on('select2:select', function(e) {
@@ -72,6 +111,20 @@ var app = new Vue({
         this.provider_id = $('#provider_filter').val();
         this.type_id = $('#type_filter').val();
         this.type_name = $('#type_filter').find(':selected').text();
+
+        $('#btn_download').click(function () {
+            self.showModalAllProviders()
+        });
+
+        var elemDatePicker = document.getElementById("startDatePicker");
+        elemDatePicker.addEventListener('changeDate', function (e, details) {
+            self.startDate = this.value;
+        });
+
+        var elemDatePicker = document.getElementById("endDatePicker");
+        elemDatePicker.addEventListener('changeDate', function (e, details) { 
+            self.endDate = this.value;
+        });
     },
     methods: {
         getComplementsProvider(){
@@ -315,6 +368,118 @@ var app = new Vue({
                 console.log(error);
                 SGui.showError(error);
             });
+        },
+
+        showModalAllProviders(){
+            this.cleanDownloadDocuments();
+            let arrlProviders = [];
+            let elements = [];
+            for(let provider of this.lProviders){
+                if (provider.id == 0) {
+                    continue;
+                }
+
+                arrlProviders.push([
+                    provider.id,
+                    provider.text,
+                    ''
+                ]);
+
+                elements.push(
+                    '<div class="checkbox-wrapper-33">' +
+                        '<label class="checkbox" style="width: 20%">' +
+                            '<input id="prov_' + provider.id + '" class="checkbox__trigger visuallyhidden checkbox_provider" type="checkbox" ' +
+                            'onclick="app.setSelectedProvidersToDownloadDocuments(' + provider.id + ')"' +
+                            ' >' +
+                            '<span class="checkbox__symbol">' +
+                                '<svg aria-hidden="true" class="icon-checkbox" width="28px" height="28px" viewBox="0 0 28 28" version="1" xmlns="http://www.w3.org/2000/svg">' +
+                                    '<path d="M4 14l8 7L24 7"></path>' +
+                                '</svg>' +
+                            '</span>' +
+                        '</label>' +
+                    '</div>'
+                );
+            }
+
+            drawTable('table_allProviders', arrlProviders);
+            renderInTable('table_allProviders', 1, elements);
+
+            $('#modal_download_dps_complementary').modal('show');
+        },
+
+        setSelectedProvidersToDownloadDocuments(provider_id){
+            //buscar si existe el valor
+            let index = this.lProvidersToDownloadDocuments.indexOf(provider_id);
+
+            //si existe eliminarlo del array, si no, agregarlo
+            if(index == -1){
+                this.lProvidersToDownloadDocuments.push(provider_id);
+            }else{
+                this.lProvidersToDownloadDocuments.splice(index, 1);
+            }
+        },
+
+        downloadDocuments(){
+            let route = this.oData.downloadDpsComplementRoute;
+
+            axios.post(route, {
+                'lProviders': this.lProvidersToDownloadDocuments,
+                'startDate': this.startDate,
+                'endDate': this.endDate,
+                'statusToDownload': this.statusToDownload
+            }, {
+                responseType: 'blob'
+            })
+            .then((response) => {
+                const blob = new Blob([response.data], { type: 'application/zip' });
+                const link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = 'documentos.zip';
+                link.click();
+            })
+            .catch(async (error) => {
+                console.error(error);
+            
+                if (error.response && error.response.data) {
+                    try {
+                        // Convertir el blob de error a texto
+                        const errorText = await error.response.data.text();
+                        const errorJson = JSON.parse(errorText);
+            
+                        // Mostrar mensaje personalizado
+                        if (errorJson.message) {
+                            SGui.showError(errorJson.message);
+                        } else {
+                            SGui.showError('Ocurrió un error desconocido.');
+                        }
+                    } catch (e) {
+                        console.error('Error al procesar la respuesta del error:', e);
+                        SGui.showError('Error de conexión o respuesta inválida.');
+                    }
+                } else {
+                    SGui.showError('No se pudo conectar al servidor.');
+                }
+            });
+        },
+
+        cleanDownloadDocuments(){
+            this.lProvidersToDownloadDocuments = [];
+            // this.startDate = null;
+            // this.endDate = this.now;
+            let lCheckProvider = document.getElementsByClassName('checkbox__trigger');
+            for(let check of lCheckProvider){
+                check.checked = false;
+            }
+
+            // elemStartDatePicker.value = null;
+            // elemEndDatePicker.value = null;
+
+            startDatepicker.setDate(null);
+            triggerStartDatepickerChange();
+            // endDatepicker.setDate(null);
+            endDatepicker.setDate(app.now);
+            triggerEndDatepickerChange();
+            // elemEndDatePicker.value = app.now;
         }
     }
 })

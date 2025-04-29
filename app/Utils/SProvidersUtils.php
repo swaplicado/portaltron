@@ -254,7 +254,12 @@ class SProvidersUtils {
      * 
      * con whereRaw obtenemos solo los renglones mas nuevos de la tabla docs_url
      */
-    public static function getDocumentsProvider($provider_id, $area_id, $lCheckstatus = [SysConst::VOBO_REVISION, SysConst::VOBO_REVISADO]){
+    public static function getDocumentsProvider(
+        $provider_id,
+        $area_id,
+        $lCheckstatus = [SysConst::VOBO_REVISION, SysConst::VOBO_REVISADO],
+        $lTypes = []
+    ){
         $lDocuments = \DB::table('vobo_docs as vd')
                         ->join('docs_url', 'docs_url.id_doc_url', '=', 'vd.doc_url_id')
                         ->join('prov_docs', 'prov_docs.id_prov_doc', '=', 'docs_url.prov_doc_id')
@@ -262,20 +267,26 @@ class SProvidersUtils {
                         ->where('prov_docs.prov_id', $provider_id)
                         ->where('vd.area_id', $area_id)
                         ->where('vd.is_deleted', 0)
-                        ->whereIn('vd.check_status', $lCheckstatus)
-                        ->whereRaw('(docs_url.id_doc_url, prov_docs.id_prov_doc) IN (SELECT MAX(docs_url.id_doc_url), 
-                        prov_docs.id_prov_doc FROM prov_docs INNER JOIN docs_url 
-                        ON prov_docs.id_prov_doc = docs_url.prov_doc_id GROUP BY prov_docs.id_prov_doc)')
-                        ->select(
-                            'vd.id_vobo',
-                            'vd.is_accept',
-                            'vd.is_reject',
-                            'vd.check_status',
-                            'rtd.name',
-                            'docs_url.url',
-                            'rtd.id_request_type_doc'
-                        )
-                        ->get();
+                        ->whereIn('vd.check_status', $lCheckstatus);
+
+        if(count($lTypes) > 0){
+            $lDocuments = $lDocuments->whereIn('rtd.id_request_type_doc', $lTypes);
+        }
+        
+        $lDocuments = $lDocuments->whereRaw('(docs_url.id_doc_url, prov_docs.id_prov_doc) IN (SELECT MAX(docs_url.id_doc_url), 
+                            prov_docs.id_prov_doc FROM prov_docs INNER JOIN docs_url 
+                            ON prov_docs.id_prov_doc = docs_url.prov_doc_id GROUP BY prov_docs.id_prov_doc)')
+                            ->select(
+                                'vd.id_vobo',
+                                'vd.is_accept',
+                                'vd.is_reject',
+                                'vd.check_status',
+                                'rtd.name',
+                                'docs_url.url',
+                                'rtd.id_request_type_doc',
+                                'prov_docs.id_prov_doc'
+                            )
+                            ->get();
 
         return $lDocuments;
     }
