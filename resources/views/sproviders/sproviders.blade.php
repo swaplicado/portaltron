@@ -50,7 +50,7 @@
             </span>
 
             <span class="nobreak" style="float: right">
-                <button type="button" class="btn btn-dark btn-rounded btn-icon" id="btn_download">
+                <button type="button" class="btn btn-dark btn-rounded btn-icon" id="btn_download" title="Descarga de documentos">
                     <i class="bx bx-download"></i>
                 </button>
             </span>
