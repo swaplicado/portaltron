@@ -359,6 +359,7 @@ var app = new Vue({
         },
 
         downloadDocuments(){
+            SGui.showWaiting();
             let route = this.oData.downloadProvidersDocumentsRoute;
 
             axios.post(route, {
@@ -373,6 +374,7 @@ var app = new Vue({
                 link.href = window.URL.createObjectURL(blob);
                 link.download = 'documentos.zip';
                 link.click();
+                SGui.showOk();
             })
             .catch(async (error) => {
                 console.error(error);
