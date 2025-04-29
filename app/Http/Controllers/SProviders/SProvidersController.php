@@ -896,7 +896,7 @@ class SProvidersController extends Controller
                         if($originalName == null){
                             $originalName = $filename;
                         } else {
-                            $originalName = str_replace(' ', '_', $originalName) . '_' . $provider->provider_rfc;
+                            $originalName = str_replace(' ', '_', $originalName) . '_' . $provider->provider_rfc . '.pdf';
                         }
     
                         $relativePath = $provider->provider_name . '/' . $originalName;
