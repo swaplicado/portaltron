@@ -29,6 +29,8 @@ use App\Models\SProviders\SProvider;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use ZipArchive;
+use Response;   
 
 class SProvidersController extends Controller
 {
@@ -144,6 +146,15 @@ class SProvidersController extends Controller
                         return json_encode(['success' => false, 'message' => "No se encontró un área de destino", 'icon' => 'info']);
                     }
                 }
+            }
+
+            $searchRfc = \DB::table('providers')
+                            ->where('provider_rfc', $rfc)
+                            ->where('is_deleted', 0)
+                            ->first();
+
+            if(!is_null($searchRfc)){
+                return json_encode(['success' => false, 'message' => "El RFC es inválido", 'icon' => 'info']);
             }
 
             $sOrders =  json_encode($config->orders);
@@ -789,5 +800,160 @@ class SProvidersController extends Controller
 
         return view('SProviders.provider_profile')->with('oProvider', $oProvider)
                                                     ->with('lDocs', $lDocs);
+    }
+
+    public function allProvidersDocuments(){
+        try {
+            $config = \App\Utils\Configuration::getConfigurations();
+            $oArea = \Auth::user()->getArea();
+            
+            if($oArea->id_area != $config->fatherArea){
+                $allProviders = SProvidersUtils::getlProviders([$oArea->id_area]);
+            }else{
+                $allProviders = SProvidersUtils::getlProviders();
+            }
+
+            // foreach($allProviders as $provider){
+            //     $provider->lDocs = SProvidersUtils::getDocumentsProvider(
+            //         $provider->id_provider,
+            //         $oArea->id_area,
+            //         [SysConst::VOBO_REVISION, SysConst::VOBO_REVISADO, SysConst::VOBO_NO_REVISION]
+            //     );
+            // }
+
+            $lTypesDocs = RequestTypeDocs::where('is_deleted', 0)->get();
+
+        } catch (\Throwable $th) {
+            \Log::error($th);
+            return json_encode(['success' => false, 'message' => 'no se pudieron obtener los documentos']);
+        }
+
+        return json_encode(['success' => true, 'allProviders' => $allProviders, 'lTypesDocs' => $lTypesDocs]);
+    }
+
+    public function downloadProvidersDocuments(Request $request){
+        try {
+            $arrProviders = $request->lProviders;
+            $arrTypesDocs = $request->lDocuments;
+    
+            if (empty($arrTypesDocs)) {
+                throw new \Exception("Debe seleccionar al menos un tipo de documento", 1);
+            }
+            if (empty($arrProviders)) {
+                throw new \Exception("Debe seleccionar al menos a un proveedor", 1);
+            }
+    
+            $lProviders = SProvider::whereIn('id_provider', $arrProviders)->get();
+            $lTypesDocs = RequestTypeDocs::whereIn('id_request_type_doc', $arrTypesDocs)->get();
+    
+            $MAX_ZIP_SIZE = 100 * 1024 * 1024; // 100MB máximo por ZIP interno
+            $currentSize = 0;
+            $currentIndex = 1;
+            $timestamp = time();
+            $individualZipPaths = [];
+    
+            // Crear carpeta temporal si no existe
+            if (!Storage::exists('temp')) {
+                Storage::makeDirectory('temp');
+            }
+    
+            // Función para iniciar un nuevo ZIP
+            $startNewZip = function() use (&$currentIndex, &$timestamp) {
+                $fileName = "archivos_{$timestamp}_{$currentIndex}.zip";
+                $filePath = storage_path("app/temp/$fileName");
+                $zip = new ZipArchive;
+                $zip->open($filePath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+                return [$zip, $fileName, $filePath];
+            };
+    
+            list($zip, $zipFileName, $zipPath) = $startNewZip();
+    
+            foreach ($lProviders as $provider) {
+                $provider->lDocs = SProvidersUtils::getDocumentsProvider(
+                    $provider->id_provider,
+                    $provider->area_id,
+                    [SysConst::VOBO_REVISADO, SysConst::VOBO_REVISION],
+                    $arrTypesDocs
+                );
+    
+                foreach ($provider->lDocs as $doc) {
+                    $filename = basename(parse_url($doc->url, PHP_URL_PATH));
+                    $absolutePath = storage_path("app/documents/{$filename}");
+    
+                    if (file_exists($absolutePath)) {
+                        $fileSize = filesize($absolutePath);
+    
+                        if ($currentSize + $fileSize > $MAX_ZIP_SIZE) {
+                            $zip->close();
+                            $individualZipPaths[] = $zipPath;
+    
+                            $currentIndex++;
+                            list($zip, $zipFileName, $zipPath) = $startNewZip();
+                            $currentSize = 0;
+                        }
+    
+                        $originalName = $lTypesDocs->where('id_request_type_doc', $doc->id_request_type_doc)->first()->name;
+                        if($originalName == null){
+                            $originalName = $filename;
+                        } else {
+                            $originalName = str_replace(' ', '_', $originalName) . '_' . $provider->provider_rfc;
+                        }
+    
+                        $relativePath = $provider->provider_name . '/' . $originalName;
+                        $zip->addFile($absolutePath, $relativePath);
+                        $currentSize += $fileSize;
+                    }
+                }
+            }
+    
+            // Cerrar el último zip si está abierto
+            if ($zip->status == 0) {
+                $zip->close();
+                $individualZipPaths[] = $zipPath;
+            }
+    
+            // Ahora empaquetar todos los ZIPs individuales en uno grande
+            $finalZipName = "documentos_comprimidos_{$timestamp}.zip";
+            $finalZipPath = storage_path("app/temp/$finalZipName");
+    
+            $finalZip = new ZipArchive;
+            $finalZip->open($finalZipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE);
+    
+            foreach ($individualZipPaths as $path) {
+                $internalName = basename($path);
+                $finalZip->addFile($path, $internalName);
+            }
+    
+            $finalZip->close();
+    
+            // Opcional: Borrar los ZIPs individuales ya que ya están dentro del final
+            foreach ($individualZipPaths as $path) {
+                unlink($path);
+            }
+        } catch (\Throwable $th) {
+            \Log::error($th);
+            if (isset($zip) && $zip->status == 0) {
+                $zip->close();
+            }
+            if (isset($finalZip) && $finalZip->status == 0) {
+                $finalZip->close();
+            }
+            if (isset($path) && file_exists($path)) {
+                unlink($path);
+            }
+            if (isset($zipPath) && file_exists($zipPath)) {
+                unlink($zipPath);
+            }
+            if (isset($finalZipPath) && file_exists($finalZipPath)) {
+                unlink($finalZipPath);
+            }
+
+            return response()->json([
+                'message' => $th->getMessage(),
+                'error' => $th->getMessage(),
+            ], 500);
+        }
+
+        return response()->download($finalZipPath)->deleteFileAfterSend(true);
     }
 }

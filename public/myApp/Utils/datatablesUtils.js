@@ -57,3 +57,12 @@ function addClassToColumn(nameTable, rows, index, className){
 function addClassToRow(nameTable, index, className){
     table[nameTable].row(index).node().classList.add(className);
 }
+
+function renderInTable(table_name, column, elements){
+    table[table_name].rows().every(function(rowIdx) {
+        var row = this;
+        var checkBoxTd = $(row.node()).find('td:eq('+column+')'); // accede a la celda, el index de la celda es apartir de la primer celda que se muestra en la vista, las olcultas no cuentan
+
+        checkBoxTd.html(elements[rowIdx]);
+      });
+}

@@ -1,7 +1,7 @@
 @extends('layouts.principal')
 
 @section('headStyles')
-
+    <link href="{{ asset('myApp/Utils/SDatePicker/css/datepicker.min.css') }}" rel="stylesheet" />
 @endsection
 
 @section('headJs')
@@ -14,12 +14,14 @@
             this.lTypes = <?php echo json_encode($lTypes); ?>;
             this.lConstants = <?php echo json_encode($lConstants); ?>;
             this.lProviders = <?php echo json_encode($lProviders); ?>;
+            this.now = <?php echo json_encode($now); ?>;
             this.getcomplementsManagerRoute = <?php echo json_encode(route('dpsComplementary.getComplementsManager')); ?>;
             this.GetComplementsRoute = <?php echo json_encode(route('dpsComplementary.GetComplements')); ?>;
             this.getDpsComplementManagerRoute = <?php echo json_encode(route('dpsComplementary.getDpsComplementManager')); ?>;
             this.setVoboComplementRoute = <?php echo json_encode(route('dpsComplementary.setVoboComplement')); ?>;
             this.changeAreaDpsRoute = <?php echo json_encode(route('dpsComplementary.changeAreaDps')); ?>;
             this.getDpsComplementOmisionRoute = <?php echo json_encode(route('dpsComplementary.getDpsComplementOmision')); ?>;
+            this.downloadDpsComplementRoute = <?php echo json_encode(route('dpsComplementary.downloadDpsComplement')); ?>;
         }
         var oServerData = new GlobalData();
         var indexesDpsCompTable = {
@@ -62,12 +64,19 @@
                 <button type="button" class="btn btn-warning" v-on:click="getDpsComplementOmision(true)">
                     Ver documentos sin area
                 </button>
+                <span class="nobreak" style="float: right">
+                    <button type="button" class="btn btn-dark btn-rounded btn-icon" id="btn_download">
+                        <i class="bx bx-download"></i>
+                    </button>
+                </span>
             </div>
             <div class="grid-margin" v-if="is_omision">
                 <button type="button" class="btn btn-warning" v-on:click="getDpsComplementOmision(false)">
                     Volver a mis documentos
                 </button>
             </div>
+
+            @include('dpsComplementary.modal_download_dps_complementary')
 
             <div v-show="showProvider">
                 <template style="overflow-y: scroll;">
@@ -154,6 +163,10 @@
                         return iStatus == col_status || iStatus == 0;
                     }
 
+                    if (settings.nTable.id == 'table_allProviders') {
+                        return true;
+                    }
+
                     return false;
                 }
             );
@@ -190,8 +203,22 @@
         'colTargetsAlignCenter' => [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
     ])
 
+    @include('layouts.table_jsControll', [
+                                            'table_id' => 'table_allProviders',
+                                            'colTargets' => [0],
+                                            'colTargetsSercheable' => [],
+                                            'show' => true,
+                                            'colTargetsAlignCenter' =>[],
+                                            'noDom' => true,
+                                            'noLengthChange' => true,
+                                            // 'rowGroup' => [2],
+                                            // 'edit_modal' => true,
+                                            // 'delete' => true,
+                                        ] )
+
     <script type="text/javascript" src="{{ asset('myApp/Utils/datatablesUtils.js') }}"></script>
     <script type="text/javascript" src="{{ asset('myApp/DpsComplementary/vue_dpsComplementaryManager.js') }}"></script>
+    <script src="{{ asset('myApp/Utils/SDatePicker/js/datepicker-full.min.js') }}"></script>
     <script type="text/javascript">
         function drawTableDpsComplementary(lDpsComp) {
             var arrDpsComp = [];
@@ -241,5 +268,38 @@
         $(document).ready(function() {
             drawTableDpsComplementary(oServerData.lDpsComp);
         })
+    </script>
+    <script>
+        var elemStartDatePicker = document.getElementById('startDatePicker');
+        var startDatepicker = new Datepicker(elemStartDatePicker, {
+            language: 'es',
+            format: 'dd-M-yyyy',
+            // minDate: null,
+        });
+
+        var elemEndDatePicker = document.getElementById('endDatePicker');
+        var endDatepicker = new Datepicker(elemEndDatePicker, {
+            language: 'es',
+            format: 'dd-M-yyyy',
+            // minDate: null,
+        });
+
+        function triggerStartDatepickerChange() {
+            const event = new Event('change', { bubbles: true });
+            elemStartDatePicker.dispatchEvent(event);
+        }
+
+        function triggerEndDatepickerChange() {
+            const event = new Event('change', { bubbles: true });
+            elemEndDatePicker.dispatchEvent(event);
+        }
+
+        endDatepicker.setDate(app.now);
+        triggerEndDatepickerChange();
+
+        elemEndDatePicker.value = app.now;
+        // app.endDate = endDatepicker.getDate();
+
+        console.log(app.endDate);
     </script>
 @endsection
