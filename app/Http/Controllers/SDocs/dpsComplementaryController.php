@@ -744,6 +744,8 @@ class dpsComplementaryController extends Controller
                     $oDpsReasonRejection->count_usage = $oDpsReasonRejection->count_usage + 1;
                     $oDpsReasonRejection->update();
                 }
+                $mailStatus = $statusKey;
+                $sendMail = true;
             }
 
             $lDpsComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $provider_id, 
@@ -765,6 +767,24 @@ class dpsComplementaryController extends Controller
         if($sendMail){
             try {
                 $oProvider = SProvider::findOrFail($oDps->provider_id_n);
+
+                if (\Auth::user()->area_id == $config->fatherArea) {
+                    $lUsers = UserUtils::getUsersByArea($oProvider->area_id);
+                    foreach ($lUsers as $user) {
+                        $email = $user->email;
+                        Mail::to($email)->send(new voboDpsMail(
+                                $oProvider->provider_short_name,
+                                $oDps->type_doc_id,
+                                "factura",
+                                $oDps->folio_n,
+                                $mailStatus,
+                                $comments,
+                                false
+                            )
+                        );
+                    }
+                }
+
                 Mail::to($oProvider->provider_email)->send(new voboDpsMail(
                                                         $oProvider->provider_short_name,
                                                         $oDps->type_doc_id,

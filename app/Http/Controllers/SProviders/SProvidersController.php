@@ -8,6 +8,7 @@ use App\Mail\newProviderMail;
 use App\Mail\voboProviderMail;
 use App\Mail\nextStepVoboProviderMail;
 use App\Mail\notifyTesoreria;
+use App\Mail\notifyAreasNewProviderAccepted;
 use App\Models\Areas\Areas;
 use App\Models\SDocs\DocsUrl;
 use App\Models\SDocs\ProvDocs;
@@ -387,7 +388,8 @@ class SProvidersController extends Controller
         }
 
         if ($sendMailNextStep) {
-            $lUsers = UserUtils::getUsersByArea($oArea->id_area);
+
+            $lUsers = UserUtils::getUsersByArea($child_area_id);
             foreach ($lUsers as $user) {
                 $email = $user->email;
                 Mail::to($email)->send(new nextStepVoboProviderMail(
@@ -401,6 +403,19 @@ class SProvidersController extends Controller
 
         if($sendMail){
             try {
+                if ($oArea->id_area == $config->fatherArea) {
+                    $lUsers = UserUtils::getUsersByArea($oProvider->area_id);
+                    foreach ($lUsers as $user) {
+                        $email = $user->email;
+                        Mail::to($email)->send(new notifyAreasNewProviderAccepted(
+                                $oProvider->provider_short_name,
+                                $oProvider->provider_rfc,
+                                true
+                            )
+                        );
+                    }
+                }
+
                 Mail::to($oProvider->provider_email)->send(new voboProviderMail(
                                                         SysConst::MAIL_PROVEEDOR,
                                                         $oProvider->provider_short_name,
@@ -463,6 +478,19 @@ class SProvidersController extends Controller
 
         if($sendMail){
             try {
+                if ($oArea->id_area == $config->fatherArea) {
+                    $lUsers = UserUtils::getUsersByArea($oProvider->area_id);
+                    foreach ($lUsers as $user) {
+                        $email = $user->email;
+                        Mail::to($email)->send(new notifyAreasNewProviderAccepted(
+                                $oProvider->provider_short_name,
+                                $oProvider->provider_rfc,
+                                false
+                            )
+                        );
+                    }
+                }
+
                 Mail::to($oProvider->provider_email)->send(new voboProviderMail(
                                                         SysConst::MAIL_PROVEEDOR,
                                                         $oProvider->provider_short_name,

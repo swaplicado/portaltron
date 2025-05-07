@@ -329,34 +329,21 @@
                 <tr>
                     <td valign="middle" class="hero bg_white" style="padding: 2em 0 4em 0;">
                         <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
-                            @if($status == "RECHAZADO")
-                                <tr>
-                                    <td style="padding: 0 2.5em; text-align: center; padding-bottom: 3em;">
-                                        <div class="text">
-                                            <h2 style="color: red !important">
-                                               {{ $is_provider ? 'Tu ' : 'La ' }}<b>{{$doc_type_name}} {{$dps_folio}}</b> fue rechazada por:
+                            <tr>
+                                <td style="padding: 0 2.5em; text-align: center; padding-bottom: 3em;">
+                                    <div class="text">
+                                        @if ($is_accepted)
+                                            <h2>
+                                                <b>{{$provider_name}} {{$rfc}}</b> ha sido aceptado
                                             </h2>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 0 2.5em; text-align: center; padding-bottom: 3em;">
-                                        <div class="text">
-                                            <h3>{{$comments}}</h3>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @else
-                                <tr>
-                                    <td style="padding: 0 2.5em; text-align: center; padding-bottom: 3em;">
-                                        <div class="text">
-                                            <h2 style="color: green !important">
-                                                {{ $is_provider ? 'Tu ' : 'La ' }}<b>{{$doc_type_name}} {{$dps_folio}}</b> ha sido aceptada.
+                                        @else
+                                            <h2>
+                                                <b>{{$provider_name}} {{$rfc}}</b> ha sido rechazado
                                             </h2>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endif  
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
                         </table>
                     </td>
                 </tr>

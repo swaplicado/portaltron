@@ -16,7 +16,7 @@ class voboDpsMail extends Mailable
      *
      * @return void
      */
-    public function __construct($provider_name, $doc_type_id, $doc_type_name, $dps_folio, $status, $comments)
+    public function __construct($provider_name, $doc_type_id, $doc_type_name, $dps_folio, $status, $comments, $is_provider = true)
     {
         $this->provider_name = $provider_name;
         $this->doc_type_id = $doc_type_id;
@@ -24,6 +24,7 @@ class voboDpsMail extends Mailable
         $this->dps_folio = $dps_folio;
         $this->comments = $comments;
         $this->status = $status;
+        $this->is_provider = $is_provider;
     }
 
     /**
@@ -51,7 +52,8 @@ class voboDpsMail extends Mailable
                             ->with('doc_type_name', $this->doc_type_name)
                             ->with('dps_folio', $this->dps_folio)
                             ->with('comments', $this->comments)
-                            ->with('status', $this->status);
+                            ->with('status', $this->status)
+                            ->with('is_provider', $this->is_provider);
         }
     }
 }
