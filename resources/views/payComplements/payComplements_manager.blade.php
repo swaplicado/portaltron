@@ -34,12 +34,11 @@
             'type': 9,
             'area': 10,
             'folio': 11,
-            'comments': 12,
-            'status': 13,
-            'purchase_order': 14,
-            'comments': 15,
-            'have_pdf': 16,
-            'have_xml': 17,
+            'status': 12,
+            'purchase_order': 13,
+            'comments': 14,
+            'have_pdf': 15,
+            'have_xml': 16,
         };
 </script>
 @endsection
@@ -48,7 +47,7 @@
   
 <div class="card" id="payComplementsManager">
     <div class="card-header">
-        <h3>CFDI de pago</h3>
+        <h3>Comprobantes de recepción de pagos</h3>
     </div>
     <div class="card-body">
         <div class="grid-margin" v-show="!is_omision">
@@ -117,7 +116,6 @@
                     <th style="text-align: center">Tipo</th>
                     <th style="text-align: center">Área destino</th>
                     <th style="text-align: center">Folio</th>
-                    <th style="text-align: center">Ref. Factura</th>
                     <th style="text-align: center">Estatus</th>
                     <th style="text-align: center">Orden compra</th>
                     <th style="text-align: center">Comentario</th>
@@ -177,12 +175,12 @@
                                             'table_id' => 'table_pay_complement',
                                             'colTargets' => [0,1,2,3,5,6,9,10,14],
                                             'colTargetsSercheable' => [4],
-                                            'colTargetsNoOrder' => [7,8,11,13,14,15,16],
+                                            'colTargetsNoOrder' => [7,8,11,13,14,15],
                                             'select' => true,
                                             'show' => true,
                                             'upload' => true,
                                             'order' => [[0, 'desc']],
-                                            'colTargetsAlignCenter' =>[7,8,9,10,11,12,13,14,15,16],
+                                            'colTargetsAlignCenter' =>[7,8,9,10,11,12,13,14,15],
                                         ] )
 
     <script type="text/javascript" src="{{ asset('myApp/Utils/datatablesUtils.js') }}"></script>
@@ -209,7 +207,6 @@
                         dps.type,
                         (dps.name_area != null ? dps.name_area : 'Sin area'),
                         dps.folio_n,
-                        dps.provider_comment_n,
 
                         (dps.check_status == 2 && dps.status_id == oServerData.lConstants.CP_STATUS_NUEVO ?
                                 (dps.is_accept == 1 ? 'Pendiente' : dps.status) :

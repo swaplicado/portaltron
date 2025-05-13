@@ -192,7 +192,7 @@ class DpsComplementsUtils {
         return $lDps;
     }
 
-    public static function validateXml($xml, $oProvider, $oCompany) {
+    public static function validateXml($xml, $oProvider, $oCompany, $lConditions = [ SysConst::EMISOR_RFC, SysConst::RECEPTOR_RFC, SysConst::DATE__XML ]) {
         // $xmlPath = storage_path('app/archivo.xml');
         // $xmlContent = file_get_contents($xmlPath);
         
@@ -205,30 +205,36 @@ class DpsComplementsUtils {
         $cfdi->getSource(); // (string) <cfdi:Comprobante...
         $complemento = $cfdi->getNode(); // Nodo de trabajo del nodo cfdi:Comprobante
 
-        $oEmisor = $complemento->searchNodes('cfdi:Emisor');
-        foreach ($oEmisor as $emisor) {
-            $rfcEmisor = $emisor['Rfc'];
+        if(in_array(SysConst::EMISOR_RFC, $lConditions)){
+            $oEmisor = $complemento->searchNodes('cfdi:Emisor');
+            foreach ($oEmisor as $emisor) {
+                $rfcEmisor = $emisor['Rfc'];
+            }
+    
+            if($rfcEmisor != $oProvider->provider_rfc){
+                return json_encode(['success' => false, 'message' => 'El RFC emisor del XML no coincide con tú RFC']);
+            }
         }
 
-        $oReceptor = $complemento->searchNodes('cfdi:Receptor');
-        foreach ($oReceptor as $receptor) {
-            $rfcReceptor = $receptor['Rfc'];
+        if (in_array(SysConst::RECEPTOR_RFC, $lConditions)) {
+            $oReceptor = $complemento->searchNodes('cfdi:Receptor');
+            foreach ($oReceptor as $receptor) {
+                $rfcReceptor = $receptor['Rfc'];
+            }
+    
+            if($rfcReceptor != $oCompany->company_rfc){
+                return json_encode(['success' => false, 'message' => 'El RFC del receptor no coincide con la entidad comercial']);
+            }
         }
 
-        $fecha = $complemento['Fecha'];
-
-        if($rfcEmisor != $oProvider->provider_rfc){
-            return json_encode(['success' => false, 'message' => 'El RFC emisor del XML no coincide con tú RFC']);
-        }
-        
-        if($rfcReceptor != $oCompany->company_rfc){
-            return json_encode(['success' => false, 'message' => 'El RFC del receptor no coincide con la entidad comercial']);
-        }
-
-        $now = Carbon::now();
-        $oFecha = Carbon::parse($fecha);
-        if($oFecha->month != $now->month || $oFecha->year != $now->year){
-            return json_encode(['success' => false, 'message' => 'La fecha del comprobante no es del mes actual']);
+        if(in_array(SysConst::DATE__XML, $lConditions)){
+            $fecha = $complemento['Fecha'];
+    
+            $now = Carbon::now();
+            $oFecha = Carbon::parse($fecha);
+            if($oFecha->month != $now->month || $oFecha->year != $now->year){
+                return json_encode(['success' => false, 'message' => 'La fecha del comprobante no es del mes actual']);
+            }
         }
 
         return json_encode(['success' => true, 'message' => 'ok']);

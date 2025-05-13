@@ -15,6 +15,10 @@ var app = new Vue({
         comments: null,
         request_comments: null,
         area_id: "",
+        reference_doc: null,
+        lCompany: oServerData.lCompany,
+        default_company_id: oServerData.default_company_id,
+        company_id: null
     },
     mounted(){
         self = this;
@@ -35,6 +39,15 @@ var app = new Vue({
         });
 
         $('#select_area').val(self.default_area_id).trigger('change');
+
+        $('#select_company').select2({
+            data: self.lCompany,
+            placeholder: 'Selecciona entidad comercial',
+        }).on('select2:select', function(e) {
+            self.company_id =  e.params.data.id;
+        });
+
+        $('#select_company').val(self.default_company_id).trigger('change');
     },
     methods:{
         showModal(data){
@@ -42,7 +55,7 @@ var app = new Vue({
             this.name_area = data[indexesPayCompTable.area];
             this.folio = data[indexesPayCompTable.folio];
             this.comments = data[indexesPayCompTable.comments];
-            this.modal_title = "CFDI de pago " + this.folio;
+            this.modal_title = "Comprobante de recepción de pago " + this.folio;
             this.getPayComp()
                 .then(data => {
                     $('#modal_get_pay_complement').modal('show');
@@ -50,10 +63,15 @@ var app = new Vue({
         },
 
         upload(){ 
-            this.modal_title = "Carga de complemento de pago";
+            this.modal_title = "Carga de comprobante de recepción de pago";
             this.clean();
+            
             $('#select_area').val(self.default_area_id).trigger('change');
             this.area_id = self.default_area_id;
+
+            $('#select_company').val(self.default_company_id).trigger('change');
+            this.company_id = self.default_company_id;
+
             $('#modal_pay_complements').modal('show');
         },
 
@@ -74,7 +92,9 @@ var app = new Vue({
             formData.append('year', this.year);
             formData.append('area_id', this.area_id);
             formData.append('folio', this.folio);
+            formData.append('reference_doc', this.reference_doc);
             formData.append('comments', this.comments);
+            formData.append('company_id', this.company_id);
 
             axios.post(route, formData, {
                 headers: {
@@ -151,6 +171,7 @@ var app = new Vue({
             this.folio = null;
             this.comments = null;
             this.request_comments = null;
+            this.reference_doc =  null;
         },
 
         getlPayCompByYear(){

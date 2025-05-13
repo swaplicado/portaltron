@@ -108,5 +108,12 @@ class SysConst {
      */
     public const REGISTRO_PROVEEDOR = 1;
     public const REGISTRO_USUARIO_PROVEEDOR = 2;
+
+    /**
+     * Tipos de condiciones a revisar en los xml
+     */
+    public const EMISOR_RFC = 1;
+    public const RECEPTOR_RFC = 2;
+    public const DATE__XML = 3;
 }
 ?>

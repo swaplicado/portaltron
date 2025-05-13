@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\newDpsMail;
 use App\Mail\rejectDpsMail;
 use App\Mail\voboDpsMail;
+use App\Mail\nextStepVoboPayComplement;
 use App\Models\Areas\Areas;
 use App\Models\SDocs\Dps;
 use App\Models\SDocs\DpsComplementary;
@@ -24,6 +25,7 @@ use Illuminate\Http\Request;
 use App\Constants\SysConst;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use App\Utils\UserUtils;
 
 class payComplementController extends Controller
 {
@@ -61,6 +63,18 @@ class payComplementController extends Controller
 
             $config = \App\Utils\Configuration::getConfigurations();
             $showAreaDps = $config->showAreaDps;
+
+            $lCompany = DB::table('companies')
+                        ->where('is_active', 1)
+                        ->where('is_deleted', 0)
+                        ->select(
+                                'id_company as id',
+                                'company_name_ui as text'
+                            )
+                        ->get();
+
+            $default_company_id = $lCompany->first()->id;
+
         } catch (\Throwable $th) {
             \Log::error($th);
             return view('errorPages.serverError');
@@ -71,7 +85,9 @@ class payComplementController extends Controller
                                                         ->with('lStatus', $lStatus)
                                                         ->with('lAreas', $lAreas)
                                                         ->with('default_area_id', $default_area_id)
-                                                        ->with('showAreaDps', $showAreaDps);
+                                                        ->with('showAreaDps', $showAreaDps)
+                                                        ->with('lCompany', $lCompany)
+                                                        ->with('default_company_id', $default_company_id);
     }
 
     public function savePayComplement(Request $request){
@@ -82,15 +98,20 @@ class payComplementController extends Controller
             $year = $request->year;
             $area_id = $request->area_id;
             $folio = $request->folio;
-            $comments = $request->comments;
+            // $reference_doc = $request->reference_doc;
+            $company_id = $request->company_id;
 
-            // if(is_null($area_id) || $area_id == "null"){
-            //     return json_encode(['success' => false, 'message' => 'Debe ingresar un área destino', 'icon' => 'warning']);
-            // }
-
-            if(is_null($comments) || $comments == "null"){
-                return json_encode(['success' => false, 'message' => 'Debe ingresar la referencia de factura', 'icon' => 'warning']);
+            if(is_null($company_id) || $company_id == "null"){
+                return json_encode(['success' => false, 'message' => 'Debe seleccionar una entidad comercial', 'icon' => 'warning']);
             }
+            
+            if(is_null($area_id) || $area_id == "null"){
+                return json_encode(['success' => false, 'message' => 'Debe ingresar un área destino', 'icon' => 'warning']);
+            }
+
+            // if(is_null($reference_doc) || $reference_doc == "null"){
+            //     return json_encode(['success' => false, 'message' => 'Debe ingresar la referencia de factura', 'icon' => 'warning']);
+            // }
 
             $orders = ordersVobosUtils::getDpsOrder($type_id, $area_id);
 
@@ -110,6 +131,17 @@ class payComplementController extends Controller
             $result = FilesUtils::validateFile($xml, 'xml', '5 MB');
             if(!$result[0]){
                 return json_encode(['success' => false, 'message' => $result[1], 'icon' => 'error']);
+            }
+
+            $oCompany = DB::table('companies')
+                        ->where('is_active', 1)
+                        ->where('is_deleted', 0)
+                        ->where('id_company', $company_id)
+                        ->first();
+
+            $dataResult = json_decode(DpsComplementsUtils::validateXml($xml, $oProvider, $oCompany, [ SysConst::EMISOR_RFC, SysConst::RECEPTOR_RFC ]));
+            if(!$dataResult->success){
+                return json_encode(['success' => false, 'message' => $dataResult->message, 'icon' => 'error']);
             }
 
             DB::beginTransaction();
@@ -144,7 +176,6 @@ class payComplementController extends Controller
 
             $oDpsComp = new DpsComplementary();
             $oDpsComp->dps_id = $oDps->id_dps;
-            $oDpsComp->provider_comment_n = $comments;
             $oDpsComp->is_opened = 1;
             $oDpsComp->is_deleted = 0;
             $oDpsComp->created_by = \Auth::user()->id;
@@ -181,14 +212,18 @@ class payComplementController extends Controller
             $order = collect($orders)->first();
             $oArea = Areas::findOrFail($order->area);
 
-            Mail::to($oArea->email_n)->send(new newDpsMail(
-                                                $oProvider->provider_short_name,
-                                                $oDps->type_doc_id,
-                                                "CFDI de pago",
-                                                $oDps->folio_n,
-                                                [1,2,3]
-                                            )
-                                        );
+            $lUsers = UserUtils::getUsersByArea($oArea->id_area);
+            foreach ($lUsers as $user) {
+                $email = $user->email;
+                Mail::to($email)->send(new newDpsMail(
+                        $oProvider->provider_short_name,
+                        $oDps->type_doc_id,
+                        "Comprobante de recepción de pago",
+                        $oDps->folio_n,
+                        [1,2,3]
+                    )
+                );
+            }
         } catch (\Throwable $th) {
             \Log::error($th);
             return json_encode(['success' => true, 'lDpsPayComp' => $lDpsPayComp, 'mailSuccess' => false, "message" => $th->getMessage(), "icon"=> "warning"]);
@@ -418,6 +453,7 @@ class payComplementController extends Controller
         try {
             $mailStatus = '';
             $sendMail = false;
+            $sendMailNextStep = false;
 
             $id_dps = $request->id_dps;
             $is_accept = $request->is_accept;
@@ -469,6 +505,7 @@ class payComplementController extends Controller
                 $oDpsChild = VoboDps::where('dps_id', $id_dps)->where('area_id', $childAreaId)->first();
                 $oDpsChild->check_status = SysConst::VOBO_REVISION;
                 $oDpsChild->update();
+                $sendMailNextStep = true;
             }else{
                 $oDps->status_id = $status_id;
                 $oDps->update();
@@ -487,6 +524,7 @@ class payComplementController extends Controller
                     $oDpsReasonRejection->count_usage = $oDpsReasonRejection->count_usage + 1;
                     $oDpsReasonRejection->update();
                 }
+                $sendMail = true;
             }
 
             $lDpsPayComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $provider_id, 
@@ -502,10 +540,29 @@ class payComplementController extends Controller
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
         }
 
+        if ($sendMailNextStep) {
+            try {
+                $lUsers = UserUtils::getUsersByArea($childAreaId);
+                $oProvider = SProvider::findOrFail($oDps->provider_id_n);
+                foreach ($lUsers as $user) {
+                    $email = $user->email;
+                    Mail::to($email)->send(new nextStepVoboPayComplement(
+                            $oProvider->provider_short_name,
+                            $oProvider->provider_rfc
+                        )
+                    );
+                }
+            } catch (\Throwable $th) {
+                \Log::error($th);
+                return json_encode(['success' => true, 'lDpsPayComp' => $lDpsPayComp, 'mailSuccess' => false,
+                "message" => "Registro guardado con éxito, pero no se pudo enviar el email de notificación para el siguiente paso de aceptación", "icon"=> "info"]);
+            }
+        }
+
         if($sendMail){
             try {
                 $oProvider = SProvider::findOrFail($oDps->provider_id_n);
-                Mail::to($oProvider->provider_email)->send(new voboDpsMail(
+                Mail::to($email)->send(new voboDpsMail(
                                                         $oProvider->provider_short_name,
                                                         $oDps->type_doc_id,
                                                         "CFDI de pago",
@@ -517,7 +574,7 @@ class payComplementController extends Controller
             } catch (\Throwable $th) {
                 \Log::error($th);
                 return json_encode(['success' => true, 'lDpsPayComp' => $lDpsPayComp, 'mailSuccess' => false, 
-                "message" => "Registro guardado con éxito, pero no se pudo enviar el email de notificación", "icon"=> "info"]);
+                "message" => "Registro guardado con éxito, pero no se pudo enviar el email de notificación al proveedor", "icon"=> "info"]);
             }
         }
 

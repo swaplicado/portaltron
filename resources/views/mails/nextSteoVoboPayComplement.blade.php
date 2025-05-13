@@ -332,12 +332,10 @@
                             <tr>
                                 <td style="padding: 0 2.5em; text-align: center; padding-bottom: 3em;">
                                     <div class="text">
-                                        <h2>{{$provider_name}} ha subido {{$doc_type_name}}: <b>{{$dps_folio}}</b></h2>
-                                        @if ($doc_type_id == $lConstants['FACTURA'])
-                                            <h3>
-                                                Orden(es) de compra: {{$references}}
-                                            </h3>
-                                        @endif
+                                        <h2>
+                                            <b>{{$provider_name}} {{$rfc}}</b> ha cargado un comprobante de pago
+                                        </h2>
+                                        <p>y está en espera de tu aprobación</p>
                                     </div>
                                 </td>
                             </tr>
