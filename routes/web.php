@@ -42,6 +42,10 @@ Route::middleware(('guest'))->group ( function (){
         Route::post('/registerProvider/save', [SProvidersController::class, 'saveRegisterProvider'])->name('saveRegister');
         Route::get('/tempProvider/{name}', [SProvidersController::class, 'tempProviderIndex'])->name('tempProvider');
     });
+
+    Route::get('/manual/registro', function () {
+        return view('manuales.manual_registro_proveedor');
+    })->name('manual_register');
 });
 
 Auth::routes();

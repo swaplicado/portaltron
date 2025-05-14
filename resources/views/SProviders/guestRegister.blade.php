@@ -46,6 +46,7 @@
             this.aux = 0;
             this.registerRoute = <?php echo json_encode(route('registerProvider.saveRegister')); ?>;
             this.lDocs = <?php echo json_encode($lDocs); ?>;
+            this.type_register = <?php echo json_encode($type_register); ?>;
         }
         var oServerData = new GlobalData();
     </script>
@@ -87,11 +88,27 @@
                                     <div class="col-lg-6 mx-auto">
                                         <div class="auth-form-light text-left py-5 px-4 px-sm-5">
                                             <div class="brand-logo">
-                                                <img src="{{ asset('images/aeth.png') }}" alt="logo">
+                                                <div style="display: inline">
+                                                    <img src="{{ asset('images/aeth.png') }}" alt="logo">
+                                                    <b style="float: right; font-size: large;" v-if="type_register == 1">
+                                                        Registro de nuevo proveedor AETH
+                                                    </b>
+                                                    <b style="float: right; font-size: large;" v-else>
+                                                        Registro de usuario
+                                                    </b>
+                                                </div>
                                             </div>
                                             <h4>!Hola! Vamos a comenzar</h4>
-                                            <h6 class="font-weight-light">Ingresa todos los datos para registrarte
-                                                como proveedor.</h6>
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <h6 class="font-weight-light">
+                                                        Ingresa todos los datos para registrarte como proveedor.
+                                                    </h6>
+                                                </div>
+                                                <div class="col-6" style="text-align: end">
+                                                    <a href="{{route('manual_register')}}" style="font-size: small" target="_blank">Click aqui para ver el manual de registro</a>
+                                                </div>
+                                            </div>
                                             <br>
                                             <form action="#">
                                                 <div class="row">
@@ -194,31 +211,33 @@
                                                     </div>
                                                 </div>
                                                 @endif
-                                            @foreach($lDocs as $doc)
-                                                <div class="row">
-                                                    <div class="col-md-12">
-                                                        <div class="form-group sm-form-group row">
-                                                            <label class="col-sm-3 my-col-sm-3 col-form-label ">
-                                                                {{$doc->name}}*
-                                                            </label>
-                                                            <div class="col-sm-9">
-                                                                <input type="file" id="doc_{{$doc->id_request_type_doc}}" name="doc_{{$doc->id_request_type_doc}}"
-                                                                    class="file-upload-default" accept=".pdf">
-                                                                <div class="input-group col-xs-12">
-                                                                    <input type="text"
-                                                                        class="form-control file-upload-info" disabled
-                                                                        placeholder="Cargar archivo">
-                                                                    <span class="input-group-append">
-                                                                        <button
-                                                                            class="file-upload-browse btn btn-info"
-                                                                            type="button">Cargar</button>
-                                                                    </span>
+                                            @if ($type_register == 1)
+                                                @foreach($lDocs as $doc)
+                                                    <div class="row">
+                                                        <div class="col-md-12">
+                                                            <div class="form-group sm-form-group row">
+                                                                <label class="col-sm-3 my-col-sm-3 col-form-label ">
+                                                                    {{$doc->name}}*
+                                                                </label>
+                                                                <div class="col-sm-9">
+                                                                    <input type="file" id="doc_{{$doc->id_request_type_doc}}" name="doc_{{$doc->id_request_type_doc}}"
+                                                                        class="file-upload-default" accept=".pdf">
+                                                                    <div class="input-group col-xs-12">
+                                                                        <input type="text"
+                                                                            class="form-control file-upload-info" disabled
+                                                                            placeholder="Cargar archivo">
+                                                                        <span class="input-group-append">
+                                                                            <button
+                                                                                class="file-upload-browse btn btn-info"
+                                                                                type="button">Cargar</button>
+                                                                        </span>
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>
-                                            @endforeach
+                                                @endforeach
+                                            @endif
 
                                                 <div class="row">
                                                     <div class="col-md-6">
