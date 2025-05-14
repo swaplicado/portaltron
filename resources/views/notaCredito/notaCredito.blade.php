@@ -12,6 +12,10 @@
         this.year = <?php echo json_encode($year) ?>;
         this.lAreas = <?php echo json_encode($lAreas) ?>;
         this.default_area_id = <?php echo json_encode($default_area_id) ?>;
+        this.requireAreaDps = <?php echo json_encode($requireAreaDps) ?>;
+        this.lCompany = <?php echo json_encode($lCompany) ?>;
+        this.default_company_id = <?php echo json_encode($default_company_id) ?>;
+        this.default_area_id = <?php echo json_encode($default_area_id) ?>;
         this.saveNotaCreditoRoute = <?php echo json_encode(route('notaCredito.saveNotaCredito')) ?>;
         this.getNotaCreditoRoute = <?php echo json_encode(route('notaCredito.getNotaCredito')) ?>;
     }

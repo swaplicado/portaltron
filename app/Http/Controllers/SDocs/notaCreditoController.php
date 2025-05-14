@@ -26,6 +26,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use App\Utils\UserUtils;
+use App\Mail\nextStepVoboDpsMail;
 
 class notaCreditoController extends Controller
 {
@@ -66,8 +68,26 @@ class notaCreditoController extends Controller
     
             $default_area_id = $oProvider->area_id;
 
-            $config = \App\Utils\Configuration::getConfigurations();
             $showAreaDps = $config->showAreaDps;
+            $requireAreaDps = $config->requireAreaDps;
+
+            $lCompany = DB::table('companies')
+                        ->where('is_active', 1)
+                        ->where('is_deleted', 0)
+                        ->select(
+                                'id_company as id',
+                                'company_name_ui as text'
+                            )
+                        ->get();
+
+            $default_company_id = $lCompany->first()->id;
+
+            if($config->useSerie != 1){
+                $default_area_id = $oProvider->area_id;
+            }else{
+                $default_area_id = null;   
+            }
+
         } catch (\Throwable $th) {
             \Log::error($th);
             return view('errorPages.serverError');
@@ -78,7 +98,11 @@ class notaCreditoController extends Controller
                                             ->with('lStatus', $lStatus)
                                             ->with('lAreas', $lAreas)
                                             ->with('default_area_id', $default_area_id)
-                                            ->with('showAreaDps', $showAreaDps);
+                                            ->with('showAreaDps', $showAreaDps)
+                                            ->with('requireAreaDps', $requireAreaDps)
+                                            ->with('lCompany', $lCompany)
+                                            ->with('default_company_id', $default_company_id)
+                                            ->with('default_area_id', $default_area_id);
     }
 
     public function saveNotaCredito(Request $request){
@@ -228,7 +252,10 @@ class notaCreditoController extends Controller
             $order = collect($orders)->first();
             $oArea = Areas::findOrFail($order->area);
 
-            Mail::to($oArea->email_n)->send(new newDpsMail(
+            $lUsers = UserUtils::getUsersByArea($oArea->id_area);
+            foreach ($lUsers as $user) {
+                $email = $user->email;
+                Mail::to($email)->send(new newDpsMail(
                                                 $oProvider->provider_short_name,
                                                 $oDps->type_doc_id,
                                                 "nota de crédito",
@@ -236,6 +263,9 @@ class notaCreditoController extends Controller
                                                 [1,2,3]
                                             )
                                         );
+
+            }
+
         } catch (\Throwable $th) {
             \Log::error($th);
             return json_encode(['success' => true, 'lNotaCredito' => $lNotaCredito, 'mailSuccess' => false, "message" => $th->getMessage(), "icon"=> "warning"]);
@@ -462,6 +492,7 @@ class notaCreditoController extends Controller
         try {
             $mailStatus = '';
             $sendMail = false;
+            $sendNextStep = false;
 
             $id_dps = $request->id_dps;
             $is_accept = $request->is_accept;
@@ -513,6 +544,7 @@ class notaCreditoController extends Controller
                 $oDpsChild = VoboDps::where('dps_id', $id_dps)->where('area_id', $childAreaId)->first();
                 $oDpsChild->check_status = SysConst::VOBO_REVISION;
                 $oDpsChild->update();
+                $sendNextStep = true;
             }else{
                 $oDps->status_id = $status_id;
                 $oDps->update();
@@ -548,6 +580,26 @@ class notaCreditoController extends Controller
             DB::rollBack();
             \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
+        }
+
+        if ($sendNextStep) {
+            try {
+                $lUsers = UserUtils::getUsersByArea($childAreaId);
+                $oProvider = SProvider::findOrFail($oDps->provider_id_n);
+                foreach ($lUsers as $user) {
+                    $email = $user->email;
+                    Mail::to($email)->send(new nextStepVoboDpsMail(
+                            $oProvider->provider_short_name,
+                            $oProvider->provider_rfc,
+                            3
+                        )
+                    );
+                }
+            } catch (\Throwable $th) {
+                \Log::error($th);
+                return json_encode(['success' => true, 'lNotaCredito' => $lNotaCredito, 'mailSuccess' => false, 
+                "message" => "Registro guardado con éxito, pero no se pudo enviar el email de notificación para el siguiente paso de aceptación", "icon"=> "info"]);
+            }
         }
 
         if($sendMail){

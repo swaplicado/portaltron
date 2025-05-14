@@ -81,43 +81,36 @@
                     @else
                         <tr>
                             <td>
-                                <a href="{{asset('manuales/proveedor/manual_solicitud_de_cotizacion_(proveedor).pdf')}}" target="_blank">
-                                    <h3>Solicitud de cotización</h3>
+                                <a href="{{route('getManual', ['id' => 'dataProvider'])}}" target="_blank">
+                                    <h3>Mis datos de proveedor</h3>
                                 </a>
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                <a href="{{asset('manuales/proveedor/manual_ordenes_de_compra_(proveedor).pdf')}}" target="_blank">
+                                <a href="{{route('getManual', ['id' => 'ocProveedor'])}}" target="_blank">
                                     <h3>Órdenes de compra</h3>
                                 </a>
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                <a href="{{asset('manuales/proveedor/manual_facturas_y_notas_de_credito_(proveedor).pdf')}}" target="_blank">
+                                <a href="{{route('getManual', ['id' => 'facturasProveedor'])}}" target="_blank">
                                     <h3>Facturas</h3>
                                 </a>
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                <a href="{{asset('manuales/proveedor/manual_notas_de_credito_(proveedor).pdf')}}" target="_blank">
+                                <a href="{{route('getManual', ['id' => 'creditoProveedor'])}}" target="_blank">
                                     <h3>Notas de crédito</h3>
                                 </a>
                             </td>
                         </tr>
                         <tr>
                             <td>
-                                <a href="{{asset('manuales/proveedor/manual_cfdi_de_pago_(proveedor).pdf')}}" target="_blank">
+                                <a href="{{route('getManual', ['id' => 'cfdiProveedor'])}}" target="_blank">
                                     <h3>CFDI de pago</h3>
-                                </a>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <a href="{{asset('manuales/proveedor/manual_estados_de_cuenta_(proveedor).pdf')}}" target="_blank">
-                                    <h3>Estados de cuenta</h3>
                                 </a>
                             </td>
                         </tr>

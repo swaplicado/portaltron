@@ -43,6 +43,7 @@ var app = new Vue({
         $('#select_company').select2({
             data: self.lCompany,
             placeholder: 'Selecciona entidad comercial',
+            disabled: self.lCompany.length == 1
         }).on('select2:select', function(e) {
             self.company_id =  e.params.data.id;
         });

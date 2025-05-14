@@ -5,7 +5,7 @@ var app = new Vue({
         lNotaCredito: oServerData.lNotaCredito,
         lStatus: oServerData.lStatus,
         lAreas: oServerData.lAreas,
-        area_id: '',
+        area_id: null,
         serie: '',
         folio: '',
         serieFolio: '',
@@ -14,6 +14,11 @@ var app = new Vue({
         pdf_url: '',
         xml_url: '',
         comments: '',
+        requireAreaDps: oServerData.requireAreaDps,
+        lCompany: oServerData.lCompany,
+        default_company_id: oServerData.default_company_id,
+        company_id: null,
+        default_area_id: oServerData.default_area_id
     },
     mounted(){
         self = this;
@@ -25,6 +30,25 @@ var app = new Vue({
         }).on('select2:select', function(e) {
             
         });
+
+        $('#select_area').select2({
+            data: self.lAreas,
+            placeholder: 'Selecciona area',
+        }).on('select2:select', function(e) {
+            self.area_id =  e.params.data.id;
+        });
+
+        $('#select_area').val(self.default_area_id).trigger('change');
+
+        $('#select_company').select2({
+            data: self.lCompany,
+            placeholder: 'Selecciona entidad comercial',
+            disabled: self.lCompany.length == 1
+        }).on('select2:select', function(e) {
+            self.company_id =  e.params.data.id;
+        });
+
+        $('#select_company').val(self.default_company_id).trigger('change');
     },
     methods: {
         showModal(data){
@@ -60,6 +84,7 @@ var app = new Vue({
             formData.append('xml', fileXml);
 
             formData.append('reference', this.reference);
+            formData.append('company_id', this.company_id);
             formData.append('area_id', this.area_id);
             formData.append('serie', this.serie);
             formData.append('folio', this.folio);

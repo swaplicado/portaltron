@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Mail\newDpsMail;
 use App\Mail\rejectDpsMail;
 use App\Mail\voboDpsMail;
+use App\Mail\nextStepVoboDpsMail;
 use App\Models\Areas\Areas;
 use App\Models\SDocs\Dps;
 use App\Models\SDocs\DpsComplementary;
@@ -83,7 +84,12 @@ class dpsComplementaryController extends Controller
             $lAreas = Areas::whereIn('id_area', $config->areasToRegisterProvider)
                 ->where('is_active', 1)
                 ->where('is_deleted', 0)
-                ->get();
+                ->select(
+                    'id_area as id',
+                    'name_area as text'
+                )
+                ->get()
+                ->toArray();
 
             $showAreaDps = $config->showAreaDps;
             $requireAreaDps = $config->requireAreaDps;
@@ -675,6 +681,7 @@ class dpsComplementaryController extends Controller
         try {
             $mailStatus = '';
             $sendMail = false;
+            $sendNextStep = false;
 
             $id_dps = $request->id_dps;
             $is_accept = $request->is_accept;
@@ -726,6 +733,7 @@ class dpsComplementaryController extends Controller
                 $oDpsChild = VoboDps::where('dps_id', $id_dps)->where('area_id', $childAreaId)->first();
                 $oDpsChild->check_status = SysConst::VOBO_REVISION;
                 $oDpsChild->update();
+                $sendNextStep = true;
             }else{
                 $oDps->status_id = $status_id;
                 $oDps->update();
@@ -762,6 +770,26 @@ class dpsComplementaryController extends Controller
         } catch (\Throwable $th) {
             \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
+        }
+
+        if ($sendNextStep) {
+            try {
+                $lUsers = UserUtils::getUsersByArea($childAreaId);
+                $oProvider = SProvider::findOrFail($oDps->provider_id_n);
+                foreach ($lUsers as $user) {
+                    $email = $user->email;
+                    Mail::to($email)->send(new nextStepVoboDpsMail(
+                            $oProvider->provider_short_name,
+                            $oProvider->provider_rfc,
+                            2
+                        )
+                    );
+                }
+            } catch (\Throwable $th) {
+                \Log::error($th);
+                return json_encode(['success' => true, 'lDpsComp' => $lDpsComp, 'mailSuccess' => false, 
+                "message" => "Registro guardado con éxito, pero no se pudo enviar el email de notificación para el siguiente paso de aceptación", "icon"=> "warning"]);
+            }
         }
 
         if($sendMail){
