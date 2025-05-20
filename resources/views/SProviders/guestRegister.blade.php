@@ -99,16 +99,8 @@
                                                 </div>
                                             </div>
                                             <h4>!Hola! Vamos a comenzar</h4>
-                                            <div class="row">
-                                                <div class="col-6">
-                                                    <h6 class="font-weight-light">
-                                                        Ingresa todos los datos para registrarte como proveedor.
-                                                    </h6>
-                                                </div>
-                                                <div class="col-6" style="text-align: end">
-                                                    <a href="{{route('manual_register')}}" style="font-size: small" target="_blank">Click aqui para ver el manual de registro</a>
-                                                </div>
-                                            </div>
+                                            <h6 class="font-weight-light">Ingresa todos los datos para registrarte
+                                                como proveedor.</h6>
                                             <br>
                                             <form action="#">
                                                 <div class="row">

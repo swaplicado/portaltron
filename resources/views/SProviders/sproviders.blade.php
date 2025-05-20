@@ -6,6 +6,8 @@
         this.lProviders = <?php echo json_encode($lProviders); ?>;
         this.oArea = <?php echo json_encode($oArea); ?>;
         this.getProviderRoute = <?php echo json_encode(route('sproviders.getProvider')); ?>;
+        this.getAllProvidersDocumentsRoute = <?php echo json_encode(route('sproviders.allProvidersDocuments')); ?>;
+        this.downloadProvidersDocumentsRoute = <?php echo json_encode(route('sproviders.downloadProvidersDocuments')); ?>;
         this.lConstants = <?php echo json_encode($lConstants); ?>;
         this.approveRoute = <?php echo json_encode(route('sproviders.approve')); ?>;
         this.rejectRoute = <?php echo json_encode(route('sproviders.reject')); ?>;
@@ -38,12 +40,19 @@
     <div class="card-body">
 
         @include('SProviders.modal_authorize_provider')
+        @include('SProviders.modal_allProvidersDocuments')
 
         <div class="grid-margin">
             @include('layouts.buttons', ['show' => true])
             <span class="nobreak">
                 <label for="status_filter">Filtrar estatus: </label>
                 <select class="select2-class form-control" name="status_filter" id="status_filter"></select>
+            </span>
+
+            <span class="nobreak" style="float: right">
+                <button type="button" class="btn btn-dark btn-rounded btn-icon" id="btn_download" title="Descarga de documentos">
+                    <i class="bx bx-download"></i>
+                </button>
             </span>
         </div>
 
@@ -105,6 +114,20 @@
                                             // 'edit_modal' => true,
                                             // 'delete' => true,
                                         ] )
+
+    @include('layouts.table_jsControll', [
+                                            'table_id' => 'table_allProviders',
+                                            'colTargets' => [0],
+                                            'colTargetsSercheable' => [],
+                                            'show' => true,
+                                            'colTargetsAlignCenter' =>[],
+                                            'noDom' => true,
+                                            'noLengthChange' => true,
+                                            // 'rowGroup' => [2],
+                                            // 'edit_modal' => true,
+                                            // 'delete' => true,
+                                        ] )
+
     <script type="text/javascript" src="{{ asset('myApp/SProviders/vue_sproviders.js') }}"></script>
     <script type="text/javascript" src="{{ asset('myApp/Utils/datatablesUtils.js') }}"></script>
     <script type="text/javascript">
