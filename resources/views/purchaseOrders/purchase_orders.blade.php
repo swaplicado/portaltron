@@ -55,7 +55,7 @@
   
 <div class="card" id="purchaseOrders">
     <div class="card-header">
-        <h3>Ordenes de compra</h3>
+        <h3>&Oacute;rdenes de compra</h3>
     </div>
     <div class="card-body">
 

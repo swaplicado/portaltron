@@ -43,7 +43,7 @@ class voboDpsMail extends Mailable
         $subject = $this->status == "APROBADO" ? '[PP] Aprobación de '.$this->doc_type_name : '[PP] Rechazo de '.$this->doc_type_name;
 
         if($is_enable){
-            $email = "adrian.aviles.swaplicado@gmail.com";
+            $email = "ordenes@aeth.mx";
             return $this->from($email)
                             ->subject($subject)
                             ->view('mails.voboDpsMail')
