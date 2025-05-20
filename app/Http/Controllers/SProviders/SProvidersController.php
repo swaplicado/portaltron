@@ -380,6 +380,11 @@ class SProvidersController extends Controller
                     $oVoboDoc->update();
                 }
 
+                if ($oProvider->status_provider_id == SysConst::PROVIDER_PENDIENTE_MODIFICAR) {
+                    $oProvider->status_provider_id = SysConst::PROVIDER_PENDIENTE;
+                    $oProvider->save();
+                }
+
                 $sendMailNextStep = true;
             }else{
                 $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $oArea->id_area);
