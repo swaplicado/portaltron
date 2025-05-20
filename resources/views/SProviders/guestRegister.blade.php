@@ -47,6 +47,7 @@
             this.registerRoute = <?php echo json_encode(route('registerProvider.saveRegister')); ?>;
             this.lDocs = <?php echo json_encode($lDocs); ?>;
             this.type_register = <?php echo json_encode($type_register); ?>;
+            this.lFiscalRegime = <?php echo json_encode($lFiscalRegime); ?>;
         }
         var oServerData = new GlobalData();
     </script>
@@ -99,8 +100,16 @@
                                                 </div>
                                             </div>
                                             <h4>!Hola! Vamos a comenzar</h4>
-                                            <h6 class="font-weight-light">Ingresa todos los datos para registrarte
-                                                como proveedor.</h6>
+                                            <div class="row">
+                                                <div class="col-6">
+                                                    <h6 class="font-weight-light">
+                                                        Ingresa todos los datos para registrarte como proveedor.
+                                                    </h6>
+                                                </div>
+                                                <div class="col-6" style="text-align: end">
+                                                    <a href="{{route('manual_register')}}" style="font-size: small" target="_blank">Click aqui para ver el manual de registro</a>
+                                                </div>
+                                            </div>
                                             <br>
                                             <form action="#">
                                                 <div class="row">
@@ -196,6 +205,20 @@
                                                                 <option value="" disabled selected hidden>Selecciona área</option>
                                                                     @foreach($lAreas as $area)
                                                                         <option value="{{$area->id_area}}">{{$area->name_area}}</option>
+                                                                    @endforeach
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-md-6">
+                                                        <div class="form-group sm-form-group row">
+                                                            <label class="col-sm-3 my-col-sm-3 col-form-label ">Regimen fiscal</label>
+                                                            <div class="col-sm-9">
+                                                                <select class="form-control" v-model="fiscal_id"
+                                                                style="color: black">
+                                                                <option value="" disabled selected hidden>Selecciona regimen fiscal</option>
+                                                                    @foreach($lFiscalRegime as $fiscal)
+                                                                        <option value="{{$fiscal['id']}}">{{$fiscal['text']}}</option>
                                                                     @endforeach
                                                                 </select>
                                                             </div>

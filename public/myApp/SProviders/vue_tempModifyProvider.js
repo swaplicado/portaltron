@@ -14,6 +14,7 @@ var app = new Vue({
         successUpdate: false,
         comments: null,
         area_id: null,
+        fiscal_id: "",
         arrDocs: [],
     },
     mounted(){
@@ -24,6 +25,7 @@ var app = new Vue({
         this.email = this.oProvider.provider_email;
         this.comments = this.oProvider.comments_n;
         this.area_id = this.oProvider.area_id;
+        this.fiscal_id = this.oProvider.provider_fiscal_regime_id ? this.oProvider.provider_fiscal_regime_id : "";
     },
     methods: {
         save(){
@@ -47,6 +49,7 @@ var app = new Vue({
             formData.append('password', this.password);
             formData.append('confirmPassword', this.confirmPassword);
             formData.append('area_id', this.area_id);
+            formData.append('fiscal_id', this.fiscal_id);
 
             SGui.showWaitingUnlimit();
 
@@ -100,6 +103,11 @@ var app = new Vue({
 
             if(this.area_id == null || this.area_id == ""){
                 SGui.showMessage('', 'Debe seleccionar un área');
+                return false;
+            }
+
+            if(this.fiscal_id == null || this.fiscal_id == ""){
+                SGui.showMessage('', 'Debe seleccionar un régimen fiscal');
                 return false;
             }
 

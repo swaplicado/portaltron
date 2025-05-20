@@ -64,14 +64,14 @@
                             </div>
                         </div>
                     </div>
-                    @if($showAreaRegisterProvider == true && $user_area == $fatherArea)
+                    
                     <div class="row">
                         <div class="col-md-6">
                             <div class="form-group sm-form-group row">
                                 <label class="col-sm-3 my-col-sm-3 col-form-label ">Area:</label>
                                 <div class="col-sm-9">
                                     <select class="form-control" v-model="provider_area"
-                                    style="color: black">
+                                    style="color: black" disabled>
                                     <option value="" disabled selected hidden>Selecciona área</option>
                                         @foreach($lAreas as $area)
                                             <option value="{{$area->id_area}}">{{$area->name_area}}</option>
@@ -80,8 +80,16 @@
                                 </div>
                             </div>
                         </div>
+                        <div class="col-md-6">
+                            <div class="form-group sm-form-group row">
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Régimen fiscal:</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="fiscal_regime" placeholder="Régimen fiscal" v-model="fiscal_regime_name" readonly>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                    @endif
+                    
                     <div class="row">
                         <div class="col-md-12">
                             <div class="table-responsive">
@@ -269,6 +277,32 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group sm-form-group row">
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Area:</label>
+                                <div class="col-sm-9">
+                                    <select class="form-control" v-model="provider_area"
+                                    style="color: black" disabled>
+                                    <option value="" disabled selected hidden>Selecciona área</option>
+                                        @foreach($lAreas as $area)
+                                            <option value="{{$area->id_area}}">{{$area->name_area}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group sm-form-group row">
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Régimen fiscal:</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="fiscal_regime" placeholder="Régimen fiscal" v-model="fiscal_regime_name" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-md-12">
                             <div class="table-responsive">

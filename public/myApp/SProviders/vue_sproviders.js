@@ -10,6 +10,7 @@ var app = new Vue({
         provider_name: null,
         provider_short_name: null,
         provider_rfc: null,
+        fiscal_regime_name: null,
         provider_email: null,
         provider_area: null,
         id_provider: null,
@@ -123,6 +124,7 @@ var app = new Vue({
                         this.provider_name = data.oProvider.provider_name;
                         this.provider_short_name = data.oProvider.provider_short_name;
                         this.provider_rfc = data.oProvider.provider_rfc;
+                        this.fiscal_regime_name = data.oProvider.fiscal_regime_name ? data.oProvider.fiscal_regime_name : 'No especificado';
                         this.provider_email = data.oProvider.provider_email;
                         this.user_id = data.oProvider.user_id;
                         this.provider_area = data.oProvider.area_id;
@@ -185,6 +187,7 @@ var app = new Vue({
                         'provider_short_name',
                         'provider_name',
                         'provider_rfc',
+                        'fiscal_regime_name',
                         'provider_email',
                         'username',
                         'status',
@@ -220,6 +223,7 @@ var app = new Vue({
             this.provider_name = null;
             this.provider_short_name = null;
             this.provider_rfc = null;
+            this.fiscal_regime_name = null;
             this.provider_email = null;
             this.id_provider = null;
             this.user_id = null;

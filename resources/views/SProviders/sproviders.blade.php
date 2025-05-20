@@ -23,11 +23,12 @@
                 'provider_short_name': 2,
                 'provider_name': 3,
                 'provider_rfc': 4,
-                'provider_email': 5,
-                'user': 6,
-                'status': 7,
-                'created': 8,
-                'updated': 9,
+                'provider_fiscal_regime': 5,
+                'provider_email': 6,
+                'user': 7,
+                'status': 8,
+                'created': 9,
+                'updated': 10,
             };
 </script>
 @endsection
@@ -64,6 +65,7 @@
                     <th>short_name</th>
                     <th style="text-align: center">Proveedor</th>
                     <th style="text-align: center">RFC</th>
+                    <th style="text-align: center">Régimen fiscal</th>
                     <th style="text-align: center">Correo</th>
                     <th style="text-align: center">Usuario</th>
                     <th style="text-align: center">Estatus</th>
@@ -110,7 +112,7 @@
                                             'colTargetsSercheable' => [1],
                                             'select' => true,
                                             'show' => true,
-                                            'colTargetsAlignCenter' =>[3,4,5,6,7,8,9],
+                                            'colTargetsAlignCenter' =>[3,4,5,6,7,8,9,10],
                                             // 'edit_modal' => true,
                                             // 'delete' => true,
                                         ] )
@@ -119,7 +121,7 @@
                                             'table_id' => 'table_allProviders',
                                             'colTargets' => [0],
                                             'colTargetsSercheable' => [],
-                                            'show' => true,
+                                            // 'show' => true,
                                             'colTargetsAlignCenter' =>[],
                                             'noDom' => true,
                                             'noLengthChange' => true,
@@ -139,6 +141,7 @@
                 'provider_short_name',
                 'provider_name',
                 'provider_rfc',
+                'fiscal_regime_name',
                 'provider_email',
                 'username',
                 'status',

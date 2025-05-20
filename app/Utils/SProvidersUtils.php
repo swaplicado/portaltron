@@ -25,6 +25,7 @@ class SProvidersUtils {
     public static function getProvider($provider_id){
         $oProvider = SProvider::join(config('myapp.mngr_db').'.users as u', 'u.id', '=', 'user_id')
                             ->join('status_providers as sp', 'sp.id_status_providers', '=', 'providers.status_provider_id')
+                            ->leftJoin('fiscal_regime as fr', 'fr.id', '=', 'providers.provider_fiscal_regime_id')
                             ->where('id_provider', $provider_id)
                             ->select(
                                 'id_provider',
@@ -32,6 +33,8 @@ class SProvidersUtils {
                                 'provider_short_name',
                                 'provider_name',
                                 'provider_rfc',
+                                'provider_fiscal_regime_id',
+                                'fr.name as fiscal_regime_name',
                                 'provider_email',
                                 'area_id',
                                 'status_provider_id',
@@ -62,6 +65,7 @@ class SProvidersUtils {
 
         $lProviders = $lProviders->join(config('myapp.mngr_db').'.users as u', 'u.id', '=', 'user_id')
                             ->join('status_providers as sp', 'sp.id_status_providers', '=', 'providers.status_provider_id')
+                            ->leftJoin('fiscal_regime as fr', 'fr.id', '=', 'providers.provider_fiscal_regime_id')
                             ->select(
                                 'id_provider',
                                 'user_id',
@@ -74,6 +78,8 @@ class SProvidersUtils {
                                 'sp.name as status',
                                 'providers.external_id as ext_id',
                                 'providers.area_id',
+                                'providers.provider_fiscal_regime_id',
+                                'fr.name as fiscal_regime_name',
                                 \DB::raw('DATE_FORMAT(providers.created_at, "%Y-%m-%d") as created'),
                                 \DB::raw('DATE_FORMAT(providers.updated_at, "%Y-%m-%d") as updated'),
                             )
@@ -201,6 +207,7 @@ class SProvidersUtils {
                             ->join('prov_docs', 'prov_docs.prov_id', '=', 'p.id_provider')
                             ->join('docs_url', 'docs_url.prov_doc_id', '=', 'prov_docs.id_prov_doc')
                             ->join('vobo_docs as vd', 'vd.doc_url_id', '=', 'docs_url.id_doc_url')
+                            ->leftJoin('fiscal_regime as fr', 'fr.id', '=', 'p.provider_fiscal_regime_id')
                             ->where(function($query){
                                 $query->where('vd.check_status', SysConst::VOBO_REVISION)
                                     ->orWhere('vd.check_status', SysConst::VOBO_REVISADO);
@@ -224,6 +231,8 @@ class SProvidersUtils {
                                 'sp.name as status',
                                 'p.external_id as ext_id',
                                 'p.area_id',
+                                'p.provider_fiscal_regime_id',
+                                'fr.name as fiscal_regime_name',
                                 \DB::raw('DATE_FORMAT(p.created_at, "%Y-%m-%d") as created'),
                                 \DB::raw('DATE_FORMAT(p.updated_at, "%Y-%m-%d") as updated')
                             )
@@ -324,9 +333,12 @@ class SProvidersUtils {
             $lProviders = $lAllProviders->where('status_provider_id', '!=', SysConst::PROVIDER_PENDIENTE);
         }
         
-        $arr = $lProviders->toArray();
+        // $arr = $lProviders->toArray();
 
-        $lProvidersToVobo = $lProvidersToVobo->concat($arr);
+        // $lProvidersToVobo = $lProvidersToVobo->concat($arr);
+        foreach ($lProviders as $oProvider) {
+            $lProvidersToVobo->push($oProvider);
+        }
 
         return $lProvidersToVobo;
     }

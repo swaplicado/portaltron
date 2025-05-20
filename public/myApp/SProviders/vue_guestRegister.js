@@ -12,7 +12,8 @@ var app = new Vue({
         confirmPassword: null,
         successRegister: false,
         area_id: "",
-        type_register: oServerData.type_register
+        type_register: oServerData.type_register,
+        fiscal_id: ""
     },
     mounted(){
 
@@ -41,6 +42,7 @@ var app = new Vue({
             formData.append('password', this.password);
             formData.append('confirmPassword', this.confirmPassword);
             formData.append('area_id', this.area_id);
+            formData.append('fiscal_id', this.fiscal_id);
             formData.append('type_register', this.type_register);
 
             SGui.showWaitingUnlimit();

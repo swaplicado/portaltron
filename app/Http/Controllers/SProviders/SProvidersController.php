@@ -41,6 +41,10 @@ class SProvidersController extends Controller
             $oArea = \Auth::user()->getArea();
             $lProviders = SProvidersUtils::getProvidersToVobo($oArea);
 
+            foreach ($lProviders as $provider) {
+                $provider->fiscal_regime_name = $provider->fiscal_regime_name ? $provider->fiscal_regime_name : 'No especificado';
+            }
+
             $lConstants = [
                 'PROVIDER_PENDIENTE' => SysConst::PROVIDER_PENDIENTE,
                 'PROVIDER_APROBADO' => SysConst::PROVIDER_APROBADO,
@@ -113,10 +117,24 @@ class SProvidersController extends Controller
 
         $showAreaRegisterProvider = $config->showAreaRegisterProvider;
 
+        $fiscalRegime = \DB::table('fiscal_regime')
+                            ->select(
+                                'id',
+                                'key',
+                                'name'
+                            )
+                            ->get();
+
+        $lFiscalRegime = [];
+        foreach ($fiscalRegime as $fiscal) {
+            $lFiscalRegime[] = [ 'id' => $fiscal->id, 'text' => $fiscal->key . ' - '. $fiscal->name ];
+        }
+
         return view('SProviders.guestRegister')->with('lDocs', $lDocs)
                                                 ->with('lAreas', $lAreas)
                                                 ->with('showAreaRegisterProvider', $showAreaRegisterProvider)
-                                                ->with('type_register', $type_register);
+                                                ->with('type_register', $type_register)
+                                                ->with('lFiscalRegime', $lFiscalRegime);
     }
 
     public function tempProviderIndex($name){
@@ -135,6 +153,7 @@ class SProvidersController extends Controller
             $password = $request->password;
             $confirmPassword = $request->confirmPassword;
             $area_id = $request->area_id;
+            $fiscal_id = $request->fiscal_id;
             $type_register = $request->type_register;
             $config = \App\Utils\Configuration::getConfigurations();
             
@@ -147,6 +166,10 @@ class SProvidersController extends Controller
                         return json_encode(['success' => false, 'message' => "No se encontró un área de destino", 'icon' => 'info']);
                     }
                 }
+            }
+
+            if(is_null($fiscal_id)){
+                return json_encode(['success' => false, 'message' => "Debes seleccionar un régimen fiscal", 'icon' => 'info']);
             }
 
             $searchRfc = \DB::table('providers')
@@ -178,7 +201,7 @@ class SProvidersController extends Controller
                 return json_encode(['success' => false, 'message' => $result[1], 'icon' => 'info']);
             }
     
-            $password = \DB::select(\DB::raw("SELECT PASSWORD('$request->password') AS password_result"))[0]->password_result;
+            // $password = \DB::select(\DB::raw("SELECT PASSWORD('$request->password') AS password_result"))[0]->password_result;
         } catch (\Throwable $th) {
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
         }
@@ -229,6 +252,7 @@ class SProvidersController extends Controller
                 $oProvider->provider_name = $name;
                 $oProvider->provider_short_name = $shortName;
                 $oProvider->provider_rfc = $rfc;
+                $oProvider->provider_fiscal_regime_id = $fiscal_id;
                 $oProvider->provider_email = $email;
                 $oProvider->user_id = $oUser->id;
                 $oProvider->area_id = $area_id;
@@ -582,10 +606,24 @@ class SProvidersController extends Controller
 
         $showAreaRegisterProvider = $config->showAreaRegisterProvider;
 
+        $fiscalRegime = \DB::table('fiscal_regime')
+                            ->select(
+                                'id',
+                                'key',
+                                'name'
+                            )
+                            ->get();
+
+        $lFiscalRegime = [];
+        foreach ($fiscalRegime as $fiscal) {
+            $lFiscalRegime[] = [ 'id' => $fiscal->id, 'text' => $fiscal->key . ' - '. $fiscal->name ];
+        }
+
         return view('SProviders.tempModifyProvider')->with('oProvider', $oProvider)
                                                     ->with('lAreas', $lAreas)
                                                     ->with('lDocs', $lDocs)
-                                                    ->with('showAreaRegisterProvider', $showAreaRegisterProvider);
+                                                    ->with('showAreaRegisterProvider', $showAreaRegisterProvider)
+                                                    ->with('lFiscalRegime', $lFiscalRegime);
     }
 
     /**
@@ -598,8 +636,9 @@ class SProvidersController extends Controller
             $rfc = $request->rfc;
             $email = $request->email;
             $area_id = $request->area_id;
+            $fiscal_id = $request->fiscal_id;
             $config = \App\Utils\Configuration::getConfigurations();
-            $sOrders =  json_encode($config->orders);
+            $sOrders = json_encode($config->orders);
             $lOrders = collect(json_decode($sOrders));
 
             if(is_null($area_id)){
@@ -647,6 +686,11 @@ class SProvidersController extends Controller
                 return json_encode(['success' => false, 'message' => $message, 'icon' => 'info']);
             }
 
+            if($fiscal_id == null || $fiscal_id == ''){
+                $message = 'Debes seleccionar un régimen fiscal';
+                return json_encode(['success' => false, 'message' => $message, 'icon' => 'info']);
+            }
+
             try {
                 $oProvider = SProvider::findOrFail(\Auth::user()->getProviderData()->id_provider);
                 \DB::connection('mysqlmngr')->beginTransaction();
@@ -674,6 +718,8 @@ class SProvidersController extends Controller
                     // $oProvider->provider_rfc = $rfc;
                     $oProvider->provider_email = $email;
                     $oProvider->user_id = $oUser->id;
+                    $oProvider->area_id = $area_id;
+                    $oProvider->provider_fiscal_regime_id = $fiscal_id;
                     // $oProvider->status_provider_id = SysConst::PROVIDER_PENDIENTE;
                     $oProvider->updated_by = \Auth::user()->id;
                     $oProvider->update();
@@ -716,14 +762,29 @@ class SProvidersController extends Controller
                         $oDocsUrl->updated_by = 1;
                         $oDocsUrl->save();
 
+                        // foreach($orders as $order){
+                        //     $oVoboDoc = new VoboDoc();
+                        //     $oVoboDoc->doc_url_id = $oDocsUrl->id_doc_url;
+                        //     $oVoboDoc->area_id = $order->area;
+                        //     $oVoboDoc->is_accept = 1;
+                        //     $oVoboDoc->is_reject = 0;
+                        //     $oVoboDoc->order = $order->order;
+                        //     $oVoboDoc->check_status = SysConst::VOBO_REVISADO;
+                        //     $oVoboDoc->is_deleted = 0;
+                        //     $oVoboDoc->created_by = 1;
+                        //     $oVoboDoc->updated_by = 1;
+                        //     $oVoboDoc->save();
+                        // }
+
+                        // se comentaron los pasos de autorizacion al actualizar documentos, si se requiere actualizar descomentar
                         foreach($orders as $order){
                             $oVoboDoc = new VoboDoc();
                             $oVoboDoc->doc_url_id = $oDocsUrl->id_doc_url;
                             $oVoboDoc->area_id = $order->area;
-                            $oVoboDoc->is_accept = 1;
+                            $oVoboDoc->is_accept = 0;
                             $oVoboDoc->is_reject = 0;
                             $oVoboDoc->order = $order->order;
-                            $oVoboDoc->check_status = SysConst::VOBO_REVISADO;
+                            $oVoboDoc->check_status = $order->order == 1 ? SysConst::VOBO_REVISION : SysConst::VOBO_NO_REVISION;
                             $oVoboDoc->is_deleted = 0;
                             $oVoboDoc->created_by = 1;
                             $oVoboDoc->updated_by = 1;
@@ -742,21 +803,6 @@ class SProvidersController extends Controller
                                                                             );
                             }
                         }
-    
-                        // se comentaron los pasos de autorizacion al actualizar documentos, si se requiere actualizar descomentar
-                        // foreach($orders as $order){
-                        //     $oVoboDoc = new VoboDoc();
-                        //     $oVoboDoc->doc_url_id = $oDocsUrl->id_doc_url;
-                        //     $oVoboDoc->area_id = $order->area;
-                        //     $oVoboDoc->is_accept = 0;
-                        //     $oVoboDoc->is_reject = 0;
-                        //     $oVoboDoc->order = $order->order;
-                        //     $oVoboDoc->check_status = $order->order == 1 ? SysConst::VOBO_REVISION : SysConst::VOBO_NO_REVISION;
-                        //     $oVoboDoc->is_deleted = 0;
-                        //     $oVoboDoc->created_by = 1;
-                        //     $oVoboDoc->updated_by = 1;
-                        //     $oVoboDoc->save();
-                        // }
                     }
     
                     \DB::connection('mysql')->commit();
@@ -826,8 +872,28 @@ class SProvidersController extends Controller
             }
         }
 
+        $config = \App\Utils\Configuration::getConfigurations();
+        $lAreas = Areas::whereIn('id_area', $config->areasToRegisterProvider)
+                        ->where('is_active', 1)
+                        ->where('is_deleted', 0)->get();
+
+        $fiscalRegime = \DB::table('fiscal_regime')
+                            ->select(
+                                'id',
+                                'key',
+                                'name'
+                            )
+                            ->get();
+
+        $lFiscalRegime = [];
+        foreach ($fiscalRegime as $fiscal) {
+            $lFiscalRegime[] = [ 'id' => $fiscal->id, 'text' => $fiscal->key . ' - '. $fiscal->name ];
+        }
+
         return view('SProviders.provider_profile')->with('oProvider', $oProvider)
-                                                    ->with('lDocs', $lDocs);
+                                                    ->with('lDocs', $lDocs)
+                                                    ->with('lAreas', $lAreas)
+                                                    ->with('lFiscalRegime', $lFiscalRegime);
     }
 
     public function allProvidersDocuments(){
