@@ -192,11 +192,11 @@
                                                         </div>
                                                         <div class="col-md-6">
                                                             <div class="form-group sm-form-group row">
-                                                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Regimen fiscal</label>
+                                                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Régimen fiscal</label>
                                                                 <div class="col-sm-9">
                                                                     <select class="form-control" v-model="fiscal_id"
                                                                         style="color: black">
-                                                                        <option value="" disabled selected hidden>Selecciona regimen fiscal</option>
+                                                                        <option value="" disabled selected hidden>Selecciona régimen fiscal</option>
                                                                     @foreach($lFiscalRegime as $fiscal)
                                                                         <option value="{{$fiscal['id']}}">{{$fiscal['text']}}</option>
                                                                     @endforeach
