@@ -66,23 +66,24 @@
     "defaultAreaProvider": 4,
     "areasToRegisterProvider": [1,2,3,4],
 
-    "showAreaDps": false,
+    "showAreaDps": true,
     "requireAreaDps": false,
     "lOmisionAreaDps": [
-        {"type": 1, "id": 101},
-        {"type": 2, "id": 102},
-        {"type": 3, "id": 103},
-        {"type": 4, "id": 104}
+        {"type": 1, "id": 1},
+        {"type": 2, "id": 1},
+        {"type": 3, "id": 1},
+        {"type": 4, "id": 1}
     ],
     "defaultAreaDps": 4,
     "areasToDps": [1,2,3,4],
     
     "mailConfig": [
-        {"type": 2, "config": [{"newDpsMail": false, "rejectDpsMail": false, "approveDpsMail": false}]},
-        {"type": 3, "config": [{"newDpsMail": false, "rejectDpsMail": false, "approveDpsMail": false}]},
-        {"type": 4, "config": [{"newDpsMail": false, "rejectDpsMail": false, "approveDpsMail": false}]},
-        {"type": 100, "config": [{"newProviderMail": false, "approveProviderMail": false, "rejectProviderMail": false, "modifyProviderMail": false}]}
+        {"type": 2, "config": [{"newDpsMail": true, "rejectDpsMail": true, "approveDpsMail": true}]},
+        {"type": 3, "config": [{"newDpsMail": true, "rejectDpsMail": true, "approveDpsMail": true}]},
+        {"type": 4, "config": [{"newDpsMail": true, "rejectDpsMail": true, "approveDpsMail": true}]},
+        {"type": 100, "config": [{"newProviderMail": true, "approveProviderMail": true, "rejectProviderMail": true, "modifyProviderMail": true}]}
     ],
     "canSeeAll": [1],
-    "useSerie": true
+    "useSerie": true,
+    "tesoreriaArea": 6
 }

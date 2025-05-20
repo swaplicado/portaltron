@@ -39,7 +39,7 @@ class rejectDpsMail extends Mailable
         $config = collect($typeConf->config)->first();
 
         if($config->rejectDpsMail){
-            $email = "adrian.aviles.swaplicado@gmail.com";
+            $email = "ordenes@aeth.mx";
             return $this->from($email)
                             ->subject('[PP] Rechazo de factura')
                             ->view('mails.rejectDpsMail')
