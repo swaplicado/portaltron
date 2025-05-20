@@ -42,7 +42,7 @@ class SProvidersController extends Controller
             $lProviders = SProvidersUtils::getProvidersToVobo($oArea);
 
             foreach ($lProviders as $provider) {
-                $provider->fiscal_regime_name = $provider->fiscal_regime_name ? $provider->fiscal_regime_name : 'No especificado';
+                $provider->fiscal_regime_name = $provider->fiscal_regime_name ? $provider->fiscal_regime_name : 'N/D';
             }
 
             $lConstants = [

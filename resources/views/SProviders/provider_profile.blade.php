@@ -117,6 +117,8 @@
                                                                 @if (!is_null($doc->url))
                                                                     <a href="{{$doc->url}}" target="_blank" type="button" class="btn btn-success"
                                                                         >Ver</a>
+                                                                @else
+                                                                    <button class="btn btn-success" disabled>Ver</button>
                                                                 @endif
                                                             </label>
                                                             <div class="col-sm-8">
