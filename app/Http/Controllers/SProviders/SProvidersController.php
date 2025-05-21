@@ -42,7 +42,7 @@ class SProvidersController extends Controller
             $lProviders = SProvidersUtils::getProvidersToVobo($oArea);
 
             foreach ($lProviders as $provider) {
-                $provider->fiscal_regime_name = $provider->fiscal_regime_name ? $provider->fiscal_regime_name : 'N/D';
+                $provider->fiscal_regime_name = $provider->fiscal_regime_name ? $provider->fiscal_key . ' - ' . $provider->fiscal_regime_name : 'N/D';
             }
 
             $lConstants = [
@@ -88,6 +88,7 @@ class SProvidersController extends Controller
     public function getProvider(Request $request){
         try {
             $oProvider = SProvidersUtils::getProvider($request->provider_id);
+            $oProvider->fiscal_regime_name = $oProvider->fiscal_regime_name ? $oProvider->fiscal_key . ' - ' . $oProvider->fiscal_regime_name : 'N/D';
             $oArea = \Auth::user()->getArea();
             $lDocuments = SProvidersUtils::getDocumentsProvider($request->provider_id, $oArea->id_area);
             foreach ($lDocuments as $doc) {

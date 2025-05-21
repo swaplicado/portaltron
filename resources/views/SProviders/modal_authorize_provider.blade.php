@@ -84,7 +84,8 @@
                             <div class="form-group sm-form-group row">
                                 <label class="col-sm-3 my-col-sm-3 col-form-label ">Régimen fiscal:</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" id="fiscal_regime" placeholder="Régimen fiscal" v-model="fiscal_regime_name" readonly>
+                                    <textarea class="form-control" id="fiscal_regime" placeholder="Régimen fiscal" 
+                                        v-model="fiscal_regime_name" readonly rows="2" style="resize: none;"></textarea>
                                 </div>
                             </div>
                         </div>
@@ -297,7 +298,8 @@
                             <div class="form-group sm-form-group row">
                                 <label class="col-sm-3 my-col-sm-3 col-form-label ">Régimen fiscal:</label>
                                 <div class="col-sm-9">
-                                    <input type="text" class="form-control" id="fiscal_regime" placeholder="Régimen fiscal" v-model="fiscal_regime_name" readonly>
+                                    <textarea class="form-control" id="fiscal_regime" placeholder="Régimen fiscal" 
+                                        v-model="fiscal_regime_name" readonly rows="2" style="resize: none;"></textarea>
                                 </div>
                             </div>
                         </div>

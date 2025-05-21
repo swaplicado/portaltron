@@ -35,6 +35,7 @@ class SProvidersUtils {
                                 'provider_rfc',
                                 'provider_fiscal_regime_id',
                                 'fr.name as fiscal_regime_name',
+                                'fr.key as fiscal_key',
                                 'provider_email',
                                 'area_id',
                                 'status_provider_id',
@@ -80,6 +81,7 @@ class SProvidersUtils {
                                 'providers.area_id',
                                 'providers.provider_fiscal_regime_id',
                                 'fr.name as fiscal_regime_name',
+                                'fr.key as fiscal_key',
                                 \DB::raw('DATE_FORMAT(providers.created_at, "%Y-%m-%d") as created'),
                                 \DB::raw('DATE_FORMAT(providers.updated_at, "%Y-%m-%d") as updated'),
                             )
@@ -233,6 +235,7 @@ class SProvidersUtils {
                                 'p.area_id',
                                 'p.provider_fiscal_regime_id',
                                 'fr.name as fiscal_regime_name',
+                                'fr.key as fiscal_key',
                                 \DB::raw('DATE_FORMAT(p.created_at, "%Y-%m-%d") as created'),
                                 \DB::raw('DATE_FORMAT(p.updated_at, "%Y-%m-%d") as updated')
                             )
