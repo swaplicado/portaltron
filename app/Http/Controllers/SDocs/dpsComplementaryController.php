@@ -996,7 +996,7 @@ class dpsComplementaryController extends Controller
             );
 
             $startDate = Carbon::createFromFormat('d-M-Y', $startDate)->format('Y-m-d');
-            $endDate = Carbon::createFromFormat('d-M-Y', $endDate)->format('Y-m-d');
+            $endDate = Carbon::createFromFormat('d-M-Y', $endDate)->addDay()->format('Y-m-d');
     
             $lProviders = SProvider::whereIn('id_provider', $arrProviders)->get();
     
@@ -1078,7 +1078,9 @@ class dpsComplementaryController extends Controller
     
             // Opcional: Borrar los ZIPs individuales ya que ya están dentro del final
             foreach ($individualZipPaths as $path) {
-                unlink($path);
+                if (isset($path) && file_exists($path)) {
+                    unlink($path);
+                }
             }
         } catch (\Throwable $th) {
             \Log::error($th);
