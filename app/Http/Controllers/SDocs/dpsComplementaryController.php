@@ -416,7 +416,8 @@ class dpsComplementaryController extends Controller
             }
         } catch (\Throwable $th) {
             \Log::error($th);
-            return json_encode(['success' => true, 'lDpsComp' => $lDpsComp, 'mailSuccess' => false, "message" => $th->getMessage(), "icon"=> "warning"]);
+            return json_encode(['success' => true, 'lDpsComp' => $lDpsComp, 'mailSuccess' => false, 
+            "message" => "Registro guardado con éxito, pero no se pudo enviar el email de notificación para el siguiente paso de aceptación", "icon"=> "warning"]);
         }
 
         return json_encode(['success' => true, 'lDpsComp' => $lDpsComp, 'mailSuccess' => true]);
@@ -768,27 +769,38 @@ class dpsComplementaryController extends Controller
 
             DB::commit();
         } catch (\Throwable $th) {
+            DB::rollBack();
             \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
         }
 
         if ($sendNextStep) {
             try {
-                $lUsers = UserUtils::getUsersByArea($childAreaId);
-                $oProvider = SProvider::findOrFail($oDps->provider_id_n);
-                foreach ($lUsers as $user) {
-                    $email = $user->email;
-                    Mail::to($email)->send(new nextStepVoboDpsMail(
-                            $oProvider->provider_short_name,
-                            $oProvider->provider_rfc,
-                            2
-                        )
-                    );
+                $mailConfig = collect($config->mailConfig);
+                $typeConf = $mailConfig->where('type', $oDps->type_doc_id)->first();
+                $dpsConfig = collect($typeConf->config)->first();
+                $nextSteps = $dpsConfig->nextStepMail;
+                $lOrders = collect(ordersVobosUtils::getDpsOrder($oDps->type_doc_id, $voboArea->id_area));
+                $myOrder = $lOrders->where('area', $voboArea->id_area)->first();
+                $is_enable = in_array($childAreaId, $nextSteps->areas) && in_array($myOrder->order + 1, $nextSteps->orders);
+
+                if ($is_enable) {
+                    $lUsers = UserUtils::getUsersByArea($childAreaId);
+                    $oProvider = SProvider::findOrFail($oDps->provider_id_n);
+                    foreach ($lUsers as $user) {
+                        $email = $user->email;
+                        Mail::to($email)->send(new nextStepVoboDpsMail(
+                                $oProvider->provider_short_name,
+                                $oProvider->provider_rfc,
+                                2
+                            )
+                        );
+                    }
                 }
             } catch (\Throwable $th) {
                 \Log::error($th);
                 return json_encode(['success' => true, 'lDpsComp' => $lDpsComp, 'mailSuccess' => false, 
-                "message" => "Registro guardado con éxito, pero no se pudo enviar el email de notificación para el siguiente paso de aceptación", "icon"=> "warning"]);
+                "message" => "Registro guardado con éxito, pero no se pudo enviar el email de notificación", "icon"=> "warning"]);
             }
         }
 

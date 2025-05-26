@@ -217,6 +217,7 @@ var app = new Vue({
             let inputXmlName = document.getElementById('xmlName');
             inputXmlName.value = null;
 
+            this.serieoc = null;
             this.reference = null;
             this.area_id = null;
             this.name_area = null;
