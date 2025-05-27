@@ -968,6 +968,7 @@ class SProvidersController extends Controller
     
             list($zip, $zipFileName, $zipPath) = $startNewZip();
     
+            $countFiles = 0;
             foreach ($lProviders as $provider) {
                 $provider->lDocs = SProvidersUtils::getDocumentsProvider(
                     $provider->id_provider,
@@ -977,6 +978,7 @@ class SProvidersController extends Controller
                 );
     
                 foreach ($provider->lDocs as $doc) {
+                    $countFiles++;
                     $filename = basename(parse_url($doc->url, PHP_URL_PATH));
                     $absolutePath = storage_path("app/documents/{$filename}");
     
@@ -1004,6 +1006,13 @@ class SProvidersController extends Controller
                         $currentSize += $fileSize;
                     }
                 }
+            }
+
+            if ($countFiles < 1) {
+                return response()->json([
+                    'message' => 'No existen archivos para descargar',
+                    'error' => 'No existen archivos para descargar',
+                ], 500);
             }
     
             // Cerrar el último zip si está abierto

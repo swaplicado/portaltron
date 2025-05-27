@@ -1021,7 +1021,8 @@ class dpsComplementaryController extends Controller
             };
     
             list($zip, $zipFileName, $zipPath) = $startNewZip();
-    
+
+            $countFiles = 0;
             foreach ($lProviders as $provider) {
                 $lDps = \DB::table('dps as d')
                             ->where('d.is_deleted', 0)
@@ -1034,6 +1035,7 @@ class dpsComplementaryController extends Controller
                 $provider->lDocs = $lDps;
     
                 foreach ($provider->lDocs as $doc) {
+                    $countFiles++;
                     $filename = basename(parse_url($doc->pdf_url_n, PHP_URL_PATH));
                     $absolutePath = storage_path("app/facturas/{$filename}");
     
@@ -1054,6 +1056,13 @@ class dpsComplementaryController extends Controller
                         $currentSize += $fileSize;
                     }
                 }
+            }
+
+            if ($countFiles < 1) {
+                return response()->json([
+                    'message' => 'No existen archivos para descargar',
+                    'error' => 'No existen archivos para descargar',
+                ], 500);
             }
     
             // Cerrar el último zip si está abierto
