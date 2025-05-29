@@ -229,7 +229,7 @@ class DpsComplementsUtils {
                     $lErrors[] = 'No se encontró la referencia: <span style="font-weight: bold; ">' . $reference['folio_n'] . '</span>';
                     continue;
                 }
-                
+
                 if (isset($data->oDpsHeader->oCfd->payMethod) && isset($data->oDpsHeader->oCfd->cfdUse)) {
                     $lDpsReferences[] =  ['idYear' => $data->idYear, 'idDoc' => $data->idDoc, 'payMethod' => $data->oDpsHeader->oCfd->payMethod, 'usoCfdi' => $data->oDpsHeader->oCfd->cfdUse, 'folio' => $reference['folio_n']];
                 } else {
@@ -285,7 +285,7 @@ class DpsComplementsUtils {
 
             if (is_null($oProvider_regimen_fiscal)) {
                 $success = false;
-                $lErrors[] = 'El régimen fiscal del emisor no existe';
+                $lErrors[] = 'No tienes régimen fiscal registrado en sistema.';
             } else {
                 if($regimenFiscal != $oProvider_regimen_fiscal->key){
 
@@ -324,7 +324,7 @@ class DpsComplementsUtils {
     
             if (is_null($oCompany_regimen_fiscal)) {
                 $success = false;
-                $lErrors[] = 'El régimen fiscal del receptor no existe';
+                $lErrors[] = 'El régimen fiscal del receptor no se encuentra registrado en el sistema.';
             } else {
                 if($RegimenFiscalReceptor != $oCompany_regimen_fiscal->key){
 
