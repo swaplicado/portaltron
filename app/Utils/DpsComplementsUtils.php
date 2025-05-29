@@ -192,10 +192,66 @@ class DpsComplementsUtils {
         return $lDps;
     }
 
-    public static function validateXml($xml, $oProvider, $oCompany, $lConditions = [ SysConst::EMISOR_RFC, SysConst::RECEPTOR_RFC, SysConst::DATE__XML ]) {
-        // $xmlPath = storage_path('app/archivo.xml');
-        // $xmlContent = file_get_contents($xmlPath);
-        
+    public static function validateXml(
+        $xml, 
+        $oProvider, 
+        $oCompany, 
+        $aReference = [], 
+        $lConditions = [ 
+            SysConst::EMISOR_RFC, 
+            SysConst::RECEPTOR_RFC, 
+            SysConst::DATE__XML,
+            SysConst::EMISOR_REGIMEN_FISCAL,
+            SysConst::RECEPTOR_REGIMEN_FISCAL,
+            SysConst::USO_CFDI,
+            SysConst::METODO_PAGO
+        ]
+    ) {
+        $config = \App\Utils\Configuration::getConfigurations();
+        $body = null;
+        $withHtml = false;
+        $lErrors = [];
+        $success = true;
+        $message = "ok";
+        $lDpsReferences = [];
+
+        if (count($aReference) > 0) {
+            foreach ($aReference as $reference) {
+                $queryParams = [
+                    'id_year' => $reference['ext_id_year'],
+                    'id_doc' => $reference['ext_id_doc'],
+                    'id_user' => 1
+                ];
+                $result = AppLinkUtils::requestAppLink($config->AppLinkRouteGetDpsByPk, "GET", \Auth::user(), $body, true, $queryParams);
+                $data = $result->data;
+                if (is_null($data)) {
+                    $success = false;
+                    $lErrors[] = 'No se encontró la referencia: <span style="font-weight: bold; ">' . $reference['folio_n'] . '</span>';
+                    continue;
+                }
+                
+                if (isset($data->oDpsHeader->oCfd->payMethod) && isset($data->oDpsHeader->oCfd->cfdUse)) {
+                    $lDpsReferences[] =  ['idYear' => $data->idYear, 'idDoc' => $data->idDoc, 'payMethod' => $data->oDpsHeader->oCfd->payMethod, 'usoCfdi' => $data->oDpsHeader->oCfd->cfdUse, 'folio' => $reference['folio_n']];
+                } else {
+                    $lDpsReferences[] =  ['idYear' => $data->idYear, 'idDoc' => $data->idDoc, 'payMethod' => null, 'usoCfdi' => null, 'folio' => $reference['folio_n']];
+                }
+    
+            }
+    
+            if (count($lDpsReferences) == 0) {
+                
+                $withHtml = true;
+                $message = '<div style="text-align: left;"><span>Lamentablemente, el comprobante proporcionado no cumple con los siguientes aspectos: </span><br>';
+                $message = $message . '<ul style="padding-left: 20px; margin-top: 10px;">';
+                foreach($lErrors AS $error){
+                    $message = $message . '<li>'.$error.'</li>';
+                }
+                $message = $message . '</ul></div>';
+    
+                return json_encode(['success' => $success, 'message' => $message, 'withHtml' => $withHtml]);
+            }
+        }
+
         // Convertir XML a array
         $xmlContent = file_get_contents($xml->getRealPath());
         
@@ -212,7 +268,35 @@ class DpsComplementsUtils {
             }
     
             if($rfcEmisor != $oProvider->provider_rfc){
-                return json_encode(['success' => false, 'message' => 'El RFC emisor del XML no coincide con tú RFC']);
+                $success = false;
+                $lErrors[] = 'El RFC del emisor, <span style="font-weight: bold; ">' . $rfcEmisor . '</span>, es incorrecto.';
+            }
+        }
+
+        if(in_array(SysConst::EMISOR_REGIMEN_FISCAL, $lConditions)){
+            $oEmisor = $complemento->searchNodes('cfdi:Emisor');
+            foreach ($oEmisor as $emisor) { 
+                $regimenFiscal = $emisor['RegimenFiscal'];
+            }
+    
+            $oProvider_regimen_fiscal = DB::table('fiscal_regime')
+                                            ->where('id', $oProvider->provider_fiscal_regime_id)
+                                            ->first();
+
+            if (is_null($oProvider_regimen_fiscal)) {
+                $success = false;
+                $lErrors[] = 'El régimen fiscal del emisor no existe';
+            } else {
+                if($regimenFiscal != $oProvider_regimen_fiscal->key){
+
+                    $oRegimenFiscal = \DB::table('fiscal_regime')
+                                            ->where('key', $regimenFiscal)
+                                            ->first();
+
+                    $success = false;
+                    $lErrors[] = 'El régimen fiscal del emisor, <span style="font-weight: bold; ">' . 
+                                    $oRegimenFiscal->key . ' - ' . $oRegimenFiscal->name . '</span>, es incorrecto.';
+                }
             }
         }
 
@@ -223,7 +307,35 @@ class DpsComplementsUtils {
             }
     
             if($rfcReceptor != $oCompany->company_rfc){
-                return json_encode(['success' => false, 'message' => 'El RFC del receptor no coincide con la entidad comercial']);
+                $success = false;
+                $lErrors[] = 'El RFC del receptor, <span style="font-weight: bold; ">' . $rfcReceptor . '</span>, es incorrecto.';
+            }
+        }
+
+        if (in_array(SysConst::RECEPTOR_REGIMEN_FISCAL, $lConditions)) {
+            $oReceptor = $complemento->searchNodes('cfdi:Receptor');
+            foreach ($oReceptor as $receptor) {
+                $RegimenFiscalReceptor = $receptor['RegimenFiscalReceptor'];
+            }
+
+            $oCompany_regimen_fiscal = DB::table('fiscal_regime')
+                                            ->where('id', $oCompany->company_fiscal_regime_id)
+                                            ->first();
+    
+            if (is_null($oCompany_regimen_fiscal)) {
+                $success = false;
+                $lErrors[] = 'El régimen fiscal del receptor no existe';
+            } else {
+                if($RegimenFiscalReceptor != $oCompany_regimen_fiscal->key){
+
+                    $oRegimenFiscal = \DB::table('fiscal_regime')
+                                            ->where('key', $RegimenFiscalReceptor)
+                                            ->first();
+
+                    $success = false;
+                    $lErrors[] = 'El régimen fiscal del receptor, <span style="font-weight: bold; ">' . 
+                                    $oRegimenFiscal->key . ' - ' . $oRegimenFiscal->name . '</span>, es incorrecto.';
+                }
             }
         }
 
@@ -231,12 +343,65 @@ class DpsComplementsUtils {
             $fecha = $complemento['Fecha'];
     
             $now = Carbon::now();
-            $oFecha = Carbon::parse($fecha);
+            $oFecha = Carbon::createFromFormat('Y-m-d\TH:i:s', $fecha);
             if($oFecha->month != $now->month || $oFecha->year != $now->year){
-                return json_encode(['success' => false, 'message' => 'La fecha del comprobante no es del mes actual']);
+                $success = false;
+                $sFecha = $oFecha->format('d-m-Y');
+                $lErrors[] = 'La fecha de emisión, <span style="font-weight: bold; ">' . dateUtils::formatDate($oFecha->format('d-m-Y'), 'D-m-Y') . '</span>, no corresponde al mes actual.';
             }
         }
 
-        return json_encode(['success' => true, 'message' => 'ok']);
+        if (in_array(SysConst::USO_CFDI, $lConditions)) {
+            $oReceptor = $complemento->searchNodes('cfdi:Receptor');
+            foreach ($oReceptor as $receptor) {
+                $UsoCFDI = $receptor['UsoCFDI'];
+            }
+
+            foreach ($lDpsReferences as $reference) {
+                if (!is_null($reference['usoCfdi'])) {
+                    if ($reference['usoCfdi'] != $UsoCFDI) {
+    
+                        $oUsoCfdi = \DB::table('uso_cfdi')
+                                        ->where('key', $UsoCFDI)
+                                        ->first();
+    
+                        $success = false;
+                        $lErrors[] = 'El uso del CFDI, <span style="font-weight: bold; ">' . 
+                                        $oUsoCfdi->key . ' - ' . $oUsoCfdi->name . '</span>, es distinto al de la referencia ' . $reference['folio'] . '.';
+                    }
+                }
+            }
+        }
+
+        if (in_array(SysConst::METODO_PAGO, $lConditions)) {
+            $MetodoPago = $complemento['MetodoPago'];
+
+            foreach ($lDpsReferences as $reference) {
+                if (!is_null($reference['usoCfdi'])) {
+                    if ($reference['payMethod'] != $MetodoPago) {
+    
+                        $oMetodoPago = \DB::table('metodo_pago')
+                                        ->where('key', $MetodoPago)
+                                        ->first();
+    
+                        $success = false;
+                        $lErrors[] = 'El método de pago, <span style="font-weight: bold; ">' . 
+                                        $oMetodoPago->key . ' - ' . $oMetodoPago->name . '</span>, es distinto al de la referencia ' . $reference['folio'] . '.';
+                    }
+                }
+            }
+        }
+
+        if (!$success) {
+            $withHtml = true;
+            $message = '<div style="text-align: left;"><span>Lamentablemente, el comprobante proporcionado no cumple con los siguientes aspectos: </span><br>';
+            $message = $message . '<ul style="padding-left: 20px; margin-top: 10px;">';
+            foreach($lErrors AS $error){
+                $message = $message . '<li>'.$error.'</li>';
+            }
+            $message = $message . '</ul></div>';
+        }
+
+        return json_encode(['success' => $success, 'message' => $message, 'withHtml' => $withHtml]);
     }
 }

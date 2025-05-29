@@ -78,7 +78,7 @@ class AppLinkUtils {
         return $data;
     }
 
-    public static function requestAppLink($route, $method, $oUser, $body = null, $requireAuth = true){
+    public static function requestAppLink($route, $method, $oUser, $body = null, $requireAuth = true, $queryParams = []){
         $config = \App\Utils\Configuration::getConfigurations();
         
         if($requireAuth){
@@ -102,6 +102,10 @@ class AppLinkUtils {
                 'Content-Type' => 'application/json'
             ];
         }
+
+        if (!empty($queryParams)) {
+            $route .= '?' . http_build_query($queryParams);
+        }
         
         $client = new Client([
             'base_uri' => $config->AppLinkRoute,
@@ -109,10 +113,12 @@ class AppLinkUtils {
             'headers' => $headers
         ]);
 
-        $oBody = json_decode($body);
-        if (!isset($oBody->idDB)) {
-            $oBody->idDB = session()->get('companie_idDB');
-            $body = json_encode($oBody);
+        if (!is_null($body)) {
+            $oBody = json_decode($body);
+            if (!isset($oBody->idDB)) {
+                $oBody->idDB = session()->get('companie_idDB');
+                $body = json_encode($oBody);
+            }
         }
 
         $request = new \GuzzleHttp\Psr7\Request($method, $route, $headers, $body);

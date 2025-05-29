@@ -115,7 +115,15 @@ var app = new Vue({
                     }
 
                 }else{
-                    SGui.showMessage('', data.message, data.icon);
+                    if (data.withHtml) {
+                        Swal.fire({
+                            title: '',
+                            html: data.message,
+                            icon: data.icon
+                          });
+                    } else {
+                        SGui.showMessage('', data.message, data.icon);
+                    }
                 }
             })
             .catch( function(error){

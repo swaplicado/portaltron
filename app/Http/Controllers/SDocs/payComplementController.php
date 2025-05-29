@@ -37,7 +37,7 @@ class payComplementController extends Controller
             $lDpsPayComp = DpsComplementsUtils::getlDpsComplements($year, $oProvider->id_provider, [SysConst::DOC_TYPE_COMPLEMENTO_PAGO]);
 
             foreach ($lDpsPayComp as $dps) {
-                $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
+                $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'D-m-Y');
             }
 
             $lStatus = StatusDps::where('type_doc_id', SysConst::DOC_TYPE_COMPLEMENTO_PAGO)
@@ -139,9 +139,21 @@ class payComplementController extends Controller
                         ->where('id_company', $company_id)
                         ->first();
 
-            $dataResult = json_decode(DpsComplementsUtils::validateXml($xml, $oProvider, $oCompany, [ SysConst::EMISOR_RFC, SysConst::RECEPTOR_RFC ]));
+            $dataResult = json_decode(DpsComplementsUtils::validateXml(
+                                    $xml, 
+                                    $oProvider, 
+                                    $oCompany,
+                                    [],
+                                    [ 
+                                        SysConst::EMISOR_RFC, 
+                                        SysConst::RECEPTOR_RFC, 
+                                        SysConst::EMISOR_REGIMEN_FISCAL,
+                                        SysConst::RECEPTOR_REGIMEN_FISCAL,
+                                    ]
+                                )
+                            );
             if(!$dataResult->success){
-                return json_encode(['success' => false, 'message' => $dataResult->message, 'icon' => 'error']);
+                return json_encode(['success' => false, 'message' => $dataResult->message, 'icon' => 'error', 'withHtml' => $dataResult->withHtml]);
             }
 
             DB::beginTransaction();
@@ -199,11 +211,12 @@ class payComplementController extends Controller
             $lDpsPayComp = DpsComplementsUtils::getlDpsComplements($year, $oProvider->id_provider, [SysConst::DOC_TYPE_COMPLEMENTO_PAGO]);
 
             foreach ($lDpsPayComp as $dps) {
-                $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
+                $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'D-m-Y');
             }
 
             DB::commit();
         } catch (\Throwable $th) {
+            DB::rollBack();
             \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
         }
@@ -574,7 +587,7 @@ class payComplementController extends Controller
         if($sendMail){
             try {
                 $oProvider = SProvider::findOrFail($oDps->provider_id_n);
-                Mail::to($email)->send(new voboDpsMail(
+                Mail::to($oProvider->provider_email)->send(new voboDpsMail(
                                                         $oProvider->provider_short_name,
                                                         $oDps->type_doc_id,
                                                         "CFDI de pago",

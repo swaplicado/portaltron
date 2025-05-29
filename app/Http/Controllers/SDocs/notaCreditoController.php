@@ -43,7 +43,7 @@ class notaCreditoController extends Controller
                 $lDpsReferences = DpsComplementsUtils::getlDpsReferences($nc->id_dps);
                 $Sreference = DpsComplementsUtils::transformToString($lDpsReferences, "reference_folio_n");
                 $nc->reference_string = $Sreference;
-                $nc->dateFormat = dateUtils::formatDate($nc->created_at, 'd-m-Y');
+                $nc->dateFormat = dateUtils::formatDate($nc->created_at, 'D-m-Y');
             }
 
             $lStatus = StatusDps::where('type_doc_id', SysConst::DOC_TYPE_NOTA_CREDITO)
@@ -177,6 +177,30 @@ class notaCreditoController extends Controller
                 return json_encode(['success' => false, 'message' => $result[1], 'icon' => 'error']);
             }
 
+            $oCompany = DB::table('companies')
+                            ->where('is_active', 1)
+                            ->where('is_deleted', 0)
+                            ->where('id_company', $request->company_id)
+                            ->first();
+
+            $data = json_decode(DpsComplementsUtils::validateXml(
+                            $xml, 
+                            $oProvider, 
+                            $oCompany, 
+                            [], 
+                            [ 
+                                SysConst::EMISOR_RFC, 
+                                SysConst::RECEPTOR_RFC, 
+                                SysConst::EMISOR_REGIMEN_FISCAL,
+                                SysConst::RECEPTOR_REGIMEN_FISCAL,
+                            ]
+                        )
+                    );
+
+            if(!$data->success){
+                return json_encode(['success' => false, 'message' => $data->message, 'icon' => 'error', 'withHtml' => $data->withHtml]);
+            }
+
             DB::beginTransaction();
 
             $filePdfName = 'NC_'.$reference.'_'.$oProvider->provider_rfc.'_'.time().'.'.$pdf->extension();
@@ -238,7 +262,7 @@ class notaCreditoController extends Controller
                 $lDpsReferences = DpsComplementsUtils::getlDpsReferences($nc->id_dps);
                 $Sreference = DpsComplementsUtils::transformToString($lDpsReferences, "reference_folio_n");
                 $nc->reference_string = $Sreference;
-                $nc->dateFormat = dateUtils::formatDate($nc->created_at, 'd-m-Y');
+                $nc->dateFormat = dateUtils::formatDate($nc->created_at, 'D-m-Y');
             }
 
             DB::commit();

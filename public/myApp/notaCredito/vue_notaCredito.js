@@ -17,7 +17,7 @@ var app = new Vue({
         requireAreaDps: oServerData.requireAreaDps,
         lCompany: oServerData.lCompany,
         default_company_id: oServerData.default_company_id,
-        company_id: null,
+        company_id: oServerData.default_company_id,
         default_area_id: oServerData.default_area_id
     },
     mounted(){
@@ -65,6 +65,8 @@ var app = new Vue({
         upload(){
             this.modal_title = "Carga de nota de crédito";
             this.clean();
+            $('#select_area').val(self.default_area_id).trigger('change');
+            this.area_id = self.default_area_id;
             $('#modal_up_notaCredito').modal('show');
         },
 
@@ -108,7 +110,15 @@ var app = new Vue({
                     }
 
                 }else{
-                    SGui.showMessage('', data.message, data.icon);
+                    if (data.withHtml) {
+                        Swal.fire({
+                            title: '',
+                            html: data.message,
+                            icon: data.icon
+                          });
+                    } else {
+                        SGui.showMessage('', data.message, data.icon);
+                    }
                 }
             })
             .catch( function(error){

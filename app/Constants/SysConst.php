@@ -115,5 +115,9 @@ class SysConst {
     public const EMISOR_RFC = 1;
     public const RECEPTOR_RFC = 2;
     public const DATE__XML = 3;
+    public const EMISOR_REGIMEN_FISCAL = 4;
+    public const RECEPTOR_REGIMEN_FISCAL = 5;
+    public const USO_CFDI = 6;
+    public const METODO_PAGO = 7;
 }
 ?>

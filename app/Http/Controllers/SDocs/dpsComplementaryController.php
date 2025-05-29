@@ -48,7 +48,7 @@ class dpsComplementaryController extends Controller
                 $lDpsReferences = DpsComplementsUtils::getlDpsReferences($dps->id_dps);
                 $Sreference = DpsComplementsUtils::transformToString($lDpsReferences);
                 $dps->reference_string = $Sreference; 
-                $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'ddd D-m-Y');
+                $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'D-m-Y');
             }
 
             $lStatus = StatusDps::where('type_doc_id', SysConst::DOC_TYPE_FACTURA)
@@ -300,9 +300,9 @@ class dpsComplementaryController extends Controller
                         ->where('id_company', $request->company_id)
                         ->first();
             
-            $data = json_decode(DpsComplementsUtils::validateXml($xml, $oProvider, $oCompany));
+            $data = json_decode(DpsComplementsUtils::validateXml($xml, $oProvider, $oCompany, $aReference));
             if(!$data->success){
-                return json_encode(['success' => false, 'message' => $data->message, 'icon' => 'error']);
+                return json_encode(['success' => false, 'message' => $data->message, 'icon' => 'error', 'withHtml' => $data->withHtml]);
             }
             
             DB::beginTransaction();
@@ -390,10 +390,11 @@ class dpsComplementaryController extends Controller
                 $lDpsReferences = DpsComplementsUtils::getlDpsReferences($dps->id_dps);
                 $Sreference = DpsComplementsUtils::transformToString($lDpsReferences);
                 $dps->reference_string = $Sreference; 
-                $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'd-m-Y');
+                $dps->dateFormat = dateUtils::formatDate($dps->created_at, 'D-m-Y');
             }
             DB::commit();
         } catch (\Throwable $th) {
+            DB::rollBack();
             \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
         }
