@@ -829,12 +829,45 @@ class SProvidersController extends Controller
 
     public function documentsProviders(){
         try {
-            $lProviders = SProvidersUtils::getlProviders();
+            $config = \App\Utils\Configuration::getConfigurations();
+            $oArea = \Auth::user()->getArea();
+
+            $isFatherArea = false;
+            if($oArea->id_area != $config->fatherArea){
+                $lProviders = SProvidersUtils::getlProviders([$oArea->id_area]);
+            }else{
+                $lProviders = SProvidersUtils::getlProviders();
+                $isFatherArea = true;
+            }
             $lProviders = $lProviders->where('status_provider_id', SysConst::PROVIDER_APROBADO)->values();
 
             $oArea = \Auth::user()->getArea();
-            $lProviders = DocumentsUtils::getNumberPendigDocs($lProviders, $oArea->id_area);
-            $lProviders = DocumentsUtils::havePendigDocs($lProviders, $oArea->id_area);
+            // $lProviders = DocumentsUtils::getNumberPendigDocs($lProviders, $oArea->id_area);
+            // $lProviders = DocumentsUtils::havePendigDocs($lProviders, $oArea->id_area);
+
+            $lDocs = RequestTypeDocs::where('is_default', 1)
+                                    ->where('is_deleted', 0)
+                                    ->select(
+                                        'id_request_type_doc',
+                                        'name'
+                                    )
+                                    ->get();
+
+            foreach ($lProviders as $provider) {
+                $providerArea = \DB::table('areas')
+                                    ->where('id_area', $provider->area_id)
+                                    ->first();
+
+                if (!is_null($provider->fiscal_key)) {
+                    $provider->fiscal_regime = $provider->fiscal_key . ' - ' . $provider->fiscal_regime_name;
+                } else {
+                    $provider->fiscal_regime = 'N/D';
+                }
+
+                $provider->area = $providerArea->name_area;
+                $lDocsProvider = SProvidersUtils::getDocumentsProvider($provider->id_provider, $config->fatherArea, [SysConst::VOBO_REVISADO]);
+                $provider->number_pen_doc = count($lDocsProvider) . ' de ' . count($lDocs);
+            }
 
             $lConstants = [
                 'PROVIDER_PENDIENTE' => SysConst::PROVIDER_PENDIENTE,
@@ -845,6 +878,16 @@ class SProvidersController extends Controller
                 'VOBO_REVISION' => SysConst::VOBO_REVISION,
                 'VOBO_REVISADO' => SysConst::VOBO_REVISADO,
             ];
+
+            $lAreas = Areas::whereIn('id_area', $config->areasToRegisterProvider)
+                            ->where('is_active', 1)
+                            ->where('is_deleted', 0)
+                            ->select(
+                                'id_area as id',
+                                'name_area as text'
+                            )
+                            ->get()
+                            ->toArray();
             
         } catch (\Throwable $th) {
             \Log::error($th);
@@ -853,7 +896,10 @@ class SProvidersController extends Controller
 
         return view('SProviders.documents_providers')->with('lProviders', $lProviders)
                                                     ->with('lConstants', $lConstants)
-                                                    ->with('area_id', $oArea->id_area);
+                                                    ->with('area_id', $oArea->id_area)
+                                                    ->with('isFatherArea', $isFatherArea)
+                                                    ->with('lDocs', $lDocs)
+                                                    ->with('lAreas', $lAreas);
     }
 
     public static function providerProfile(){
@@ -1064,5 +1110,83 @@ class SProvidersController extends Controller
         }
 
         return response()->download($finalZipPath)->deleteFileAfterSend(true);
+    }
+
+    public function getProviderToDocuments(Request $request){
+        try {
+            $oProvider = SProvidersUtils::getProvider($request->provider_id);
+            $oProvider->fiscal_regime_name = $oProvider->fiscal_regime_name ? $oProvider->fiscal_key . ' - ' . $oProvider->fiscal_regime_name : 'N/D';
+            $providerArea = \DB::table('areas')
+                                ->select('name_area')
+                                ->where('id_area', $oProvider->area_id)
+                                ->first();
+            $oProvider->area = $providerArea->name_area;
+            $oArea = \Auth::user()->getArea();
+            $config = \App\Utils\Configuration::getConfigurations();
+            $lDocuments = SProvidersUtils::getDocumentsProvider($request->provider_id, $config->fatherArea);
+            foreach ($lDocuments as $doc) {
+                $doc->status = $doc->is_accept == true ? 'Aprobado' : ($doc->is_reject == true ? 'Rechazado' : 'Pendiente');
+            }
+        } catch (\Throwable $th) {
+            \Log::error($th);
+            return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => false]);
+        }
+
+        return json_encode(['success' => true, 'oProvider' => $oProvider, 'lDocuments' => $lDocuments]);
+    }
+
+    /**
+     * Metodo para actualizar el area del proveedor
+     */
+    public static function updateAreaProvider(Request $request){
+        try {
+            if($request->id_area == null){
+                return json_encode(['success' => false, 'message' => 'Debes seleccionar una nueva área destino']);
+            }
+
+            $oProvider = SProvider::findOrFail($request->id_provider);
+            $oProvider->area_id = $request->id_area;
+            $oProvider->update();
+
+            $config = \App\Utils\Configuration::getConfigurations();
+            $oArea = \Auth::user()->getArea();
+
+            if($oArea->id_area != $config->fatherArea){
+                $lProviders = SProvidersUtils::getlProviders([$oArea->id_area]);
+            }else{
+                $lProviders = SProvidersUtils::getlProviders();
+            }
+            $lProviders = $lProviders->where('status_provider_id', SysConst::PROVIDER_APROBADO)->values();
+
+            $oArea = \Auth::user()->getArea();
+            $lDocs = RequestTypeDocs::where('is_default', 1)
+                                    ->where('is_deleted', 0)
+                                    ->select(
+                                        'id_request_type_doc',
+                                        'name'
+                                    )
+                                    ->get();
+
+            foreach ($lProviders as $provider) {
+                $providerArea = \DB::table('areas')
+                                    ->where('id_area', $provider->area_id)
+                                    ->first();
+
+                if (!is_null($provider->fiscal_key)) {
+                    $provider->fiscal_regime = $provider->fiscal_key . ' - ' . $provider->fiscal_regime_name;
+                } else {
+                    $provider->fiscal_regime = 'N/D';
+                }
+
+                $provider->area = $providerArea->name_area;
+                $lDocsProvider = SProvidersUtils::getDocumentsProvider($provider->id_provider, $config->fatherArea, [SysConst::VOBO_REVISADO]);
+                $provider->number_pen_doc = count($lDocsProvider) . ' de ' . count($lDocs);
+            }
+
+            return json_encode(['success' => true, 'lProviders' => $lProviders]);
+        } catch (\Throwable $th) {
+            \Log::error($th);
+            return json_encode(['success' => false, 'message' => 'No se pudo actualizar el area del proveedor']);
+        }
     }
 }

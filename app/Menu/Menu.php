@@ -25,6 +25,7 @@ class Menu {
                 //(object) ['type' => $element, 'route' => route('estimateRequest.indexERManager'), 'icon' => 'bx bxs-dollar-circle bx-sm', 'name' => 'Sol. cotización'],
                 (object) ['type' => $element, 'route' => route('payComplement.payComplementsManager'), 'icon' => 'bx bx bx-receipt bx-sm', 'name' => 'CFDI de pago'],
                 // (object) ['type' => $element, 'route' => route('releases'), 'icon' => 'bx bxs-analyse bx-sm', 'name' => 'Actualizaciones', 'order' => 9]
+                (object) ['type' => $element, 'route' => route('sproviders.documentsProv'), 'icon' => 'bx bxs-archive bx-sm', 'name' => 'Documentos prov.','order' => 2]
             ];
         }else{
             $lPermissions = collect($oUser->permissionsByRol());

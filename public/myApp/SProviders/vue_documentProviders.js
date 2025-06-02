@@ -5,25 +5,29 @@ var app = new Vue({
         oData: oServerData,
         lProviders: oServerData.lProviders,
         lConstants: oServerData.lConstants,
+        lAreas: oServerData.lAreas,
+        lSysDocs: oServerData.lDocs,
         area_id: oServerData.area_id,
         modal_title: null,
         provider_name: null,
         provider_short_name: null,
         provider_rfc: null,
         provider_email: null,
+        provider_fiscal_regime: null,
+        provider_area: null,
         id_provider: null,
         user_id: null,
         comments: null,
         lDocuments: [],
-        lDocuments: [],
         showWaitinIcon: false,
         canAuthorize: false,
+        new_area_id: null,
     },
     watch: {
         lDocuments:function(val){
             if(this.lDocuments.length > 0){
                 for(let doc of this.lDocuments){
-                    if(doc.is_accept || doc.is_reject){
+                    if(doc.is_accept || doc.is_reject || doc.url == null){
                         this.canAuthorize = false;
                     }else{
                         this.canAuthorize = true;
@@ -40,12 +44,21 @@ var app = new Vue({
 
         $('.select2-class').select2({})
 
+        $('#select_area').select2({
+            data: self.lAreas,
+            placeholder: 'Selecciona área',
+        }).on('select2:select', function(e) {
+            self.new_area_id =  e.params.data.id;
+        });
+
+        $('#select_area').val('').trigger('change');
+
     },
     methods: {
         async showModal(data) {
             this.clean();
             this.id_provider = data[indexesProvidersTable.id_provider];
-            this.modal_title = 'Autorización de proveedor: ' + data[indexesProvidersTable.provider_name]
+            this.modal_title = 'Proveedor: ' + data[indexesProvidersTable.provider_name]
             await this.getProviderData();
 
             if(this.canAuthorize){
@@ -71,8 +84,28 @@ var app = new Vue({
                         this.provider_short_name = data.oProvider.provider_short_name;
                         this.provider_rfc = data.oProvider.provider_rfc;
                         this.provider_email = data.oProvider.provider_email;
+                        this.provider_fiscal_regime = data.oProvider.fiscal_regime_name;
+                        this.provider_area = data.oProvider.area;
                         this.user_id = data.oProvider.user_id;
                         this.lDocuments = data.lDocuments;
+
+                        for(let doc of this.lSysDocs){
+                            let found = false;
+                            for(let doc2 of this.lDocuments){
+                                if(doc2.id_request_type_doc == doc.id_request_type_doc){
+                                    found = true;
+                                    break;
+                                }
+                            }
+                            if(!found){
+                                this.lDocuments.push({
+                                    'id_request_type_doc': doc.id_request_type_doc,
+                                    'name': doc.name,
+                                    'url': null
+                                });
+                            }
+                        }
+
                         Swal.close();
                         resolve('ok');
                     } else {
@@ -99,6 +132,7 @@ var app = new Vue({
             this.user_id = null;
             this.comments = null;
             this.showWaitinIcon = false;
+            this.new_area_id = null;
         },
 
         approveDoc(id_vobo){
@@ -168,6 +202,51 @@ var app = new Vue({
             })
             .catch( function(error){
                 this.showWaitinIcon = false;
+                console.log(error);
+                SGui.showError(error);
+            });
+        },
+
+        async editModal(data) {
+            $('#select_area').val('').trigger('change');
+            this.clean();
+            this.id_provider = data[indexesProvidersTable.id_provider];
+            await this.getProviderData();
+            $('#modal_new_area_provider').modal('show');
+        },
+
+        updateAreaProvider() {
+            if(this.new_area_id == null){
+                SGui.showMessage('', 'Debes seleccionar una nueva área destino', 'error');
+                return;
+            }
+            SGui.showWaitingUnlimit();
+            let route = this.oData.updateAreaRoute;
+            axios.post(route, {
+                'id_provider': this.id_provider,
+                'id_area': this.new_area_id,
+            })
+            .then( result =>  {
+                let data = result.data;
+                if(data.success){
+                    this.lProviders = data.lProviders;
+                    drawTableJson('table_providers', this.lProviders, 
+                        'id_provider', 
+                        'provider_name',
+                        'provider_short_name',
+                        'provider_rfc',
+                        'fiscal_regime',
+                        'area',
+                        'provider_email',
+                        'number_pen_doc'
+                    );
+                    $('#modal_new_area_provider').modal('hide');
+                    SGui.showOk();
+                }else{
+                    SGui.showMessage('', data.message, data.icon);
+                }
+            })
+            .catch( function(error){
                 console.log(error);
                 SGui.showError(error);
             });

@@ -148,12 +148,32 @@
                         </div>
                         <div class="col-md-6">
                             <div class="form-group sm-form-group row">
+                                <label class="col-sm-3 my-col-sm-3 col-form-label ">Régimen fiscal:</label>
+                                <div class="col-sm-9">
+                                    <input type="text" class="form-control" id="fiscal_regime" placeholder="Régimen fiscal" v-model="provider_fiscal_regime" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group sm-form-group row">
                                 <label class="col-sm-3 my-col-sm-3 col-form-label ">Email:</label>
                                 <div class="col-sm-9">
                                     <input type="text" class="form-control" id="email" placeholder="Email" v-model="provider_email" readonly>
                                 </div>
                             </div>
                         </div>
+                        @if ($isFatherArea)
+                            <div class="col-md-6">
+                                <div class="form-group sm-form-group row">
+                                    <label class="col-sm-3 my-col-sm-3 col-form-label ">Área:</label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" id="area" placeholder="Área" v-model="provider_area" readonly>
+                                    </div>
+                                </div>
+                            </div>  
+                        @endif
                     </div>
                     <div class="row">
                         <div class="col-md-12">
@@ -167,9 +187,10 @@
                                         <tr v-for="doc in lDocuments">
                                             <td>@{{doc.name}}</td>
                                             <td>
-                                                <a :href="doc.url" target="_blank" class="btn btn-primary">
+                                                <a v-if="doc.url != null" :href="doc.url" target="_blank" class="btn btn-primary">
                                                     Ver
                                                 </a>
+                                                <button v-if="doc.url == null" class="btn btn-primary" disabled>Ver</button>
                                             </td>
                                         </tr>
                                     </tbody>

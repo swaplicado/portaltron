@@ -81,6 +81,9 @@ Route::middleware(['auth', 'menu', 'app.sprovider', 'app.companie'])->group( fun
         Route::get('/providerProfile', [SProvidersController::class, 'providerProfile'])->name('profile');
         Route::get('/allProvidersDocuments', [SProvidersController::class, 'allProvidersDocuments'])->name('allProvidersDocuments');
         Route::post('/download/providersFiles', [SProvidersController::class, 'downloadProvidersDocuments'])->name('downloadProvidersDocuments');
+        
+        Route::post('/sproviders/getProviderToDocuments', [SProvidersController::class, 'getProviderToDocuments'])->name('getProviderToDocuments');
+        Route::post('/sproviders/updateArea', [SProvidersController::class, 'updateAreaProvider'])->name('updateArea');
     });
     
     /** Usuarios */

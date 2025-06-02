@@ -58,10 +58,10 @@ class SProvidersUtils {
         $lProviders = SProvider::where('providers.is_active', 1)
                             ->where('providers.is_deleted', 0);
 
-        if(!is_null($area_id)){
-            if(in_array( $config->fatherArea, $area_id)){
-                $lProviders = $lProviders->whereIn('providers.area_id', $area_id);
-            }
+        if(count($area_id) > 0){
+            // if(in_array( $config->fatherArea, $area_id)){
+            // }
+            $lProviders = $lProviders->whereIn('providers.area_id', $area_id);
         }
 
         $lProviders = $lProviders->join(config('myapp.mngr_db').'.users as u', 'u.id', '=', 'user_id')
