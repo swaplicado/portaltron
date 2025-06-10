@@ -418,16 +418,21 @@ class SProvidersController extends Controller
         }
 
         if ($sendMailNextStep) {
-
-            $lUsers = UserUtils::getUsersByArea($child_area_id);
-            foreach ($lUsers as $user) {
-                $email = $user->email;
-                Mail::to($email)->send(new nextStepVoboProviderMail(
-                                                        $oProvider->provider_short_name,
-                                                        $oProvider->provider_rfc,
-                                                        $oArea->name_area
-                                                    )
-                                                );
+            try {
+                $lUsers = UserUtils::getUsersByArea($child_area_id);
+                foreach ($lUsers as $user) {
+                    $email = $user->email;
+                    Mail::to($email)->send(new nextStepVoboProviderMail(
+                                                            $oProvider->provider_short_name,
+                                                            $oProvider->provider_rfc,
+                                                            $oArea->name_area
+                                                        )
+                                                    );
+                }
+            } catch (\Throwable $th) {
+                \Log::error($th);
+                return json_encode(['success' => true, 'lProviders' => $lProviders, 'mailSuccess' => false, 
+                "message" => "Registro guardado con éxito, pero no se pudo enviar el email de notificación", "icon"=> "info"]);
             }
         }
 
