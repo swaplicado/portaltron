@@ -279,23 +279,22 @@ class DpsComplementsUtils {
                 $regimenFiscal = $emisor['RegimenFiscal'];
             }
     
-            $oProvider_regimen_fiscal = DB::table('fiscal_regime')
-                                            ->where('id', $oProvider->provider_fiscal_regime_id)
-                                            ->first();
-
-            if (is_null($oProvider_regimen_fiscal)) {
-                $success = false;
-                $lErrors[] = 'No tienes régimen fiscal registrado en sistema.';
-            } else {
-                if($regimenFiscal != $oProvider_regimen_fiscal->key){
-
-                    $oRegimenFiscal = \DB::table('fiscal_regime')
-                                            ->where('key', $regimenFiscal)
-                                            ->first();
-
-                    $success = false;
-                    $lErrors[] = 'El régimen fiscal del emisor, <span style="font-weight: bold; ">' . 
-                                    $oRegimenFiscal->key . ' - ' . $oRegimenFiscal->name . '</span>, es incorrecto.';
+            if (!is_null($oProvider->provider_fiscal_regime_id)) {
+                $oProvider_regimen_fiscal = DB::table('fiscal_regime')
+                                                ->where('id', $oProvider->provider_fiscal_regime_id)
+                                                ->first();
+    
+                if (!is_null($oProvider_regimen_fiscal)) {
+                    if($regimenFiscal != $oProvider_regimen_fiscal->key){
+    
+                        $oRegimenFiscal = \DB::table('fiscal_regime')
+                                                ->where('key', $regimenFiscal)
+                                                ->first();
+    
+                        $success = false;
+                        $lErrors[] = 'El régimen fiscal del emisor, <span style="font-weight: bold; ">' . 
+                                        $oRegimenFiscal->key . ' - ' . $oRegimenFiscal->name . '</span>, es incorrecto.';
+                    }
                 }
             }
         }
