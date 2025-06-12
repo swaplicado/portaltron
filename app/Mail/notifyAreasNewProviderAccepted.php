@@ -32,7 +32,7 @@ class notifyAreasNewProviderAccepted extends Mailable
     {
         $subject = "Nuevo proveedor aceptado";
 
-        $email = "ordenes@aeth.mx";
+        $email = "apps.swaplicado@gmail.com";
         return $this->from($email)
                         ->subject($subject)
                         ->view('mails.notifyAreasNewProviderAccepted')

@@ -51,7 +51,7 @@ class newDpsMail extends Mailable
                     $references = $references.", ";
                 }
             }
-            $email = "ordenes@aeth.mx";
+            $email = "apps.swaplicado@gmail.com";
             return $this->from($email)
                             ->subject('[PP] Nueva factura '.$this->provider_name)
                             ->view('mails.newDpsMail')

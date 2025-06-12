@@ -35,7 +35,7 @@ class nextStepVoboDpsMail extends Mailable
         } elseif ($this->type_dps == 3) {
             $subject = '[PP] Nueva nota de crédito';
         }
-        $email = "ordenes@aeth.mx";
+        $email = "apps.swaplicado@gmail.com";
         return $this->from($email)
                         ->subject($subject)
                         ->view('mails.nextStepVoboDps')

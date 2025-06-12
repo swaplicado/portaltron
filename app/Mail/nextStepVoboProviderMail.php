@@ -31,7 +31,7 @@ class nextStepVoboProviderMail extends Mailable
     public function build()
     {
         $subject = '[PP] Nuevo registro de proveedor';
-        $email = "ordenes@aeth.mx";
+        $email = "apps.swaplicado@gmail.com";
         return $this->from($email)
                         ->subject($subject)
                         ->view('mails.nextStepVoboProvider')

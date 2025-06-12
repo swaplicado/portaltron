@@ -30,7 +30,7 @@ class nextStepVoboPayComplement extends Mailable
     public function build()
     {
         $subject = '[PP] Nuevo comprobante de pago';
-        $email = "ordenes@aeth.mx";
+        $email = "apps.swaplicado@gmail.com";
         return $this->from($email)
                         ->subject($subject)
                         ->view('mails.nextSteoVoboPayComplement')

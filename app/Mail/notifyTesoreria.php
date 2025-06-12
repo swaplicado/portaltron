@@ -35,7 +35,7 @@ class notifyTesoreria extends Mailable
         } else {
             $subject = '[PP] Proveedor actualizado';
         }
-        $email = "ordenes@aeth.mx";
+        $email = "apps.swaplicado@gmail.com";
         return $this->from($email)
                         ->subject($subject)
                         ->view('mails.notifyTesoreria')

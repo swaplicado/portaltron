@@ -39,7 +39,7 @@ class newProviderMail extends Mailable
         $subject = '[PP] Nuevo registro de proveedor';
 
         if($is_enable){
-            $email = "ordenes@aeth.mx";
+            $email = "apps.swaplicado@gmail.com";
             return $this->from($email)
                             ->subject($subject)
                             ->view('mails.newProviderMail')

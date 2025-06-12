@@ -55,7 +55,7 @@ class voboProviderMail extends Mailable
         }
 
         if($is_enable){
-            $email = "ordenes@aeth.mx";
+            $email = "apps.swaplicado@gmail.com";
             return $this->from($email)
                             ->subject($subject)
                             ->view('mails.voboProviderMail')
