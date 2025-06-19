@@ -228,6 +228,13 @@ class dpsComplementaryController extends Controller
                             ->where('company_id', $request->company_id)
                             ->first();
                 if(is_null($oReference)){
+
+                    $error = "referencia: " . $reference . 
+                            " proveedor id: " . $oProvider->id_provider . 
+                            " company id: " . $request->company_id . 
+                            " type: " . SysConst::DOC_TYPE_PURCHASE_ORDER .
+                            " auxCont: " . $auxCont;
+                    \Log::error($error);
                     return json_encode(['success' => false, 'message' => 'No se encuentra el documento con la referencia '.$reference , 'icon' => 'warning']);
                 }    
                 if($auxCont == 0){
