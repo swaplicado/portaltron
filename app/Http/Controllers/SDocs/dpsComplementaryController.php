@@ -411,7 +411,7 @@ class dpsComplementaryController extends Controller
                                                 $oDps->type_doc_id,
                                                 "Factura",
                                                 $oDps->folio_n,
-                                                [1,2,3]
+                                                $references
                                             )
                                         );
             }
