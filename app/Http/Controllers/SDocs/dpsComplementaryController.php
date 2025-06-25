@@ -24,6 +24,8 @@ use App\Utils\FilesUtils;
 use App\Utils\ordersVobosUtils;
 use App\Utils\SProvidersUtils;
 use App\Utils\UserUtils;
+use App\Utils\PurchaseOrdersUtils;
+use App\Utils\AppLinkUtils;
 use DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -214,7 +216,45 @@ class dpsComplementaryController extends Controller
             $year = $request->year;
 
             $config = \App\Utils\Configuration::getConfigurations();
+            // se agrega esta parte al codigo para generar la sincronización al momento de tratar de cargar una factura.
+            $lProvider = [$oProvider->external_id];
+            $arr = json_encode($lProvider);
+            $date = Carbon::now()->subMonthsNoOverflow($config->subMounthsDps)->toDateString();
+            $yearSync = Carbon::now()->year;
+            $lCompanies = \DB::table('companies')
+                                ->where('is_active', 1)
+                                ->where('is_deleted', 0)
+                                ->select(
+                                    'id_company as id',
+                                    'company_name_ui as text',
+                                    'external_id'
+                                )
+                                ->get();
+            foreach ($lCompanies as $company) {
+                $body = '{
+                    "idBp": 0,
+                    "aBp": '.$arr.',
+                    "year": '.$yearSync.',
+                    "date": "'.$date.'",
+                    "user": "'.\Auth::user()->username.'",
+                    "idDB": '.$company->external_id.'
+                }';
+    
+                $result = AppLinkUtils::requestAppLink($config->AppLinkGetPurchaseOrders, "POST", \Auth::user(), $body);
+                if(!is_null($result)){
+                    if($result->code != 200){
+                        return json_encode(['success' => false, 'message' => $result->message, 'icon' => 'error']);
+                    }
+                }else{
+                    return json_encode(['success' => false, 'message' => 'No se obtuvo respuesta desde AppLink', 'icon' => 'error']);
+                }
+    
+                $data = json_decode($result->data);
+                $lRows = $data->lPOData;
 
+                $result = PurchaseOrdersUtils::insertPurchaseOrders($lRows, $lProvider, $company->id);
+            }
+            // termina la función de sincronización
             $references = explode(',', $serieoc);
             //se utilizará para saber si es la primera vez que entras en el foreach
             $auxCont = 0;
@@ -443,7 +483,7 @@ class dpsComplementaryController extends Controller
                     ->select(
                         'd.*',
                         'd2.folio_n as reference',
-                        'dc.requester_comment_n',
+                        'dc.requester_comment_n'
                     )
                     ->first();
             $lDpsRef = DpsComplementsUtils::getlDpsReferences($id_dps);
