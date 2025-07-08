@@ -316,10 +316,12 @@ class SProvidersController extends Controller
             } catch (\Throwable $th) {
                 \DB::connection('mysql')->rollBack();
                 $oUser->delete();
+                \Log::error($th);
                 throw $th;
             }
         } catch (\Throwable $th) {
-            return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
+            \Log::error($th);
+            return json_encode(['success' => false, 'message' => 'No se pudo crear el proveedor', 'icon' => 'error']);
         }
 
         try {
@@ -613,6 +615,7 @@ class SProvidersController extends Controller
         // $lDocuments = SProvidersUtils::getDocumentsProvider($oProvider->id_provider, $oProvider->area_id);
         $lDocuments = SProvidersUtils::getDocumentsProviderByLastVobo($oProvider->id_provider);
         $lDocs = $lDocuments->where('is_reject', 1);
+
         // $lDocs = $lDocs->toArray();
 
         $showAreaRegisterProvider = $config->showAreaRegisterProvider;
