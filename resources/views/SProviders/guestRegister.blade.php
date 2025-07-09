@@ -87,7 +87,7 @@
                         <div class="container-fluid page-body-wrapper full-page-wrapper">
                             <div class="content-wrapper d-flex align-items-center auth px-0">
                                 <div class="row w-100 mx-0">
-                                    <div class="col-lg-6 mx-auto">
+                                    <div class="col-lg-6 mx-auto" style="margin-top: 5rem;">
                                         <div class="auth-form-light text-left py-5 px-4 px-sm-5">
                                             <div class="brand-logo">
                                                 <div style="display: inline">
@@ -100,17 +100,24 @@
                                                     </b>
                                                 </div>
                                             </div>
-                                            <h4>!Hola! Vamos a comenzar</h4>
                                             <div class="row">
-                                                <div class="col-6">
+                                                <div class="">
                                                     <h6 class="font-weight-light">
-                                                        Ingresa todos los datos para registrarte como proveedor.
+                                                        Para registrarte como proveedor sigue los siguientes pasos:
                                                     </h6>
-                                                </div>
-                                                <div class="col-6" style="text-align: end">
-                                                    <a href="{{route('manual_register')}}" style="font-size: small" target="_blank">Click aqui para ver el manual de registro</a>
+                                                    <ul>
+                                                        <li>1. Llena los campos de la siguiente forma de captura, los campos marcados con un * son obligatorios.</li>
+                                                        <li>2. Da clic en "Solicitar registro".</li>
+                                                        <li>3. Espera a recibir un correo de confirmación o en su defecto una invitación actualizada.</li>
+                                                        <li>4. Ingresa al portal para interactuar con nosotros.</li>
+                                                        <li>Si tienes alguna duda revisa el manual.</li>
+                                                        <li>
+                                                            <a href="{{route('manual_register')}}" class="btn btn-primary btn-sm" target="_blank">Manual de registro</a>
+                                                        </li>
+                                                    </ul>
                                                 </div>
                                             </div>
+                                            <div style="border-bottom: 1px solid #ccc;"></div>
                                             <br>
                                             <form action="#">
                                                 <div class="row">
@@ -199,7 +206,7 @@
                                                 <div class="row">
                                                     <div class="col-md-6">
                                                         <div class="form-group sm-form-group row">
-                                                            <label class="col-sm-3 my-col-sm-3 col-form-label ">Área destino</label>
+                                                            <label class="col-sm-3 my-col-sm-3 col-form-label ">Área destinó*</label>
                                                             <div class="col-sm-9">
                                                                 <select class="form-control" v-model="area_id"
                                                                 style="color: black">
@@ -228,6 +235,13 @@
                                                 </div>
                                                 @endif
                                             @if ($type_register == 1)
+                                                <div style="border-bottom: 1px solid #ccc;"></div>
+                                                <h5 style="margin-top: 10px;">Documentos del expediente</h5>
+                                                <p>
+                                                    Por favor, ten a la mano los documentos para que solicites tu registro. 
+                                                    Asegúrate de que los archivos estén en formato PDF.
+                                                </p>
+                                                <br>
                                                 @foreach($lDocs as $doc)
                                                     <div class="row">
                                                         <div class="col-md-12">
@@ -274,7 +288,7 @@
                                                     </div>
                                                     <div class="col-md-6 text-right">
                                                         <button type="button" class="btn btn-primary" id="btnSave"
-                                                            v-on:click="save()">Guardar</button>
+                                                            v-on:click="save()">Solicitar registro</button>
                                                     </div>
                                                 </div>
                                             </form>
