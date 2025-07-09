@@ -209,6 +209,7 @@ class SProvidersController extends Controller
     
             // $password = \DB::select(\DB::raw("SELECT PASSWORD('$request->password') AS password_result"))[0]->password_result;
         } catch (\Throwable $th) {
+            \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
         }
 
@@ -328,7 +329,7 @@ class SProvidersController extends Controller
             }
         } catch (\Throwable $th) {
             \Log::error($th);
-            return json_encode(['success' => false, 'message' => 'No se pudo crear el proveedor', 'icon' => 'error']);
+            return json_encode(['success' => false, 'message' => 'No se pudo crear el proveedor, intentalo más tarde', 'icon' => 'error']);
         }
 
         try {
@@ -423,6 +424,7 @@ class SProvidersController extends Controller
             \DB::commit();
         } catch (\Throwable $th) {
             \DB::rollBack();
+            \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
         }
 
@@ -517,6 +519,7 @@ class SProvidersController extends Controller
             \DB::commit();
         } catch (\Throwable $th) {
             \DB::rollBack();
+            \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
         }
 
@@ -586,6 +589,7 @@ class SProvidersController extends Controller
             \DB::commit();
         } catch (\Throwable $th) {
             \DB::rollBack();
+            \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
         }
 
@@ -832,10 +836,12 @@ class SProvidersController extends Controller
                     throw $th;
                 }
             } catch (\Throwable $th) {
+                \Log::error($th);
                 return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
             }
 
         } catch (\Throwable $th) {
+            \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
         }
 
@@ -1070,6 +1076,7 @@ class SProvidersController extends Controller
             }
 
             if ($countFiles < 1) {
+                \Log::error($th);
                 return response()->json([
                     'message' => 'No existen archivos para descargar',
                     'error' => 'No existen archivos para descargar',
@@ -1117,7 +1124,7 @@ class SProvidersController extends Controller
             if (isset($finalZipPath) && file_exists($finalZipPath)) {
                 unlink($finalZipPath);
             }
-
+            \Log::error($th);
             return response()->json([
                 'message' => $th->getMessage(),
                 'error' => $th->getMessage(),
