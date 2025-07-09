@@ -247,10 +247,12 @@ class dpsComplementaryController extends Controller
                 $result = AppLinkUtils::requestAppLink($config->AppLinkGetPurchaseOrders, "POST", \Auth::user(), $body);
                 if(!is_null($result)){
                     if($result->code != 200){
+                        \Log::error($result->message);
                         return json_encode(['success' => false, 'message' => $result->message, 'icon' => 'error']);
                     }
                 }else{
-                    return json_encode(['success' => false, 'message' => 'No se obtuvo respuesta desde AppLink', 'icon' => 'error']);
+                    \Log::error('No se obtuvo respuesta del servicio interno.');
+                    return json_encode(['success' => false, 'message' => 'No se obtuvo respuesta del servicio interno.', 'icon' => 'error']);
                 }
     
                 $data = json_decode($result->data);
@@ -279,12 +281,13 @@ class dpsComplementaryController extends Controller
                             " type: " . SysConst::DOC_TYPE_PURCHASE_ORDER .
                             " auxCont: " . $auxCont;
                     \Log::error($error);
-                    return json_encode(['success' => false, 'message' => 'No se encuentra el documento con la referencia '.$reference , 'icon' => 'warning']);
+                    return json_encode(['success' => false, 'message' => 'No se encuentra el documento con la referencia ' . $reference . ', revisá las ordenes de compra.' , 'icon' => 'warning']);
                 }    
                 if($auxCont == 0){
                     $serieComparacion = $oReference->serie_n;
                 }else{
                     if($serieComparacion != $oReference->serie_n ){
+                        \Log::error("No se puede enlazar a documentos con series diferentes. Serie comparacion: " . $serieComparacion . " Serie referencia: " . $oReference->serie_n);
                         return json_encode(['success' => false, 'message' => 'No se puede enlazar a documentos con series diferentes' , 'icon' => 'warning']);    
                     }
                 }
@@ -353,6 +356,7 @@ class dpsComplementaryController extends Controller
             
             $data = json_decode(DpsComplementsUtils::validateXml($xml, $oProvider, $oCompany, $aReference));
             if(!$data->success){
+                \Log::error($data->message);
                 return json_encode(['success' => false, 'message' => $data->message, 'icon' => 'error', 'withHtml' => $data->withHtml]);
             }
             
@@ -467,7 +471,7 @@ class dpsComplementaryController extends Controller
                                         );
             }
         } catch (\Throwable $th) {
-            \Log::error($th);
+            \Log::error($th->getMessage());
             return json_encode(['success' => true, 'lDpsComp' => $lDpsComp, 'mailSuccess' => false, 
             "message" => "Registro guardado con éxito, pero no se pudo enviar el email de notificación para el siguiente paso de aceptación", "icon"=> "warning"]);
         }
@@ -496,6 +500,7 @@ class dpsComplementaryController extends Controller
             $oDps->reference = $SDpsRef;
 
         } catch (\Throwable $th) {
+            \Log::error($th);
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
         }
 
@@ -1144,7 +1149,7 @@ class dpsComplementaryController extends Controller
                 }
             }
         } catch (\Throwable $th) {
-            \Log::error($th);
+            \Log::error($th->getMessage());
             if (isset($zip) && $zip->status == 0) {
                 $zip->close();
             }

@@ -40,7 +40,7 @@ class purchaseOrdersController extends Controller
     
             $lPurchaseOrders = $res->lRows;
         } catch (\Throwable $th) {
-            \Log::error($th);
+            \Log::error($th->getMessage());
             return view('errorPages.serverError');
         }
 
@@ -82,10 +82,12 @@ class purchaseOrdersController extends Controller
                 $result = AppLinkUtils::requestAppLink($config->AppLinkGetPurchaseOrders, "POST", \Auth::user(), $body);
                 if(!is_null($result)){
                     if($result->code != 200){
+                        \Log::error($result->message);
                         return json_encode(['success' => false, 'message' => $result->message, 'icon' => 'error']);
                     }
                 }else{
-                    return json_encode(['success' => false, 'message' => 'No se obtuvo respuesta desde AppLink', 'icon' => 'error']);
+                    \Log::error('No se obtuvo respuesta desde AppLink');
+                    return json_encode(['success' => false, 'message' => 'No se obtuvo respuesta del servicio interno', 'icon' => 'error']);
                 }
     
                 $data = json_decode($result->data);

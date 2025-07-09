@@ -65,10 +65,12 @@ class estimateRequestController extends Controller{
             $result = AppLinkUtils::requestAppLink($config->AppLinkGetEstimateRequest, "POST", \Auth::user(), $body);
             if(!is_null($result)){
                 if($result->code != 200){
+                    \Log::error('Error al obtener las solicitudes de cotización: '.$result->message);
                     return json_encode(['success' => false, 'message' => $result->message, 'icon' => 'error']);
                 }
             }else{
-                return json_encode(['success' => false, 'message' => 'No se obtuvo respuesta desde AppLink', 'icon' => 'error']);
+                \Log::error('No se obtuvo respuesta desde servicio interno');
+                return json_encode(['success' => false, 'message' => 'No se obtuvo respuesta desde servicio interno', 'icon' => 'error']);
             }
             $data = json_decode($result->data);
             
@@ -150,10 +152,12 @@ class estimateRequestController extends Controller{
             $result = AppLinkUtils::requestAppLink($config->AppLinkGetEstimateRequestRows, "POST", \Auth::user(), $body);
             if(!is_null($result)){
                 if($result->code != 200){
+                    \Log::error($result->message);
                     return json_encode(['success' => false, 'message' => $result->message, 'icon' => 'error']);
                 }
             }else{
-                return json_encode(['success' => false, 'message' => 'No se obtuvo respuesta desde AppLink', 'icon' => 'error']);
+                \Log::error('No se obtuvo respuesta desde el servicio interno');
+                return json_encode(['success' => false, 'message' => 'No se obtuvo respuesta desde el servicio interno', 'icon' => 'error']);
             }
 
             $data = json_decode($result->data);
@@ -238,7 +242,7 @@ class estimateRequestController extends Controller{
             }
 
         } catch (\Throwable $th) {
-            \Log::error($th);
+            \Log::error($th->getMessage());
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
         }
 
