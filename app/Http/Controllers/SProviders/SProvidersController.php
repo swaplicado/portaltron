@@ -110,7 +110,8 @@ class SProvidersController extends Controller
                                 ->where('is_deleted', 0)
                                 ->select(
                                     'id_request_type_doc',
-                                    'name'
+                                    'name',
+                                    'tooltip'
                                 )
                                 ->get();
 

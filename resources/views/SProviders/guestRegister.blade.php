@@ -232,8 +232,21 @@
                                                     <div class="row">
                                                         <div class="col-md-12">
                                                             <div class="form-group sm-form-group row">
-                                                                <label class="col-sm-3 my-col-sm-3 col-form-label ">
-                                                                    {{$doc->name}}*
+                                                                <label class="col-sm-3 my-col-sm-3 col-form-label">
+                                                                    {{ $doc->name }}*
+                                                                    <div class="myTooltip">
+                                                                        <span class="bx bx-info-circle" style="color: rgb(39, 63, 243)"></span>
+                                                                        <div class="bottom-right">
+                                                                            <div class="text-content">
+                                                                                <ul>
+                                                                                    <li>
+                                                                                        {{$doc->tooltip}}
+                                                                                    </li>
+                                                                                </ul>
+                                                                            </div>
+                                                                            <i></i>
+                                                                        </div>
+                                                                    </div>
                                                                 </label>
                                                                 <div class="col-sm-9">
                                                                     <input type="file" id="doc_{{$doc->id_request_type_doc}}" name="doc_{{$doc->id_request_type_doc}}"
