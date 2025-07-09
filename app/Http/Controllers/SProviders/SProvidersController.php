@@ -30,6 +30,7 @@ use App\Models\SProviders\SProvider;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use stdClass;
 use ZipArchive;
 use Response;   
 
@@ -102,7 +103,9 @@ class SProvidersController extends Controller
         return json_encode(['success' => true, 'oProvider' => $oProvider, 'lDocuments' => $lDocuments]);
     }
 
-    public function registerProviderIndex($type_register){
+    public function registerProviderIndex($key){
+        $rfc = base64_decode($key);
+        $type_register = 1;
         $lDocs = RequestTypeDocs::where('is_default', 1)
                                 ->where('is_deleted', 0)
                                 ->select(
@@ -135,7 +138,8 @@ class SProvidersController extends Controller
                                                 ->with('lAreas', $lAreas)
                                                 ->with('showAreaRegisterProvider', $showAreaRegisterProvider)
                                                 ->with('type_register', $type_register)
-                                                ->with('lFiscalRegime', $lFiscalRegime);
+                                                ->with('lFiscalRegime', $lFiscalRegime)
+                                                ->with('rfc', $rfc);
     }
 
     public function tempProviderIndex($name){
@@ -315,8 +319,10 @@ class SProvidersController extends Controller
                 \DB::connection('mysql')->commit();
             } catch (\Throwable $th) {
                 \DB::connection('mysql')->rollBack();
-                $oUser->delete();
-                \Log::error($th);
+
+                \DB::connection('mysqlmngr')->beginTransaction();
+                    $oUser->delete();
+                \DB::connection('mysqlmngr')->commit();
                 throw $th;
             }
         } catch (\Throwable $th) {

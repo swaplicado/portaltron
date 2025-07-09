@@ -18,6 +18,7 @@ use App\Http\Controllers\SDocs\dpsComplementaryController;
 use App\Http\Controllers\SDocs\payComplementController;
 use App\Http\Controllers\Companies\companiesController;
 use App\Http\Controllers\UserManuals\userManualsController;
+use App\Http\Controllers\SProviders\activationAccountController;
 
 /*
 |--------------------------------------------------------------------------
@@ -37,8 +38,15 @@ Route::get('/', function () {
 Route::get('/actualizacion', [updateController::class,'index'])->name('actualizacionIndex');
 
 Route::middleware(('guest'))->group ( function (){
+    Route::group(['prefix' => 'account', 'as' => 'account.'], function(){
+        Route::post('/verify', [activationAccountController::class, 'checkProviderToRegister'])->name('checkProviderToRegister');
+        Route::get('/activate/{key}/{token}', [activationAccountController::class, 'providerAccountActivateIndex'])->name('providerAccountActivateIndex');
+        Route::post('/registryProvider', [activationAccountController::class, 'registryAndActivateProdviderAccount'])->name('registryAndActivateProdviderAccount');
+    });
+
     Route::group(['prefix' => 'sprovider', 'as' => 'registerProvider.'], function(){
-        Route::get('/registerProvider/{type}', [SProvidersController::class, 'registerProviderIndex'])->name('registerProvider');
+        // Route::get('/registerProvider/{type}', [SProvidersController::class, 'registerProviderIndex'])->name('registerProvider');
+        Route::get('/registerProvider/{key}', [SProvidersController::class, 'registerProviderIndex'])->name('registerProvider');
         Route::post('/registerProvider/save', [SProvidersController::class, 'saveRegisterProvider'])->name('saveRegister');
         Route::get('/tempProvider/{name}', [SProvidersController::class, 'tempProviderIndex'])->name('tempProvider');
     });
@@ -46,6 +54,10 @@ Route::middleware(('guest'))->group ( function (){
     Route::get('/manual/registro', function () {
         return view('manuales.manual_registro_proveedor');
     })->name('manual_register');
+
+    Route::get('/validate-rfc', function () {
+        return view('SProviders.validateRfc_provider');
+    })->name('validate_rfc_view');
 });
 
 Auth::routes();

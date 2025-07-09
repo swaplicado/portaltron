@@ -7,6 +7,9 @@ use App\Models\User;
 use App\Utils\AppLinkUtils;
 use App\Mail\notifyTesoreria;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Crypt;
+use Carbon\Carbon;
 
 class SProvidersUtils {
 
@@ -366,5 +369,21 @@ class SProvidersUtils {
                                 );
             }
         }
+    }
+
+    public static function sendMailToRegisterProvider($rfc, $providerMail) {
+        $config = \App\Utils\Configuration::getConfigurations();
+        $token = Str::random(64);
+        $key = base64_encode($rfc);
+        
+        \DB::table('providers_account_activations')->insert([
+            'key' => $key,
+            'token' => $token,
+            'email' => $providerMail,
+            'created_at' => Carbon::now()
+        ]);
+
+        $url = route('account.providerAccountActivateIndex', ['key' => $key, 'token' => $token]);
+        Mail::to($providerMail)->send(new \App\Mail\providerAccountActivationMail($url));
     }
 }

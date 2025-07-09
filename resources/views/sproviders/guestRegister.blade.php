@@ -48,6 +48,7 @@
             this.lDocs = <?php echo json_encode($lDocs); ?>;
             this.type_register = <?php echo json_encode($type_register); ?>;
             this.lFiscalRegime = <?php echo json_encode($lFiscalRegime); ?>;
+            this.rfc = <?php echo json_encode($rfc); ?>;
         }
         var oServerData = new GlobalData();
     </script>
@@ -259,7 +260,7 @@
 
                                                     </div>
                                                     <div class="col-md-6 text-right">
-                                                        <button type="button" class="btn btn-primary"
+                                                        <button type="button" class="btn btn-primary" id="btnSave"
                                                             v-on:click="save()">Guardar</button>
                                                     </div>
                                                 </div>

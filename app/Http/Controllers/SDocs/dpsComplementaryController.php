@@ -173,6 +173,10 @@ class dpsComplementaryController extends Controller
             $oProvider = \Auth::user()->getProviderData();
             $oProvider->fiscal_type = strlen($oProvider->provider_rfc) == 12 ? 1 : 2;
 
+            $modelProvider = SProvider::findOrFail($oProvider->id_provider);
+            $modelProvider->area_id = $request->area_id;
+            $modelProvider->save();
+            
             $mounth = Carbon::now()->format('m');
             $year = Carbon::now()->format('Y');
 

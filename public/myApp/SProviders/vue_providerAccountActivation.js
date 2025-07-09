@@ -1,22 +1,20 @@
 var app = new Vue({
-    el: '#registerProvider',
+    el: '#providerAccountActivation',
     data: {
-        lDocs: oServerData.lDocs,
-        name: null,
-        shortName: null,
+        oData: oServerData,
         rfc: oServerData.rfc,
-        email: null,
+        successRegister: false,
+        name: oServerData.name,
+        shortName: oServerData.shortName,
+        email: oServerData.email,
         typeInputPass: 'password',
         password: null,
         showPassword: false,
         confirmPassword: null,
-        successRegister: false,
-        area_id: "",
-        type_register: oServerData.type_register,
-        fiscal_id: ""
+        fiscal_id: oServerData.fiscal_id,
+        key: oServerData.key
     },
     mounted(){
-
     },
     methods: {
         save(){
@@ -28,45 +26,34 @@ var app = new Vue({
                 $('#btnSave').html('Guardar');
                 return;
             }
-
-            const formData = new FormData();
-
-            let inputFile = null;
-            if (this.type_register == 1) {
-                for(let doc of this.lDocs){
-                    inputFile = document.getElementById('doc_'+doc.id_request_type_doc);
-                    let file = inputFile.files[0];
-                    formData.append('doc_'+doc.id_request_type_doc, file);
-                }
-            }
-
-            formData.append('name', this.name);
-            formData.append('shortName', this.shortName);
-            formData.append('rfc', this.rfc);
-            formData.append('email', this.email);
-            formData.append('password', this.password);
-            formData.append('confirmPassword', this.confirmPassword);
-            formData.append('area_id', this.area_id);
-            formData.append('fiscal_id', this.fiscal_id);
-            formData.append('type_register', this.type_register);
-
+            
             SGui.showWaitingUnlimit();
 
-            let route = oServerData.registerRoute;
-
-            axios.post(route, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                },
+            let route = oServerData.registryRoute;
+            
+            axios.post(route, {
+                rfc: this.rfc,
+                name: this.name,
+                shortName: this.shortName,
+                email: this.email,
+                password: this.password,
+                confirmPassword: this.confirmPassword,
+                fiscal_id: this.fiscal_id,
+                key: this.key
             })
             .then( result => {
                 let data = result.data;
                 if(data.success){
                     this.successRegister = data.success;
                     SGui.showOk();
-                    if(!data.mailSuccess){
-                        SGui.showMessage('', data.message, data.icon);
-                    }
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    } else {
+                        SGui.showMessage('', 'Cuenta creada con éxito. Por favor, inicie sesión.', 'success');
+                        setTimeout(function(){
+                            window.location.href = oServerData.loginRoute;
+                        }, 2000);
+                    }        
                 }else{
                     SGui.showMessage('', data.message, data.icon);
                 }
@@ -126,11 +113,6 @@ var app = new Vue({
                 SGui.showMessage('', 'La contraseña y la confirmación de la contraseña deben ser iguales');
                 return false;
             }
-
-            // if(this.area_id == null || this.area_id == ""){
-            //     SGui.showMessage('', 'Debe seleccionar un área');
-            //     return false;
-            // }
 
             return true;
         },

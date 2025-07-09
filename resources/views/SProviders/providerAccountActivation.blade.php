@@ -2,68 +2,44 @@
 <html lang="es">
 
 <head>
-    <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <title>SIIE APP</title>
-    <!-- End meta tags -->
-
-    <!-- CSS files-->
+    <title>PP</title>
     <link rel="stylesheet" href="{{ asset('varios/feather/feather.css') }}">
     <link rel="stylesheet" href="{{ asset('varios/ti-icons/css/themify-icons.css') }}">
     <link rel="stylesheet" href="{{ asset('varios/css/vendor.bundle.base.css') }}">
     <link rel="stylesheet" href="{{ asset('varios/ti-icons/css/themify-icons.css') }}">
     <link rel="stylesheet" href="{{ asset('boxicons/css/boxicons.min.css') }}">
     <link rel="stylesheet" href="{{ asset('select2js/css/select2.min.css') }}">
-
-    <!-- Datatables CSS -->
     <link rel="stylesheet" href="{{ asset('datatables/datatables.css') }}">
-    <!-- End datatables CSS -->
-
-    <!-- CSS principal -->
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
-    <!-- End CSS principal -->
 
-    <!-- CSS section -->
     @yield('headStyles')
-    <!-- End CSS section -->
-    <!-- End CSS files -->
-
-    <!-- Icon browser -->
     <link rel="shortcut icon" href="{{ asset('images/favicon.png') }}" />
-    <!-- End icon browser -->
-
-    <!-- Header scripts -->
     <script src="{{ asset('jquery/jquery/jquery.min.js') }}"></script>
     <script type="text/javascript" src="{{ asset('vue/vue.js') }}"></script>
     <script src="{{ asset('sweetalert2/dist/sweetalert2.all.min.js') }}"></script>
     <script src="{{ asset('js/myApp/gui/SGui.js') }}"></script>
     <script src="{{ asset('moment/moment.js') }}"></script>
     <script src="{{ asset('moment/moment-with-locales.js') }}"></script>
-    <!-- Header scripts section -->
     <script>
         function GlobalData() {
-            this.aux = 0;
-            this.registerRoute = <?php echo json_encode(route('registerProvider.saveRegister')); ?>;
-            this.lDocs = <?php echo json_encode($lDocs); ?>;
-            this.type_register = <?php echo json_encode($type_register); ?>;
-            this.lFiscalRegime = <?php echo json_encode($lFiscalRegime); ?>;
             this.rfc = <?php echo json_encode($rfc); ?>;
+            this.key = <?php echo json_encode($key); ?>;
+            this.registryRoute = <?php echo json_encode(route('account.registryAndActivateProdviderAccount')); ?>;
+            this.loginRoute = <?php echo json_encode(route('login')); ?>;
+            this.name = <?php echo json_encode($name); ?>;
+            this.shortName = <?php echo json_encode($shortName); ?>;
+            this.email = <?php echo json_encode($email); ?>;
+            this.fiscal_id = <?php echo json_encode($fiscal_id); ?>;
         }
         var oServerData = new GlobalData();
     </script>
-    <!-- end Header scripts section-->
-    <!-- End header scripts -->
 
 </head>
-
 <body class="sidebar-dark">
-    <!-- Page container -->
     <div class="container-scroller">
-
-        <!-- Topbar -->
         <nav class="navbar col-lg-12 col-12 p-0 fixed-top d-flex flex-row navbar-dark">
-            <!-- logo -->
             <div class="text-center navbar-brand-wrapper d-flex align-items-center justify-content-center">
                 <a class="navbar-brand brand-logo mr-5" href="{{ \App\Utils\Configuration::getConfigurations()->appmanagerRoute }}"><img src="{{ asset('images/aeth.png') }}"
                         class="mr-2" alt="logo" /></a>
@@ -74,15 +50,10 @@
 
             </div>
         </nav>
-        <!-- End Topbar -->
-
-        <!-- Main container -->
-        <!-- Panel principal-->
-        <div id="registerProvider">
+        <div id="providerAccountActivation">
             <div class="content-wrapper">
                 <div class="loader"></div>
                 <div class="hiddeToLoad">
-                    <!-- Panel content -->
                     <div class="container-scroller" v-if="!successRegister">
                         <div class="container-fluid page-body-wrapper full-page-wrapper">
                             <div class="content-wrapper d-flex align-items-center auth px-0">
@@ -92,11 +63,8 @@
                                             <div class="brand-logo">
                                                 <div style="display: inline">
                                                     <img src="{{ asset('images/aeth.png') }}" alt="logo">
-                                                    <b style="float: right; font-size: large;" v-if="type_register == 1">
-                                                        Registro de nuevo proveedor AETH
-                                                    </b>
-                                                    <b style="float: right; font-size: large;" v-else>
-                                                        Registro de usuario
+                                                    <b style="float: right; font-size: large;">
+                                                        Activación de cuenta proveedor
                                                     </b>
                                                 </div>
                                             </div>
@@ -144,7 +112,7 @@
                                                                 class="col-sm-3 my-col-sm-3 col-form-label ">RFC*</label>
                                                             <div class="col-sm-9">
                                                                 <input type="text" class="form-control"
-                                                                    id="rfc" placeholder="RFC" v-model="rfc">
+                                                                    id="rfc" placeholder="RFC" v-model="rfc" disabled style="background-color: #e9ecef; color: black">
                                                             </div>
                                                         </div>
                                                     </div>
@@ -155,6 +123,22 @@
                                                             <div class="col-sm-9">
                                                                 <input type="text" class="form-control"
                                                                     id="email" placeholder="Email" v-model="email">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row">
+                                                    <div class="col-md-6">
+                                                        <div class="form-group sm-form-group row">
+                                                            <label class="col-sm-3 my-col-sm-3 col-form-label ">Régimen fiscal</label>
+                                                            <div class="col-sm-9">
+                                                                <select class="form-control" v-model="fiscal_id"
+                                                                style="color: black">
+                                                                <option value="" disabled selected hidden>Selecciona régimen fiscal</option>
+                                                                    @foreach($lFiscalRegime as $fiscal)
+                                                                        <option value="{{$fiscal['id']}}">{{$fiscal['text']}}</option>
+                                                                    @endforeach
+                                                                </select>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -195,66 +179,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                                @if($showAreaRegisterProvider)
-                                                <div class="row">
-                                                    <div class="col-md-6">
-                                                        <div class="form-group sm-form-group row">
-                                                            <label class="col-sm-3 my-col-sm-3 col-form-label ">Área destino</label>
-                                                            <div class="col-sm-9">
-                                                                <select class="form-control" v-model="area_id"
-                                                                style="color: black">
-                                                                <option value="" disabled selected hidden>Selecciona área</option>
-                                                                    @foreach($lAreas as $area)
-                                                                        <option value="{{$area->id_area}}">{{$area->name_area}}</option>
-                                                                    @endforeach
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-md-6">
-                                                        <div class="form-group sm-form-group row">
-                                                            <label class="col-sm-3 my-col-sm-3 col-form-label ">Régimen fiscal</label>
-                                                            <div class="col-sm-9">
-                                                                <select class="form-control" v-model="fiscal_id"
-                                                                style="color: black">
-                                                                <option value="" disabled selected hidden>Selecciona régimen fiscal</option>
-                                                                    @foreach($lFiscalRegime as $fiscal)
-                                                                        <option value="{{$fiscal['id']}}">{{$fiscal['text']}}</option>
-                                                                    @endforeach
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                @endif
-                                            @if ($type_register == 1)
-                                                @foreach($lDocs as $doc)
-                                                    <div class="row">
-                                                        <div class="col-md-12">
-                                                            <div class="form-group sm-form-group row">
-                                                                <label class="col-sm-3 my-col-sm-3 col-form-label ">
-                                                                    {{$doc->name}}*
-                                                                </label>
-                                                                <div class="col-sm-9">
-                                                                    <input type="file" id="doc_{{$doc->id_request_type_doc}}" name="doc_{{$doc->id_request_type_doc}}"
-                                                                        class="file-upload-default" accept=".pdf">
-                                                                    <div class="input-group col-xs-12">
-                                                                        <input type="text"
-                                                                            class="form-control file-upload-info" disabled
-                                                                            placeholder="Cargar archivo">
-                                                                        <span class="input-group-append">
-                                                                            <button
-                                                                                class="file-upload-browse btn btn-info"
-                                                                                type="button">Cargar</button>
-                                                                        </span>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                @endforeach
-                                            @endif
-
+                                                
                                                 <div class="row">
                                                     <div class="col-md-6">
 
@@ -264,59 +189,22 @@
                                                             v-on:click="save()">Guardar</button>
                                                     </div>
                                                 </div>
+
                                             </form>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <!-- content-wrapper ends -->
-                        </div>
-                        <!-- page-body-wrapper ends -->
-                    </div>
-                    <div class="container-scroller" v-else>
-                        <div class="container-fluid page-body-wrapper full-page-wrapper">
-                            <div class="content-wrapper d-flex align-items-center auth px-0">
-                                <div class="row w-100 mx-0">
-                                    <div class="col-lg-6 mx-auto">
-                                        <div class="auth-form-light text-left py-5 px-4 px-sm-5">
-                                            <div class="brand-logo">
-                                                <img src="{{ asset('images/aeth.png') }}" alt="logo">
-                                            </div>
-                                            <h2>
-                                                ¡Tu registro se ha enviado con éxito!
-                                            </h2>
-                                            <h4>
-                                                Tu cuenta será revisada para su autorización a la brevedad
-                                            </h4>
-                                            <br>
-                                            <h2>
-                                                <a type="button" class="btn btn-primary"
-                                                    href="{{ \App\Utils\Configuration::getConfigurations()->appmanagerRoute }}">Ir
-                                                    a la pantalla de inicio de sesión</a>
-                                            </h2>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
-                    <!-- End Panel content -->
                 </div>
-                <!-- Footer -->
                 @include('layouts.footer')
-                <!-- End Footer -->
             </div>
-            <!-- End Panel principal-->
         </div>
-        <!-- End Main container -->
-        <!-- End Page container -->
     </div>
-    <!-- JS files -->
     <script src="{{ asset('varios/js/vendor.bundle.base.js') }}"></script>
     <script src="{{ asset('varios/chart.js/Chart.min.js') }}"></script>
-    <!-- Datatables js -->
     <script src="{{ asset('datatables/datatables.js') }}"></script>
-    <!-- End datatables js -->
     <script src="{{ asset('js/principal/off-canvas.js') }}"></script>
     <script src="{{ asset('js/principal/hoverable-collapse.js') }}"></script>
     <script src="{{ asset('js/principal/template.js') }}"></script>
@@ -325,12 +213,9 @@
     <script src="{{ asset('js/principal/Chart.roundedBarCharts.js') }}"></script>
     <script src="{{ asset('axios/axios.min.js') }}"></script>
     <script src="{{ asset('varios/select2/select2.min.js') }}"></script>
-    <script src="{{ asset('myApp/SProviders/vue_guestRegister.js') }}"></script>
+    <script src="{{ asset('myApp/SProviders/vue_providerAccountActivation.js') }}"></script>
     <script src="{{ asset('js/principal/file-upload.js') }}"></script>
-    <!-- JS section -->
     @yield('scripts')
-    <!-- End JS section -->
-
     <script>
         window.onload = function() {
 
@@ -346,8 +231,6 @@
 
         };
     </script>
-    <!-- End JS files -->
-
 </body>
 
 </html>
