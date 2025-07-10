@@ -146,7 +146,7 @@
                                                 </div>
                                                 <div class="col-md-6 text-right">
                                                     <button type="button" class="btn btn-primary"
-                                                        v-on:click="save()">Guardar</button>
+                                                        v-on:click="save()" id="btnSave">Guardar</button>
                                                 </div>
                                             </div>
                                         </form>

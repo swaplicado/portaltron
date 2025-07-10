@@ -98,6 +98,8 @@ var app = new Vue({
         },
 
         saveComplementary(){
+            $('#btnSave').prop('disabled', true);
+            $('#btnSave').html('<i class="fa fa-spinner fa-spin"></i> Guardando...');
             SGui.showWaitingUnlimit();
 
             let route = this.oData.saveComplementsRoute;
@@ -151,6 +153,10 @@ var app = new Vue({
             })
             .catch( function(error){
                 console.log(error);
+            })
+            .finally(function(){
+                $('#btnSave').prop('disabled', false);
+                $('#btnSave').html('Guardar');
             });
         },
 

@@ -29,7 +29,9 @@ var app = new Vue({
     },
     methods: {
         save(){
+            $('#btnSave').attr('disabled', true);
             if(!this.checkFormData()){
+                $('#btnSave').attr('disabled', false);
                 return;
             }
 
@@ -73,6 +75,9 @@ var app = new Vue({
             .catch( function(error){
                 console.log(error);
                 SGui.showError(error);
+            })
+            .finally(function(){
+                $('#btnSave').attr('disabled', false);
             });
         },
 

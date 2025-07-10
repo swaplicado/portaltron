@@ -146,7 +146,7 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal"><b>Cerrar</b></button>
-                <button type="button" class="btn btn-success" v-on:click="saveComplementary()"><b>Guardar</b></button>
+                <button type="button" class="btn btn-success" v-on:click="saveComplementary()" id="btnSave"><b>Guardar</b></button>
             </div>
         </div>
     </div>
