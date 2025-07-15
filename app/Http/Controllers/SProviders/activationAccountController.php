@@ -23,7 +23,7 @@ class activationAccountController extends Controller
             $provider = SProvider::where('provider_rfc', $rfc)->first();
             
             if ($provider) {
-                return json_encode(['success' => false, 'message' => 'El RFC no es valido']);
+                return json_encode(['success' => false, 'message' => 'El RFC ya se encuentra registrado, intenta iniciar sesión para continuar']);
             }
 
             $route = $config->AppLinkRouteProviderData;
