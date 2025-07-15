@@ -184,7 +184,7 @@ class SProvidersController extends Controller
                             ->first();
 
             if(!is_null($searchRfc)){
-                return json_encode(['success' => false, 'message' => "El RFC es inválido", 'icon' => 'info']);
+                return json_encode(['success' => false, 'message' => "El RFC ya se encuentra registrado, intenta iniciar sesión para continuar", 'icon' => 'info']);
             }
 
             $sOrders =  json_encode($config->orders);
@@ -1076,7 +1076,7 @@ class SProvidersController extends Controller
             }
 
             if ($countFiles < 1) {
-                \Log::error($th);
+                \Log::error('No existen archivos para descargar' . json_encode($arrProviders) . ' - ' . json_encode($arrTypesDocs));
                 return response()->json([
                     'message' => 'No existen archivos para descargar',
                     'error' => 'No existen archivos para descargar',

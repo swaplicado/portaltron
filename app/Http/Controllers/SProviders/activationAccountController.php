@@ -152,7 +152,7 @@ class activationAccountController extends Controller
     
             if(!is_null($searchRfc)){
                 \Log::error("El RFC ya se encuentra registrado: " . $rfc);
-                return json_encode(['success' => false, 'message' => "El RFC es inválido", 'icon' => 'info']);
+                return json_encode(['success' => false, 'message' => "El RFC ya se encuentra registrado, intenta iniciar sesión para continuar", 'icon' => 'info']);
             }
             
         } catch (\Throwable $th) {
