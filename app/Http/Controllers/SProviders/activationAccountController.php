@@ -49,7 +49,7 @@ class activationAccountController extends Controller
                     if ($data->email) {
                         SProvidersUtils::sendMailToRegisterProvider($rfc, $data->email);
                     } else {
-                        return json_encode(['success' => false, 'message' => 'No cuentas con correo electrónico registrado, contacta con soporte']);
+                        return json_encode(['success' => false, 'message' => 'No cuentas con correo electrónico registrado, contacta al personal de compras.']);
                     }
                 }
 
@@ -91,7 +91,7 @@ class activationAccountController extends Controller
             $data = AppLinkUtils::requestAppLink($route, 'POST', $oUser, $body);
 
             if(is_null($data)){
-                return redirect(route('login'))->with('message', 'AppLink no responde, contacta con soporte');
+                return redirect(route('login'))->with('message', 'El servicio externo no responde, contacta a soporte.');
             }
 
             $name = $data->bp;
@@ -125,7 +125,7 @@ class activationAccountController extends Controller
                                                                 ->with('key', $key);
         } catch (\Throwable $th) {
             \Log::error($th);
-            return redirect(route('login'))->with('message', 'No fue posible activar la cuenta del proveedor, contacta con soporte');
+            return redirect(route('login'))->with('message', 'No fue posible activar la cuenta del proveedor, contacta a soporte.');
         }
     }
 
@@ -224,7 +224,7 @@ class activationAccountController extends Controller
                 \DB::connection('mysqlmngr')->commit();
                 
                 //regresar error con mensaje personalizado
-                new \Exception('No fue posible registrar el proveedor, contacta con soporte');
+                new \Exception('No fue posible registrar el proveedor, contacta a soporte.');
             }
         
             \DB::table('providers_account_activations')
