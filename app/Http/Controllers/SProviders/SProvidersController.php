@@ -885,7 +885,7 @@ class SProvidersController extends Controller
                     $provider->fiscal_regime = 'N/D';
                 }
 
-                $provider->area = $providerArea->name_area;
+                $provider->area = $providerArea->name_area ?? 'N/D';
                 $lDocsProvider = SProvidersUtils::getDocumentsProvider($provider->id_provider, $config->fatherArea, [SysConst::VOBO_REVISADO]);
                 $provider->number_pen_doc = count($lDocsProvider) . ' de ' . count($lDocs);
             }
@@ -1142,7 +1142,7 @@ class SProvidersController extends Controller
                                 ->select('name_area')
                                 ->where('id_area', $oProvider->area_id)
                                 ->first();
-            $oProvider->area = $providerArea->name_area;
+            $oProvider->area = $providerArea->name_area ?? 'N/D';
             $oArea = \Auth::user()->getArea();
             $config = \App\Utils\Configuration::getConfigurations();
             $lDocuments = SProvidersUtils::getDocumentsProvider($request->provider_id, $config->fatherArea);
