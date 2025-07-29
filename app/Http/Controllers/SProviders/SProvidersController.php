@@ -774,7 +774,18 @@ class SProvidersController extends Controller
 
                         $oProvDoc = ProvDocs::where('prov_id', $oProvider->id_provider)
                                             ->where('request_type_doc_id', $doc->id_request_type_doc)
+                                            ->where('is_deleted', 0)
                                             ->first();
+
+                        if(is_null($oProvDoc)){
+                            $oProvDoc = new ProvDocs();
+                            $oProvDoc->request_type_doc_id = $doc->id_request_type_doc;
+                            $oProvDoc->prov_id = $oProvider->id_provider;
+                            $oProvDoc->is_deleted = 0;
+                            $oProvDoc->created_by = 1;
+                            $oProvDoc->updated_by = 1;
+                            $oProvDoc->save();
+                        }
     
                         $docUrl = Storage::disk('documents')->url($fileName);
     
@@ -787,34 +798,34 @@ class SProvidersController extends Controller
                         $oDocsUrl->updated_by = 1;
                         $oDocsUrl->save();
 
-                        // foreach($orders as $order){
-                        //     $oVoboDoc = new VoboDoc();
-                        //     $oVoboDoc->doc_url_id = $oDocsUrl->id_doc_url;
-                        //     $oVoboDoc->area_id = $order->area;
-                        //     $oVoboDoc->is_accept = 1;
-                        //     $oVoboDoc->is_reject = 0;
-                        //     $oVoboDoc->order = $order->order;
-                        //     $oVoboDoc->check_status = SysConst::VOBO_REVISADO;
-                        //     $oVoboDoc->is_deleted = 0;
-                        //     $oVoboDoc->created_by = 1;
-                        //     $oVoboDoc->updated_by = 1;
-                        //     $oVoboDoc->save();
-                        // }
-
-                        // se comentaron los pasos de autorizacion al actualizar documentos, si se requiere actualizar descomentar
                         foreach($orders as $order){
                             $oVoboDoc = new VoboDoc();
                             $oVoboDoc->doc_url_id = $oDocsUrl->id_doc_url;
                             $oVoboDoc->area_id = $order->area;
-                            $oVoboDoc->is_accept = 0;
+                            $oVoboDoc->is_accept = 1;
                             $oVoboDoc->is_reject = 0;
                             $oVoboDoc->order = $order->order;
-                            $oVoboDoc->check_status = $order->order == 1 ? SysConst::VOBO_REVISION : SysConst::VOBO_NO_REVISION;
+                            $oVoboDoc->check_status = SysConst::VOBO_REVISADO;
                             $oVoboDoc->is_deleted = 0;
                             $oVoboDoc->created_by = 1;
                             $oVoboDoc->updated_by = 1;
                             $oVoboDoc->save();
                         }
+
+                        // se comentaron los pasos de autorizacion al actualizar documentos, si se requiere actualizar descomentar
+                        // foreach($orders as $order){
+                        //     $oVoboDoc = new VoboDoc();
+                        //     $oVoboDoc->doc_url_id = $oDocsUrl->id_doc_url;
+                        //     $oVoboDoc->area_id = $order->area;
+                        //     $oVoboDoc->is_accept = 0;
+                        //     $oVoboDoc->is_reject = 0;
+                        //     $oVoboDoc->order = $order->order;
+                        //     $oVoboDoc->check_status = $order->order == 1 ? SysConst::VOBO_REVISION : SysConst::VOBO_NO_REVISION;
+                        //     $oVoboDoc->is_deleted = 0;
+                        //     $oVoboDoc->created_by = 1;
+                        //     $oVoboDoc->updated_by = 1;
+                        //     $oVoboDoc->save();
+                        // }
 
                         if ($docType == 'doc_4') {
                             $lUsers = UserUtils::getUsersByArea($config->tesoreriaArea);

@@ -154,6 +154,24 @@ class activationAccountController extends Controller
                 \Log::error("El RFC ya se encuentra registrado: " . $rfc);
                 return json_encode(['success' => false, 'message' => "El RFC ya se encuentra registrado, intenta iniciar sesión para continuar", 'icon' => 'info']);
             }
+
+            $route = $config->AppLinkRouteProviderData;
+            $oUser = new stdClass();
+            $oUser->rfc = $rfc;
+            $oUser->username = $rfc;
+
+            $body = '{
+                "fiscalid": "'.$rfc.'",
+                "reqUser": "'.$rfc.'"
+            }';
+            
+            $data = AppLinkUtils::requestAppLink($route, 'POST', $oUser, $body);
+
+            
+            if(is_null($data)){
+                return redirect(route('login'))->with('message', 'El servicio externo no responde, contacta a soporte.');
+            }
+            $id_bp = $data->id_bp;
             
         } catch (\Throwable $th) {
             return json_encode(['success' => false, 'message' => $th->getMessage(), 'icon' => 'error']);
@@ -208,6 +226,7 @@ class activationAccountController extends Controller
                 $oProvider->provider_fiscal_regime_id = $fiscal_id;
                 $oProvider->provider_email = $email;
                 $oProvider->user_id = $oUser->id;
+                $oProvider->external_id = $id_bp;
                 $oProvider->status_provider_id = SysConst::PROVIDER_APROBADO;
                 $oProvider->is_active = 1;
                 $oProvider->is_deleted = 0;
