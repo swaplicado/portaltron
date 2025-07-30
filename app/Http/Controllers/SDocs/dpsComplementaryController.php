@@ -93,6 +93,8 @@ class dpsComplementaryController extends Controller
                 ->get()
                 ->toArray();
 
+            $lUserAreas = collect(\Auth::user()->getArea());
+            
             $showAreaDps = $config->showAreaDps;
             $requireAreaDps = $config->requireAreaDps;
 
@@ -158,6 +160,7 @@ class dpsComplementaryController extends Controller
                                                     ->with('lStatus', $lStatus)
                                                     ->with('lTypes', $lTypes)
                                                     ->with('lAreas', $lAreas)
+                                                    ->with('lUserAreas', $lUserAreas)
                                                     ->with('default_area_id', $default_area_id)
                                                     ->with('showAreaDps', $showAreaDps)
                                                     ->with('requireAreaDps',$requireAreaDps)
@@ -544,7 +547,7 @@ class dpsComplementaryController extends Controller
                                 ->get(); 
                 $oArea = $oArea->pluck('id_area');   
             }else{
-                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = collect(\Auth::user()->getArea());
                 $oArea = $oArea->pluck('id_area'); 
             }
             
@@ -608,6 +611,8 @@ class dpsComplementaryController extends Controller
             ->get()
             ->toArray();
 
+            $lUserAreas = \Auth::user()->getArea();
+
             $now = Carbon::now()->format('d-m-Y');
 
         } catch (\Throwable $th) {
@@ -622,6 +627,7 @@ class dpsComplementaryController extends Controller
                                                                 ->with('lConstants', $lConstants)
                                                                 ->with('lDpsComp', $lDpsComp)
                                                                 ->with('lAreas', $lAreas)
+                                                                ->with('lUserAreas', $lUserAreas)
                                                                 ->with('now', $now);
     }
 
@@ -634,15 +640,22 @@ class dpsComplementaryController extends Controller
             $canSeeAll = $config->canSeeAll;
             $lOmisionAreaDps = collect($config->lOmisionAreaDps)->pluck('id');
             
-            if(in_array(\Auth::user()->id,$canSeeAll)){
-                $oArea = DB::table('areas')
-                                ->where('is_deleted',0)
-                                ->whereNotIn('id_area',$lOmisionAreaDps)
-                                ->get(); 
-                $oArea = $oArea->pluck('id_area');   
+            $area_id = $request->area_id;
+            if($area_id == 0) {
+                if(in_array(\Auth::user()->id,$canSeeAll)){
+                    $oArea = DB::table('areas')
+                                    ->where('is_deleted',0)
+                                    ->whereNotIn('id_area',$lOmisionAreaDps)
+                                    ->get(); 
+                    $oArea = $oArea->pluck('id_area');   
+                    $oArea = $oArea->toArray();
+                }else{
+                    $oArea = collect(\Auth::user()->getArea());
+                    $oArea = $oArea->pluck('id_area'); 
+                    $oArea = $oArea->toArray();
+                }
             }else{
-                $oArea = collect([\Auth::user()->getArea()]);
-                $oArea = $oArea->pluck('id_area'); 
+                $oArea = [$area_id];
             }
             
             $provider_id = $request->provider_id;
@@ -659,7 +672,7 @@ class dpsComplementaryController extends Controller
             }
 
             $lDpsComp = DpsComplementsUtils::getlDpsComplementsToVobo($year, $provider_id, 
-            [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO], $oArea->toArray());
+            [SysConst::DOC_TYPE_FACTURA, SysConst::DOC_TYPE_NOTA_CREDITO], $oArea);
             foreach ($lDpsComp as $dps) {
                 $lDpsReferences = DpsComplementsUtils::getlDpsReferences($dps->id_dps);
                 $Sreference = DpsComplementsUtils::transformToString($lDpsReferences);
@@ -688,7 +701,7 @@ class dpsComplementaryController extends Controller
                                 ->get(); 
                 $oArea = $oArea->pluck('id_area');   
             }else{
-                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = collect(\Auth::user()->getArea());
                 $oArea = $oArea->pluck('id_area'); 
             }
             $oDps = DB::table('dps as d')
@@ -759,10 +772,13 @@ class dpsComplementaryController extends Controller
                                 ->get(); 
                 $oArea = $oArea->pluck('id_area');   
             }else{
-                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = collect(\Auth::user()->getArea());
                 $oArea = $oArea->pluck('id_area'); 
             }
-            $voboArea = \Auth::user()->getArea();
+            //$voboArea = \Auth::user()->getArea();
+            $voboArea = collect(\Auth::user()->getArea());
+            $voboArea = $voboArea->pluck('id_area'); 
+            $voboArea = $voboArea->toArray();
 
             DB::beginTransaction();
 
@@ -775,7 +791,7 @@ class dpsComplementaryController extends Controller
             $statusKey = $is_accept == true ? 'APROBADO' : 'RECHAZADO';
             $status_id = $arrStatus[$statusKey];
 
-            $oVobo = VoboDps::where('dps_id', $id_dps)->where('area_id', $voboArea->id_area)->first();
+            $oVobo = VoboDps::where('dps_id', $id_dps)->whereIn('area_id', $voboArea)->first();
             $oVobo->user_id = \Auth::user()->id;
             $oVobo->is_accept = $is_accept;
             $oVobo->is_reject = $is_reject;
@@ -786,7 +802,7 @@ class dpsComplementaryController extends Controller
             $oVobo->updated_by = \Auth::user()->id;
             $oVobo->update();
 
-            $childAreaId = ordersVobosUtils::getDpsChildArea($oDps->type_doc_id, $voboArea->id_area);
+            $childAreaId = ordersVobosUtils::getDpsChildArea($oDps->type_doc_id, $voboArea);
             if($childAreaId != 0 && $is_accept == true){
                 $oDpsChild = VoboDps::where('dps_id', $id_dps)->where('area_id', $childAreaId)->first();
                 $oDpsChild->check_status = SysConst::VOBO_REVISION;
@@ -837,8 +853,8 @@ class dpsComplementaryController extends Controller
                 $typeConf = $mailConfig->where('type', $oDps->type_doc_id)->first();
                 $dpsConfig = collect($typeConf->config)->first();
                 $nextSteps = $dpsConfig->nextStepMail;
-                $lOrders = collect(ordersVobosUtils::getDpsOrder($oDps->type_doc_id, $voboArea->id_area));
-                $myOrder = $lOrders->where('area', $voboArea->id_area)->first();
+                $lOrders = collect(ordersVobosUtils::getDpsOrder($oDps->type_doc_id, $voboArea));
+                $myOrder = $lOrders->whereIn('area', $voboArea)->first();
                 $is_enable = in_array($childAreaId, $nextSteps->areas) && in_array($myOrder->order + 1, $nextSteps->orders);
 
                 if ($is_enable) {
@@ -923,7 +939,7 @@ class dpsComplementaryController extends Controller
                                 ->get(); 
                 $oArea = $oArea->pluck('id_area');   
             }else{
-                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = collect(\Auth::user()->getArea());
                 $oArea = $oArea->pluck('id_area');
             }
             $year = Carbon::now()->format('Y');
@@ -997,7 +1013,7 @@ class dpsComplementaryController extends Controller
                                     ->get(); 
                     $oArea = $oArea->pluck('id_area');   
                 }else{
-                    $oArea = collect([\Auth::user()->getArea()]);
+                    $oArea = collect(\Auth::user()->getArea());
                     $oArea = $oArea->pluck('id_area');
                 }
                 $year = Carbon::now()->format('Y');

@@ -203,9 +203,11 @@ class SProvidersUtils {
      * Metodo que regresa los proveedores por area y por el estatus del vobo doc
      */
     public static function filterProviderToVobo(){
-        $oArea = \Auth::user()->getArea();
+        #$oArea = \Auth::user()->getArea();
         $config = \App\Utils\Configuration::getConfigurations();
-
+        $oArea = collect(\Auth::user()->getArea());
+        $oArea = $oArea->pluck('id_area')->toArray(); 
+        
         $lProvidersVobos = \DB::table('providers as p')
                             ->join(config('myapp.mngr_db').'.users as u', 'u.id', '=', 'user_id')
                             ->join('status_providers as sp', 'sp.id_status_providers', '=', 'p.status_provider_id')
@@ -216,10 +218,9 @@ class SProvidersUtils {
                             ->where(function($query){
                                 $query->where('vd.check_status', SysConst::VOBO_REVISION)
                                     ->orWhere('vd.check_status', SysConst::VOBO_REVISADO);
-
                             })
                             ->where('vd.is_deleted', 0)
-                            ->where('vd.area_id', $oArea->id_area)
+                            ->whereIn('vd.area_id', $oArea)
                             ->where('p.status_provider_id', SysConst::PROVIDER_PENDIENTE)
                             ->whereRaw('(docs_url.id_doc_url, prov_docs.id_prov_doc) IN (SELECT MAX(docs_url.id_doc_url), 
                             prov_docs.id_prov_doc FROM prov_docs INNER JOIN docs_url 
@@ -254,11 +255,14 @@ class SProvidersUtils {
                                 'status',
                                 'ext_id',
                                 'p.area_id',
+                                'p.provider_fiscal_regime_id',
+                                'fr.name',
+                                'fr.key',
                                 'created',
                                 'updated'
                             ])
                             ->get();
-
+        
         return $lProvidersVobos;
     }
 
@@ -280,7 +284,7 @@ class SProvidersUtils {
                         ->join('prov_docs', 'prov_docs.id_prov_doc', '=', 'docs_url.prov_doc_id')
                         ->join('request_type_docs as rtd', 'rtd.id_request_type_doc', '=', 'prov_docs.request_type_doc_id')
                         ->where('prov_docs.prov_id', $provider_id)
-                        ->where('vd.area_id', $area_id)
+                        ->whereIn('vd.area_id', $area_id)
                         ->where('vd.is_deleted', 0)
                         ->whereIn('vd.check_status', $lCheckstatus);
 
@@ -313,7 +317,7 @@ class SProvidersUtils {
 
         $lDocs = [];
         foreach($lOrders as $order){
-            $lDocs = SProvidersUtils::getDocumentsProvider($provider_id, $order->area, [SysConst::VOBO_REVISADO]);
+            $lDocs = SProvidersUtils::getDocumentsProvider($provider_id, [$order->area], [SysConst::VOBO_REVISADO]);
             $rejectDocs = $lDocs->where('is_reject', 1);
             if(count($rejectDocs) > 0){
                 break;
@@ -333,8 +337,11 @@ class SProvidersUtils {
 
         $config = \App\Utils\Configuration::getConfigurations();
 
-        if($oArea->id_area != $config->fatherArea){
-            $lProviders = $lAllProviders->where('area_id', $oArea->id_area)->where('status_provider_id', '!=', SysConst::PROVIDER_PENDIENTE);
+        $oArea = $oArea->pluck('id_area'); 
+        $oArea = $oArea->toArray();
+
+        if(!in_array($config->fatherArea, $oArea)){
+            $lProviders = $lAllProviders->whereIn('area_id', $oArea)->where('status_provider_id', '!=', SysConst::PROVIDER_PENDIENTE);
         }else{
             $lProviders = $lAllProviders->where('status_provider_id', '!=', SysConst::PROVIDER_PENDIENTE);
         }
@@ -355,7 +362,7 @@ class SProvidersUtils {
      */
     public static function notifyProviderToTesoreria($oProvider){
         $config = \App\Utils\Configuration::getConfigurations();
-        $lDocs = SProvidersUtils::getDocumentsProvider($oProvider->id_provider, $oProvider->area_id, [SysConst::VOBO_REVISADO]);
+        $lDocs = SProvidersUtils::getDocumentsProvider($oProvider->id_provider, [$oProvider->area_id], [SysConst::VOBO_REVISADO]);
         $oDoc = $lDocs->where('id_request_type_doc', 4);
 
         if (!is_null($oDoc)) {

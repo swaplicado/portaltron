@@ -10,6 +10,7 @@
             this.lDpsComp = <?php echo json_encode($lDpsComp); ?>;
             this.year = <?php echo json_encode($year); ?>;
             this.lAreas = <?php echo json_encode($lAreas); ?>;
+            this.lUserAreas = <?php echo json_encode($lUserAreas); ?>;
             this.lStatus = <?php echo json_encode($lStatus); ?>;
             this.lTypes = <?php echo json_encode($lTypes); ?>;
             this.lConstants = <?php echo json_encode($lConstants); ?>;
@@ -95,7 +96,15 @@
                         <label for="status_filter">Filtrar estatus: </label>
                         <select class="select2-class form-control" name="status_filter" id="status_filter"></select>
                     </span>
-                </div>
+                    
+                    <span class="nobreak" v-show="!is_omision">
+                        <label for="area_filter">Filtrar por área: </label>
+                        <select class="select2-class form-control" name="area_filter"
+                            id="area_filter" style="width: 300px !important"></select>
+                    </span>
+
+                    </div>
+                    
                 {{-- <div class="input-group" style="display: inline-flex; width: auto">
             <div class="input-group-prepend">
                 <button type="button" class="btn btn-secondary" v-on:click="year--">

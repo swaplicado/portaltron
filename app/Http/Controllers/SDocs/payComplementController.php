@@ -301,7 +301,7 @@ class payComplementController extends Controller
                                 ->get(); 
                 $oArea = $oArea->pluck('id_area');   
             }else{
-                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = collect(\Auth::user()->getArea());
                 $oArea = $oArea->pluck('id_area'); 
             }
             $olProviders = SProvidersUtils::getlProviders($oArea->toArray());
@@ -378,7 +378,7 @@ class payComplementController extends Controller
                                 ->get(); 
                 $oArea = $oArea->pluck('id_area');   
             }else{
-                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = collect(\Auth::user()->getArea());
                 $oArea = $oArea->pluck('id_area'); 
             }
             $provider_id = $request->provider_id;
@@ -423,7 +423,7 @@ class payComplementController extends Controller
                                 ->get(); 
                 $oArea = $oArea->pluck('id_area');   
             }else{
-                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = collect(\Auth::user()->getArea());
                 $oArea = $oArea->pluck('id_area'); 
             }
             $oDps = DB::table('dps as d')
@@ -487,11 +487,13 @@ class payComplementController extends Controller
                                 ->get(); 
                 $oArea = $oArea->pluck('id_area');   
             }else{
-                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = collect(\Auth::user()->getArea());
                 $oArea = $oArea->pluck('id_area'); 
             }
-            $voboArea = \Auth::user()->getArea();
-
+            //$voboArea = \Auth::user()->getArea();
+            $voboArea = collect(\Auth::user()->getArea());
+            $voboArea = $voboArea->pluck('id_area')->toArray(); 
+            
             DB::beginTransaction();
 
             $oDps = Dps::findOrFail($id_dps);
@@ -503,7 +505,7 @@ class payComplementController extends Controller
             $statusKey = $is_accept == true ? 'APROBADO' : 'RECHAZADO';
             $status_id = $arrStatus[$statusKey];
 
-            $oVobo = VoboDps::where('dps_id', $id_dps)->where('area_id', $voboArea->id_area)->first();
+            $oVobo = VoboDps::where('dps_id', $id_dps)->whereIn('area_id', $voboArea)->first();
             $oVobo->user_id = \Auth::user()->id;
             $oVobo->is_accept = $is_accept;
             $oVobo->is_reject = $is_reject;
@@ -628,7 +630,7 @@ class payComplementController extends Controller
                                 ->get(); 
                 $oArea = $oArea->pluck('id_area');   
             }else{
-                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = collect(\Auth::user()->getArea());
                 $oArea = $oArea->pluck('id_area'); 
             }
             $year = Carbon::now()->format('Y');
@@ -697,7 +699,7 @@ class payComplementController extends Controller
                                     ->get(); 
                     $oArea = $oArea->pluck('id_area');   
                 }else{
-                    $oArea = collect([\Auth::user()->getArea()]);
+                    $oArea = collect(\Auth::user()->getArea());
                     $oArea = $oArea->pluck('id_area'); 
                 }
                 $year = Carbon::now()->format('Y');

@@ -4,7 +4,7 @@ use DB;
 class DocumentsUtils {
 
     // lProviders debe tener un campo que se llame id_provider para que funcione
-    public static function getNumberPendigDocs( $lProviders = [], $area_id = 0 ){
+    public static function getNumberPendigDocs( $lProviders = [], $area_id = [] ){
         for( $i = 0 ; count($lProviders) > $i ; $i++ ){
             $oProviders = DB::table('vobo_docs')
                             ->join('docs_url', 'docs_url.id_doc_url', '=', 'vobo_docs.doc_url_id')
@@ -14,8 +14,8 @@ class DocumentsUtils {
                             ->where('vobo_docs.is_reject',false)
                             ->where('vobo_docs.check_status',1);
             
-            if( $area_id != 0 ){
-                $oProviders = $oProviders->where('vobo_docs.area_id',$area_id);
+            if (!empty($area_id)) {
+                $oProviders = $oProviders->whereIn('vobo_docs.area_id',$area_id);
             }
             
             $oProviders = $oProviders->get();
@@ -27,7 +27,7 @@ class DocumentsUtils {
     }
 
     // lProviders debe tener un campo que se llame id_provider para que funcione
-    public static function havePendigDocs( $lProviders = [], $area_id = 0 ){
+    public static function havePendigDocs( $lProviders = [], $area_id = [] ){
         for( $i = 0 ; count($lProviders) > $i ; $i++ ){
             $oProviders = DB::table('vobo_docs')
                             ->join('docs_url', 'docs_url.id_doc_url', '=', 'vobo_docs.doc_url_id')
@@ -37,8 +37,8 @@ class DocumentsUtils {
                             ->where('vobo_docs.is_reject',false)
                             ->where('vobo_docs.check_status',1);
                             
-            if( $area_id != 0 ){
-                $oProviders = $oProviders->where('vobo_docs.area_id',$area_id);
+            if (!empty($area_id)) {
+                $oProviders = $oProviders->whereIn('vobo_docs.area_id',$area_id);
             }
                             
             $oProviders = $oProviders->get();

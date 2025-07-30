@@ -7,6 +7,7 @@ var app = new Vue({
         lStatus: oServerData.lStatus,
         lTypes: oServerData.lTypes,
         lAreas: oServerData.lAreas,
+        lUserAreas: oServerData.lUserAreas,
         default_area_id: oServerData.default_area_id,
         area_id: '',
         name_area: '',
@@ -29,7 +30,6 @@ var app = new Vue({
         comments: null,
         is_reject: 0,
 
-        lAreas: oServerData.lAreas,
         area_id: "",
 
         is_omision: false,
@@ -87,6 +87,38 @@ var app = new Vue({
             }
         }
 
+        let userAreasFormatted = self.lUserAreas.map(area => ({
+            id: area.id_area,
+            text: area.name_area
+        }));
+        
+        let commonAreas = self.lAreas.filter(area =>
+            userAreasFormatted.some(userArea => userArea.id === area.id)
+        );
+
+        // Agregar opción "Todos" si hay 2 o más
+        if (commonAreas.length >= 2) {
+            commonAreas.unshift({
+                id: 0,
+                text: 'Todos'
+            });
+        }
+        
+        $('#area_filter').select2({
+            data: commonAreas,
+        }).on('select2:select', function(e) {
+            const selectedId = e.params.data.id;
+            self.area_id = selectedId;
+        
+            // Si seleccionan "Todos" (id = 0), manda null para traer todo
+            self.getComplementsByArea(selectedId === 0 ? null : selectedId);
+        });
+            
+        let arrAreaFilterDownload = [];
+        for(let userArea of commonAreas){
+            arrAreaFilterDownload.push(userArea);
+        }
+        
         $('#status_filter_download').select2({
             data: arrStatusFilterDownload,
         }).on('select2:select', function(e) {
@@ -482,6 +514,32 @@ var app = new Vue({
             endDatepicker.setDate(app.now);
             triggerEndDatepickerChange();
             // elemEndDatePicker.value = app.now;
+        },
+
+        getComplementsByArea(area_id) {
+            //SGui.showWaitingUnlimit();
+        
+            let route = this.oData.getcomplementsManagerRoute;
+        
+            axios.post(route, {
+                provider_id: this.provider_id,
+                area_id: area_id,
+                year: this.year
+            })
+            .then(result => {
+                let data = result.data;
+                if (data.success) {
+                    this.lDpsComp = data.lDpsComp;
+                    drawTableDpsComplementary(this.lDpsComp);
+                    //SGui.showOk();
+                } else {
+                    SGui.showMessage('', data.message, data.icon);
+                }
+            })
+            .catch(error => {
+                console.log(error);
+                SGui.showError(error);
+            });
         }
     }
 })

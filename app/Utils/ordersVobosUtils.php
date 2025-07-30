@@ -22,9 +22,9 @@ class ordersVobosUtils {
      */
     public static function getProviderDocsChildArea($provider_area_id, $my_area_id){
         $config = \App\Utils\Configuration::getConfigurations();
-        if($my_area_id != $config->fatherArea && $provider_area_id != $config->fatherArea){
+        if(!in_array($config->fatherArea, $my_area_id) && $provider_area_id != $config->fatherArea){
             $lOrders = ordersVobosUtils::getProviderDocsOrderToVobo($provider_area_id);
-            $myOrder = $lOrders->where('area', $my_area_id)->first();
+            $myOrder = $lOrders->whereIn('area', $my_area_id)->first();
             $oOrder = $lOrders->where('order', ($myOrder->order + 1))->first();
             $child_area_id = $oOrder->area;
         }else{
@@ -41,7 +41,7 @@ class ordersVobosUtils {
         $config = \App\Utils\Configuration::getConfigurations();
         $sOrders =  json_encode($config->ordersDps);
         $lOrders = collect(json_decode($sOrders));
-        $oOrder = $lOrders->where('type', $type_dps_id)->where('id', $area_id)->first();
+        $oOrder = $lOrders->where('type', $type_dps_id)->whereIn('id', $area_id)->first();
 
         if(is_null($oOrder)){
             $sDefOrder = json_encode($config->defaultOrderDps);
@@ -66,7 +66,7 @@ class ordersVobosUtils {
      */
     public static function getDpsChildArea($type_dps_id, $area_id){
         $config = \App\Utils\Configuration::getConfigurations();
-        if($area_id != $config->fatherArea){
+        if(!in_array($config->fatherArea, $area_id)){
             $lOrders = collect(ordersVobosUtils::getDpsOrder($type_dps_id, $area_id));
             $myOrder = $lOrders->where('area', $area_id)->first();
             $oOrder = $lOrders->where('order', ($myOrder->order + 1))->first();

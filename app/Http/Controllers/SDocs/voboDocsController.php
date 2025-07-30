@@ -26,7 +26,7 @@ class voboDocsController extends Controller
             $oVoboDoc->is_reject = $is_reject;
             $oVoboDoc->update();
 
-            $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $id_area);
+            $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, [$id_area]);
             foreach ($lDocuments as $doc) {
                 $doc->status = $doc->is_accept == true ? 'Aprobado' : ($doc->is_reject == true ? 'Rechazado' : 'Pendiente');
             }
@@ -55,7 +55,7 @@ class voboDocsController extends Controller
             $oVoboDoc->check_status = SysConst::VOBO_REVISADO;
             $oVoboDoc->update();
 
-            $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $id_area);
+            $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, [$id_area]);
             foreach ($lDocuments as $doc) {
                 $doc->status = $doc->is_accept == true ? 'Aprobado' : ($doc->is_reject == true ? 'Rechazado' : 'Pendiente');
             }
@@ -63,9 +63,11 @@ class voboDocsController extends Controller
             $lProviders = SProvidersUtils::getlProviders();
             $lProviders = $lProviders->where('status_provider_id', SysConst::PROVIDER_APROBADO)->values();
 
-            $oArea = \Auth::user()->getArea();
-            $lProviders = DocumentsUtils::getNumberPendigDocs($lProviders, $oArea->id_area);
-            $lProviders = DocumentsUtils::havePendigDocs($lProviders, $oArea->id_area);
+            //$oArea = \Auth::user()->getArea();
+            $oArea = collect(\Auth::user()->getArea());
+            $oArea = $oArea->pluck('id_area')->toArray(); 
+            $lProviders = DocumentsUtils::getNumberPendigDocs($lProviders, $oArea);
+            $lProviders = DocumentsUtils::havePendigDocs($lProviders, $oArea);
             
             \DB::commit();
         } catch (\Throwable $th) {

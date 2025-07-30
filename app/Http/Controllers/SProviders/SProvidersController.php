@@ -39,7 +39,9 @@ class SProvidersController extends Controller
     public function index(){
         try {
             $config = \App\Utils\Configuration::getConfigurations();
-            $oArea = \Auth::user()->getArea();
+            //$oArea = \Auth::user()->getArea();
+            $oArea = collect(\Auth::user()->getArea());
+            
             $lProviders = SProvidersUtils::getProvidersToVobo($oArea);
 
             foreach ($lProviders as $provider) {
@@ -69,7 +71,7 @@ class SProvidersController extends Controller
                             ->where('is_deleted', 0)
                             ->get();
             
-            $user_area = $oArea->id_area;
+            $user_area = $oArea->pluck('id_area')->toArray();
             $fatherArea = $config->fatherArea;
             $showAreaRegisterProvider = $config->showAreaRegisterProvider;
         } catch (\Throwable $th) {
@@ -90,8 +92,10 @@ class SProvidersController extends Controller
         try {
             $oProvider = SProvidersUtils::getProvider($request->provider_id);
             $oProvider->fiscal_regime_name = $oProvider->fiscal_regime_name ? $oProvider->fiscal_key . ' - ' . $oProvider->fiscal_regime_name : 'N/D';
-            $oArea = \Auth::user()->getArea();
-            $lDocuments = SProvidersUtils::getDocumentsProvider($request->provider_id, $oArea->id_area);
+            //$oArea = \Auth::user()->getArea();
+            $oArea = collect(\Auth::user()->getArea());
+            $oArea = $oArea->pluck('id_area')->toArray(); 
+            $lDocuments = SProvidersUtils::getDocumentsProvider($request->provider_id, $oArea);
             foreach ($lDocuments as $doc) {
                 $doc->status = $doc->is_accept == true ? 'Aprobado' : ($doc->is_reject == true ? 'Rechazado' : 'Pendiente');
             }
@@ -371,20 +375,23 @@ class SProvidersController extends Controller
             $oUser = User::findOrFail($oProvider->user_id);
 
             $config = \App\Utils\Configuration::getConfigurations();
-            $oArea = \Auth::user()->getArea();
+            //$oArea = \Auth::user()->getArea();
+            $oArea = collect(\Auth::user()->getArea());
+            $arrAreaIds = $oArea->pluck('id_area')->toArray();
+            $arrNameAreas = $oArea->pluck('name_area')->toArray();
             \DB::beginTransaction();
 
-            if($oArea->id_area != $config->fatherArea){
-                $child_area_id = ordersVobosUtils::getProviderDocsChildArea($oProvider->area_id, $oArea->id_area);
+            if(!in_array($config->fatherArea, $arrAreaIds)){
+                $child_area_id = ordersVobosUtils::getProviderDocsChildArea($oProvider->area_id, $arrAreaIds);
 
-                $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $oArea->id_area);
+                $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $arrAreaIds);
                 foreach ($lDocuments as $doc) {
                     $oVoboDoc = VoboDoc::findOrFail($doc->id_vobo);
                     $oVoboDoc->check_status = SysConst::VOBO_REVISADO;
                     $oVoboDoc->update();
                 }
 
-                $lChildDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $child_area_id, [SysConst::VOBO_NO_REVISION]);
+                $lChildDocuments = SProvidersUtils::getDocumentsProvider($id_provider, [$child_area_id], [SysConst::VOBO_NO_REVISION]);
                 foreach ($lChildDocuments as $doc) {
                     $oVoboDoc = VoboDoc::findOrFail($doc->id_vobo);
                     $oVoboDoc->check_status = SysConst::VOBO_REVISION;
@@ -398,7 +405,7 @@ class SProvidersController extends Controller
 
                 $sendMailNextStep = true;
             }else{
-                $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $oArea->id_area);
+                $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $arrAreaIds);
                 foreach ($lDocuments as $doc) {
                     $oVoboDoc = VoboDoc::findOrFail($doc->id_vobo);
                     $oVoboDoc->check_status = SysConst::VOBO_REVISADO;
@@ -433,10 +440,11 @@ class SProvidersController extends Controller
                 $lUsers = UserUtils::getUsersByArea($child_area_id);
                 foreach ($lUsers as $user) {
                     $email = $user->email;
+                    $areas = implode(', ', $arrNameAreas);
                     Mail::to($email)->send(new nextStepVoboProviderMail(
                                                             $oProvider->provider_short_name,
                                                             $oProvider->provider_rfc,
-                                                            $oArea->name_area
+                                                            $areas
                                                         )
                                                     );
                 }
@@ -449,7 +457,7 @@ class SProvidersController extends Controller
 
         if($sendMail){
             try {
-                if ($oArea->id_area == $config->fatherArea) {
+                if(in_array($config->fatherArea, $arrAreaIds)){
                     $lUsers = UserUtils::getUsersByArea($oProvider->area_id);
                     foreach ($lUsers as $user) {
                         $email = $user->email;
@@ -497,10 +505,12 @@ class SProvidersController extends Controller
             $oProvider = SProvider::findOrFail($id_provider);
             $oUser = User::findOrFail($oProvider->user_id);
             $config = \App\Utils\Configuration::getConfigurations();
-            $oArea = \Auth::user()->getArea();
+            //$oArea = \Auth::user()->getArea();
+            $oArea = collect(\Auth::user()->getArea());
+            $arrAreaIds = $oArea->pluck('id_area')->toArray();
 
             \DB::beginTransaction();
-            $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $oArea->id_area);
+            $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $arrAreaIds);
             foreach ($lDocuments as $doc) {
                 $oVoboDoc = VoboDoc::findOrFail($doc->id_vobo);
                 $oVoboDoc->check_status = SysConst::VOBO_REVISADO;
@@ -525,7 +535,7 @@ class SProvidersController extends Controller
 
         if($sendMail){
             try {
-                if ($oArea->id_area == $config->fatherArea) {
+                if (in_array($config->fatherArea, $arrAreaIds)) {
                     $lUsers = UserUtils::getUsersByArea($oProvider->area_id);
                     foreach ($lUsers as $user) {
                         $email = $user->email;
@@ -566,10 +576,12 @@ class SProvidersController extends Controller
             $oProvider = SProvider::findOrFail($id_provider);
             $oUser = User::findOrFail($oProvider->user_id);
             $config = \App\Utils\Configuration::getConfigurations();
-            $oArea = \Auth::user()->getArea();
+            //$oArea = \Auth::user()->getArea();
+            $oArea = collect(\Auth::user()->getArea());
+            $arrAreaIds = $oArea->pluck('id_area')->toArray();
 
             \DB::beginTransaction();
-            $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $oArea->id_area);
+            $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $arrAreaIds);
             foreach ($lDocuments as $doc) {
                 $oVoboDoc = VoboDoc::findOrFail($doc->id_vobo);
                 $oVoboDoc->check_status = SysConst::VOBO_REVISADO;
@@ -862,18 +874,20 @@ class SProvidersController extends Controller
     public function documentsProviders(){
         try {
             $config = \App\Utils\Configuration::getConfigurations();
-            $oArea = \Auth::user()->getArea();
+            //$oArea = \Auth::user()->getArea();
+            $oArea = collect(\Auth::user()->getArea());
+            $oArea = $oArea->pluck('id_area')->toArray(); 
 
             $isFatherArea = false;
-            if($oArea->id_area != $config->fatherArea){
-                $lProviders = SProvidersUtils::getlProviders([$oArea->id_area]);
+            if(!in_array($config->fatherArea, $oArea)){
+                $lProviders = SProvidersUtils::getlProviders($oArea);
             }else{
                 $lProviders = SProvidersUtils::getlProviders();
                 $isFatherArea = true;
             }
             $lProviders = $lProviders->where('status_provider_id', SysConst::PROVIDER_APROBADO)->values();
 
-            $oArea = \Auth::user()->getArea();
+            //$oArea = \Auth::user()->getArea();
             // $lProviders = DocumentsUtils::getNumberPendigDocs($lProviders, $oArea->id_area);
             // $lProviders = DocumentsUtils::havePendigDocs($lProviders, $oArea->id_area);
 
@@ -897,7 +911,7 @@ class SProvidersController extends Controller
                 }
 
                 $provider->area = $providerArea->name_area ?? 'N/D';
-                $lDocsProvider = SProvidersUtils::getDocumentsProvider($provider->id_provider, $config->fatherArea, [SysConst::VOBO_REVISADO]);
+                $lDocsProvider = SProvidersUtils::getDocumentsProvider($provider->id_provider, [$config->fatherArea], [SysConst::VOBO_REVISADO]);
                 $provider->number_pen_doc = count($lDocsProvider) . ' de ' . count($lDocs);
             }
 
@@ -928,7 +942,7 @@ class SProvidersController extends Controller
 
         return view('SProviders.documents_providers')->with('lProviders', $lProviders)
                                                     ->with('lConstants', $lConstants)
-                                                    ->with('area_id', $oArea->id_area)
+                                                    ->with('area_id', $oArea)
                                                     ->with('isFatherArea', $isFatherArea)
                                                     ->with('lDocs', $lDocs)
                                                     ->with('lAreas', $lAreas);
@@ -937,7 +951,7 @@ class SProvidersController extends Controller
     public static function providerProfile(){
         $oProvider = \Auth::user()->getProviderData();
 
-        $lDocsProvider = SProvidersUtils::getDocumentsProvider($oProvider->id_provider, $oProvider->area_id, [SysConst::VOBO_REVISADO]);
+        $lDocsProvider = SProvidersUtils::getDocumentsProvider($oProvider->id_provider, [$oProvider->area_id], [SysConst::VOBO_REVISADO]);
         // $lDocs = $lDocuments->where('is_reject', 1);
         $lDocs = RequestTypeDocs::where('is_default', 1)
                                 ->where('is_deleted', 0)
@@ -983,10 +997,12 @@ class SProvidersController extends Controller
     public function allProvidersDocuments(){
         try {
             $config = \App\Utils\Configuration::getConfigurations();
-            $oArea = \Auth::user()->getArea();
+            //$oArea = \Auth::user()->getArea();
+            $oArea = collect(\Auth::user()->getArea());
+            $oArea = $oArea->pluck('id_area')->toArray(); 
             
-            if($oArea->id_area != $config->fatherArea){
-                $allProviders = SProvidersUtils::getlProviders([$oArea->id_area]);
+            if(!in_array($config->fatherArea, $oArea)){
+                $allProviders = SProvidersUtils::getlProviders($oArea);
             }else{
                 $allProviders = SProvidersUtils::getlProviders();
             }
@@ -1050,7 +1066,7 @@ class SProvidersController extends Controller
             foreach ($lProviders as $provider) {
                 $provider->lDocs = SProvidersUtils::getDocumentsProvider(
                     $provider->id_provider,
-                    $provider->area_id,
+                    [$provider->area_id],
                     [SysConst::VOBO_REVISADO, SysConst::VOBO_REVISION],
                     $arrTypesDocs
                 );
@@ -1154,9 +1170,9 @@ class SProvidersController extends Controller
                                 ->where('id_area', $oProvider->area_id)
                                 ->first();
             $oProvider->area = $providerArea->name_area ?? 'N/D';
-            $oArea = \Auth::user()->getArea();
+            //$oArea = \Auth::user()->getArea();
             $config = \App\Utils\Configuration::getConfigurations();
-            $lDocuments = SProvidersUtils::getDocumentsProvider($request->provider_id, $config->fatherArea);
+            $lDocuments = SProvidersUtils::getDocumentsProvider($request->provider_id, [$config->fatherArea]);
             foreach ($lDocuments as $doc) {
                 $doc->status = $doc->is_accept == true ? 'Aprobado' : ($doc->is_reject == true ? 'Rechazado' : 'Pendiente');
             }
@@ -1182,16 +1198,18 @@ class SProvidersController extends Controller
             $oProvider->update();
 
             $config = \App\Utils\Configuration::getConfigurations();
-            $oArea = \Auth::user()->getArea();
+            //$oArea = \Auth::user()->getArea();
+            $oArea = collect(\Auth::user()->getArea());
+            $oArea = $oArea->pluck('id_area')->toArray(); 
 
-            if($oArea->id_area != $config->fatherArea){
-                $lProviders = SProvidersUtils::getlProviders([$oArea->id_area]);
+            if(!in_array($config->fatherArea, $oArea)){
+                $lProviders = SProvidersUtils::getlProviders($oArea);
             }else{
                 $lProviders = SProvidersUtils::getlProviders();
             }
             $lProviders = $lProviders->where('status_provider_id', SysConst::PROVIDER_APROBADO)->values();
 
-            $oArea = \Auth::user()->getArea();
+            //$oArea = \Auth::user()->getArea();
             $lDocs = RequestTypeDocs::where('is_default', 1)
                                     ->where('is_deleted', 0)
                                     ->select(
@@ -1212,7 +1230,7 @@ class SProvidersController extends Controller
                 }
 
                 $provider->area = $providerArea->name_area;
-                $lDocsProvider = SProvidersUtils::getDocumentsProvider($provider->id_provider, $config->fatherArea, [SysConst::VOBO_REVISADO]);
+                $lDocsProvider = SProvidersUtils::getDocumentsProvider($provider->id_provider, [$config->fatherArea], [SysConst::VOBO_REVISADO]);
                 $provider->number_pen_doc = count($lDocsProvider) . ' de ' . count($lDocs);
             }
 

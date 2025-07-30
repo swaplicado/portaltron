@@ -240,7 +240,7 @@ class purchaseOrdersController extends Controller
                                 ->get(); 
                 $oArea = $oArea->pluck('id_area');   
             }else{
-                $oArea = collect([\Auth::user()->getArea()]);
+                $oArea = collect(\Auth::user()->getArea());
                 $oArea = $oArea->pluck('id_area'); 
             }
             
@@ -301,7 +301,7 @@ class purchaseOrdersController extends Controller
                                     ->get(); 
                     $oArea = $oArea->pluck('id_area');   
                 }else{
-                    $oArea = collect([\Auth::user()->getArea()]);
+                    $oArea = collect(\Auth::user()->getArea());
                     $oArea = $oArea->pluck('id_area'); 
                 }
             

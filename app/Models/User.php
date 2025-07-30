@@ -214,7 +214,8 @@ class User extends Authenticatable
                         'a.id_area',
                         'a.name_area'
                     )
-                    ->first();
+                    ->get()
+                    ->toArray();
 
     return $oArea;
     }
