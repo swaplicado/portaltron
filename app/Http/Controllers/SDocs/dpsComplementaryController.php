@@ -775,10 +775,7 @@ class dpsComplementaryController extends Controller
                 $oArea = collect(\Auth::user()->getArea());
                 $oArea = $oArea->pluck('id_area'); 
             }
-            //$voboArea = \Auth::user()->getArea();
-            $voboArea = collect(\Auth::user()->getArea());
-            $voboArea = $voboArea->pluck('id_area'); 
-            $voboArea = $voboArea->toArray();
+            $voboArea = (int) $request->area_id;
 
             DB::beginTransaction();
 
@@ -791,7 +788,10 @@ class dpsComplementaryController extends Controller
             $statusKey = $is_accept == true ? 'APROBADO' : 'RECHAZADO';
             $status_id = $arrStatus[$statusKey];
 
-            $oVobo = VoboDps::where('dps_id', $id_dps)->whereIn('area_id', $voboArea)->first();
+            $oVobo = VoboDps::where('dps_id', $id_dps)->where('area_id', $voboArea)->first();
+            if(is_null($oVobo) ){
+                return json_encode(['success' => false, 'message' => 'No se encontró el registro de Vobo para el área seleccionada', 'icon' => 'error']);
+            }
             $oVobo->user_id = \Auth::user()->id;
             $oVobo->is_accept = $is_accept;
             $oVobo->is_reject = $is_reject;

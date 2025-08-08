@@ -6,6 +6,7 @@
         this.lProviders = <?php echo json_encode($lProviders); ?>;
         this.oArea = <?php echo json_encode($oArea); ?>;
         this.getProviderRoute = <?php echo json_encode(route('sproviders.getProvider')); ?>;
+        this.getProviderToVoboRoute = <?php echo json_encode(route('sproviders.getProvidersToVobo')); ?>;
         this.getAllProvidersDocumentsRoute = <?php echo json_encode(route('sproviders.allProvidersDocuments')); ?>;
         this.downloadProvidersDocumentsRoute = <?php echo json_encode(route('sproviders.downloadProvidersDocuments')); ?>;
         this.lConstants = <?php echo json_encode($lConstants); ?>;
@@ -15,6 +16,7 @@
         this.lStatus = <?php echo json_encode($lStatus); ?>;
         this.voboDocRoute = <?php echo json_encode(route('voboDocs.voboDoc')); ?>;
         this.lAreas = <?php echo json_encode($lAreas); ?>;
+        this.lUserAreas = <?php echo json_encode($lUserAreas); ?>;
     }
     var oServerData = new GlobalData();
     var indexesProvidersTable = {
@@ -49,6 +51,12 @@
                 <label for="status_filter">Filtrar estatus: </label>
                 <select class="select2-class form-control" name="status_filter" id="status_filter"></select>
             </span>
+
+            <span class="nobreak">
+                        <label for="area_filter">Filtrar por área: </label>
+                        <select class="select2-class form-control" name="area_filter"
+                            id="area_filter" style="width: 300px !important"></select>
+                    </span>
 
             <span class="nobreak" style="float: right">
                 <button type="button" class="btn btn-dark btn-rounded btn-icon" id="btn_download" title="Descarga de documentos">
@@ -134,7 +142,7 @@
     <script type="text/javascript" src="{{ asset('myApp/Utils/datatablesUtils.js') }}"></script>
     <script type="text/javascript">
         $(document).ready(function() {
-            // drawTable('table_providers', oServerData.lProviders);
+
             drawTableJson('table_providers', oServerData.lProviders, 
                 'id_provider',
                 'status_provider_id',

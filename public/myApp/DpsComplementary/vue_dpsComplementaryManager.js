@@ -19,6 +19,7 @@ var app = new Vue({
         xml_url: null,
         oDps: null,
         id_dps: null,
+        selected_area: 0,
 
         provider_id: null,
         lProviders: oServerData.lProviders,
@@ -29,8 +30,6 @@ var app = new Vue({
         rejection_id: null,
         comments: null,
         is_reject: 0,
-
-        area_id: "",
 
         is_omision: false,
 
@@ -109,6 +108,7 @@ var app = new Vue({
         }).on('select2:select', function(e) {
             const selectedId = e.params.data.id;
             self.area_id = selectedId;
+            self.selected_area = selectedId;
         
             // Si seleccionan "Todos" (id = 0), manda null para traer todo
             self.getComplementsByArea(selectedId === 0 ? null : selectedId);
@@ -299,6 +299,7 @@ var app = new Vue({
                 'provider_id': this.provider_id,
                 'comments': this.comments,
                 'rejection_id': this.rejection_id,
+                'area_id': this.selected_area,
             })
             .then( result => {
                 let data = result.data;
@@ -330,6 +331,7 @@ var app = new Vue({
             this.lDpsReasons = [];
             this.is_reject = 0;
             this.area_id = "";
+            this.selected_area = $('#area_filter').val();
             this.provider_id = $('#provider_filter').val();
             this.id_dps = null;
             this.type_id = $('#type_filter').val();

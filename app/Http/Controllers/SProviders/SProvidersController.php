@@ -25,6 +25,7 @@ use App\Utils\ordersVobosUtils;
 use App\Utils\SProvidersUtils;
 use App\Utils\SysUtils;
 use App\Utils\UserUtils;
+use Auth;
 use Illuminate\Http\Request;
 use App\Models\SProviders\SProvider;
 use Illuminate\Support\Carbon;
@@ -41,7 +42,7 @@ class SProvidersController extends Controller
             $config = \App\Utils\Configuration::getConfigurations();
             //$oArea = \Auth::user()->getArea();
             $oArea = collect(\Auth::user()->getArea());
-            
+
             $lProviders = SProvidersUtils::getProvidersToVobo($oArea);
 
             foreach ($lProviders as $provider) {
@@ -74,6 +75,7 @@ class SProvidersController extends Controller
             $user_area = $oArea->pluck('id_area')->toArray();
             $fatherArea = $config->fatherArea;
             $showAreaRegisterProvider = $config->showAreaRegisterProvider;
+            $lUserAreas = \Auth::user()->getArea();
         } catch (\Throwable $th) {
             \Log::error($th);
             return view('errorPages.serverError');
@@ -84,6 +86,7 @@ class SProvidersController extends Controller
                                             ->with('oArea', $oArea)
                                             ->with('user_area', $user_area)
                                             ->with('fatherArea', $fatherArea)
+                                            ->with('lUserAreas', $lUserAreas)
                                             ->with('lAreas', $lAreas)
                                             ->with('showAreaRegisterProvider', $showAreaRegisterProvider);
     }
@@ -92,9 +95,17 @@ class SProvidersController extends Controller
         try {
             $oProvider = SProvidersUtils::getProvider($request->provider_id);
             $oProvider->fiscal_regime_name = $oProvider->fiscal_regime_name ? $oProvider->fiscal_key . ' - ' . $oProvider->fiscal_regime_name : 'N/D';
-            //$oArea = \Auth::user()->getArea();
-            $oArea = collect(\Auth::user()->getArea());
-            $oArea = $oArea->pluck('id_area')->toArray(); 
+
+            if($request->filled('area_id')){
+                if($request->area_id == 0){
+                    return json_encode(['success' => false, 'message' => 'Se tiene que seleccionar un área primero', 'icon' => false]);
+                }else{
+                    $oArea = collect($request->area_id);
+                }
+            }else{
+                $oArea = Auth::user()->getArea();
+            }
+
             $lDocuments = SProvidersUtils::getDocumentsProvider($request->provider_id, $oArea);
             foreach ($lDocuments as $doc) {
                 $doc->status = $doc->is_accept == true ? 'Aprobado' : ($doc->is_reject == true ? 'Rechazado' : 'Pendiente');
@@ -373,18 +384,29 @@ class SProvidersController extends Controller
 
             $oProvider = SProvider::findOrFail($id_provider);
             $oUser = User::findOrFail($oProvider->user_id);
-
+            $areaName = '';
             $config = \App\Utils\Configuration::getConfigurations();
-            //$oArea = \Auth::user()->getArea();
-            $oArea = collect(\Auth::user()->getArea());
-            $arrAreaIds = $oArea->pluck('id_area')->toArray();
-            $arrNameAreas = $oArea->pluck('name_area')->toArray();
+            if($request->filled('area_id')){
+                if($request->area_id == 0){
+                    return json_encode(['success' => false, 'message' => 'Se tiene que seleccionar un área primero', 'icon' => false]);
+                }else{
+                    $oArea = collect($request->area_id);
+                    $area = Areas::find($request->area_id);
+                    if($area != null){
+                        $areaName = $area->name;
+                    }else{
+                        return json_encode(['success' => false, 'message' => 'No se encontró el área seleccionada', 'icon' => false]);
+                    }
+                }
+            }else{
+                return json_encode(['success' => false, 'message' => 'Se tiene que seleccionar un área primero', 'icon' => false]);
+            }
             \DB::beginTransaction();
 
-            if(!in_array($config->fatherArea, $arrAreaIds)){
-                $child_area_id = ordersVobosUtils::getProviderDocsChildArea($oProvider->area_id, $arrAreaIds);
+            if($config->fatherArea == $oArea){
+                $child_area_id = ordersVobosUtils::getProviderDocsChildArea($oProvider->area_id, $oArea);
 
-                $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $arrAreaIds);
+                $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $oArea);
                 foreach ($lDocuments as $doc) {
                     $oVoboDoc = VoboDoc::findOrFail($doc->id_vobo);
                     $oVoboDoc->check_status = SysConst::VOBO_REVISADO;
@@ -405,7 +427,7 @@ class SProvidersController extends Controller
 
                 $sendMailNextStep = true;
             }else{
-                $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $arrAreaIds);
+                $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $oArea);
                 foreach ($lDocuments as $doc) {
                     $oVoboDoc = VoboDoc::findOrFail($doc->id_vobo);
                     $oVoboDoc->check_status = SysConst::VOBO_REVISADO;
@@ -440,11 +462,10 @@ class SProvidersController extends Controller
                 $lUsers = UserUtils::getUsersByArea($child_area_id);
                 foreach ($lUsers as $user) {
                     $email = $user->email;
-                    $areas = implode(', ', $arrNameAreas);
                     Mail::to($email)->send(new nextStepVoboProviderMail(
                                                             $oProvider->provider_short_name,
                                                             $oProvider->provider_rfc,
-                                                            $areas
+                                                            $areaName,
                                                         )
                                                     );
                 }
@@ -457,7 +478,7 @@ class SProvidersController extends Controller
 
         if($sendMail){
             try {
-                if(in_array($config->fatherArea, $arrAreaIds)){
+                if( $config->fatherArea == $oArea){
                     $lUsers = UserUtils::getUsersByArea($oProvider->area_id);
                     foreach ($lUsers as $user) {
                         $email = $user->email;
@@ -505,12 +526,25 @@ class SProvidersController extends Controller
             $oProvider = SProvider::findOrFail($id_provider);
             $oUser = User::findOrFail($oProvider->user_id);
             $config = \App\Utils\Configuration::getConfigurations();
-            //$oArea = \Auth::user()->getArea();
-            $oArea = collect(\Auth::user()->getArea());
-            $arrAreaIds = $oArea->pluck('id_area')->toArray();
+
+            if($request->filled('area_id')){
+                if($request->area_id == 0){
+                    return json_encode(['success' => false, 'message' => 'Se tiene que seleccionar un área primero', 'icon' => false]);
+                }else{
+                    $oArea = collect($request->area_id);
+                    $area = Areas::find($request->area_id);
+                    if($area != null){
+                        $areaName = $area->name;
+                    }else{
+                        return json_encode(['success' => false, 'message' => 'No se encontró el área seleccionada', 'icon' => false]);
+                    }
+                }
+            }else{
+                return json_encode(['success' => false, 'message' => 'Se tiene que seleccionar un área primero', 'icon' => false]);
+            }
 
             \DB::beginTransaction();
-            $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $arrAreaIds);
+            $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $oArea);
             foreach ($lDocuments as $doc) {
                 $oVoboDoc = VoboDoc::findOrFail($doc->id_vobo);
                 $oVoboDoc->check_status = SysConst::VOBO_REVISADO;
@@ -535,7 +569,7 @@ class SProvidersController extends Controller
 
         if($sendMail){
             try {
-                if (in_array($config->fatherArea, $arrAreaIds)) {
+                if ($config->fatherArea == $oArea) {
                     $lUsers = UserUtils::getUsersByArea($oProvider->area_id);
                     foreach ($lUsers as $user) {
                         $email = $user->email;
@@ -576,12 +610,24 @@ class SProvidersController extends Controller
             $oProvider = SProvider::findOrFail($id_provider);
             $oUser = User::findOrFail($oProvider->user_id);
             $config = \App\Utils\Configuration::getConfigurations();
-            //$oArea = \Auth::user()->getArea();
-            $oArea = collect(\Auth::user()->getArea());
-            $arrAreaIds = $oArea->pluck('id_area')->toArray();
+            if($request->filled('area_id')){
+                if($request->area_id == 0){
+                    return json_encode(['success' => false, 'message' => 'Se tiene que seleccionar un área primero', 'icon' => false]);
+                }else{
+                    $oArea = collect($request->area_id);
+                    $area = Areas::find($request->area_id);
+                    if($area != null){
+                        $areaName = $area->name;
+                    }else{
+                        return json_encode(['success' => false, 'message' => 'No se encontró el área seleccionada', 'icon' => false]);
+                    }
+                }
+            }else{
+                return json_encode(['success' => false, 'message' => 'Se tiene que seleccionar un área primero', 'icon' => false]);
+            }
 
             \DB::beginTransaction();
-            $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $arrAreaIds);
+            $lDocuments = SProvidersUtils::getDocumentsProvider($id_provider, $oArea);
             foreach ($lDocuments as $doc) {
                 $oVoboDoc = VoboDoc::findOrFail($doc->id_vobo);
                 $oVoboDoc->check_status = SysConst::VOBO_REVISADO;
@@ -1096,8 +1142,12 @@ class SProvidersController extends Controller
                         }
     
                         $relativePath = $provider->provider_name . '/' . $originalName;
-                        $zip->addFile($absolutePath, $relativePath);
-                        $currentSize += $fileSize;
+                        if (file_exists($absolutePath)) {
+                            $zip->addFile($absolutePath, $relativePath);
+                            $currentSize += $fileSize;
+                        } else {
+                            \Log::warning("Archivo no encontrado justo antes de agregar al ZIP: $absolutePath");
+                        }
                     }
                 }
             }
@@ -1239,5 +1289,45 @@ class SProvidersController extends Controller
             \Log::error($th);
             return json_encode(['success' => false, 'message' => 'No se pudo actualizar el area del proveedor']);
         }
+    }
+
+    public function getProvidersToVobo(Request $request){
+        try {
+            $config = \App\Utils\Configuration::getConfigurations();
+            //$oArea = \Auth::user()->getArea();
+            if ($request->area_id != 0){
+                $ids = is_array($request->area_id) ? $request->area_id : [$request->area_id];
+
+                $areas = collect($ids)->map(function($id) {
+                    return (object) [
+                        'id_area' => (int) $id,
+                        'name_area' => ''
+                    ];
+                });
+            } else {
+                $areas = collect(Auth::user()->getArea());
+            }
+            
+            $lAllProviders = SProvidersUtils::getlProviders();
+
+            $lProvidersToVobo = SProvidersUtils::filterProviderToVobo($areas);
+            
+            $config = \App\Utils\Configuration::getConfigurations();
+
+            $oArea = $areas->pluck('id_area')->toArray();
+            $lProviders = $lAllProviders->whereIn('area_id', $oArea)->where('status_provider_id', '!=', SysConst::PROVIDER_PENDIENTE);
+            
+            // $arr = $lProviders->toArray();
+
+            // $lProvidersToVobo = $lProvidersToVobo->concat($arr);
+            foreach ($lProviders as $oProvider) {
+                $lProvidersToVobo->push($oProvider);
+            }
+        } catch (\Throwable $th) {
+            \Log::error($th);
+            return json_encode(['success' => false, 'message' => 'No se pudieron obtener los proveedores']);
+        }
+
+        return json_encode(['success' => true, 'lProviders' => $lProvidersToVobo]);
     }
 }

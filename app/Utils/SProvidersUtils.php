@@ -202,11 +202,16 @@ class SProvidersUtils {
     /**
      * Metodo que regresa los proveedores por area y por el estatus del vobo doc
      */
-    public static function filterProviderToVobo(){
+    public static function filterProviderToVobo($area_id = []){
         #$oArea = \Auth::user()->getArea();
         $config = \App\Utils\Configuration::getConfigurations();
-        $oArea = collect(\Auth::user()->getArea());
-        $oArea = $oArea->pluck('id_area')->toArray(); 
+        if(count($area_id) == 0){
+            $oArea = collect(\Auth::user()->getArea());
+            $oArea = $oArea->pluck('id_area')->toArray();
+        }else{
+            $oArea = $area_id->pluck('id_area')->toArray();
+        } 
+        
         
         $lProvidersVobos = \DB::table('providers as p')
                             ->join(config('myapp.mngr_db').'.users as u', 'u.id', '=', 'user_id')
@@ -331,14 +336,15 @@ class SProvidersUtils {
      * metodo que mezcla el resultado de los proveedores pendientes de vobo y el resto de proveedores
      */
     public static function getProvidersToVobo($oArea){
+        $oArea = $oArea->pluck('id_area'); 
+        $oArea = $oArea->toArray();
+
         $lAllProviders = SProvidersUtils::getlProviders();
 
         $lProvidersToVobo = SProvidersUtils::filterProviderToVobo();
 
         $config = \App\Utils\Configuration::getConfigurations();
 
-        $oArea = $oArea->pluck('id_area'); 
-        $oArea = $oArea->toArray();
 
         if(!in_array($config->fatherArea, $oArea)){
             $lProviders = $lAllProviders->whereIn('area_id', $oArea)->where('status_provider_id', '!=', SysConst::PROVIDER_PENDIENTE);

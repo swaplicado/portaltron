@@ -29,7 +29,9 @@ var app = new Vue({
         lTypesDocs: [],
         lProvidersToDownloadDocuments: [],
         lDocumentsToDownload: [],
-        checkAllProviders: false
+        checkAllProviders: false,
+        selected_area: 0,
+        lUserAreas: oServerData.lUserAreas,
     },
     watch: {
         lDocuments:function(val){
@@ -91,6 +93,30 @@ var app = new Vue({
             
         });
 
+        let userAreasFormatted = self.lUserAreas.map(area => ({
+            id: area.id_area,
+            text: area.name_area
+        }));
+        
+        // Agregar opción "Todos" si hay 2 o más
+        if (userAreasFormatted.length >= 2) {
+            userAreasFormatted.unshift({
+                id: 0,
+                text: 'Todos'
+            });
+        }
+        
+        $('#area_filter').select2({
+            data: userAreasFormatted,
+        }).on('select2:select', function(e) {
+            const selectedId = e.params.data.id;
+            self.area_id = selectedId;
+            self.selected_area = selectedId;
+        
+            // Si seleccionan "Todos" (id = 0), manda null para traer todo
+            self.getProvidersByArea(selectedId === 0 ? null : selectedId);
+        });
+
         $('#btn_download').click(function () {
             self.getAllProvidersDocuments();
         });
@@ -116,6 +142,7 @@ var app = new Vue({
             return new Promise((resolve, reject) => 
                 axios.post(route,{
                     'provider_id': this.id_provider,
+                    'area_id': this.selected_area,
                 })
                 .then(result => {
                     let data = result.data;
@@ -176,6 +203,7 @@ var app = new Vue({
                 'id_provider': this.id_provider,
                 'comments': this.comments,
                 'provider_area': this.provider_area,
+                'area_id': this.selected_area,
             })
             .then( result => {
                 let data = result.data;
@@ -239,7 +267,7 @@ var app = new Vue({
                 'is_accept': true,
                 'is_reject': false,
                 'id_provider': this.id_provider,
-                'id_area': this.oArea.id_area,
+                'id_area': this.selected_area,
             })
             .then( result =>  {
                 let data = result.data;
@@ -266,7 +294,7 @@ var app = new Vue({
                 'is_accept': false,
                 'is_reject': true,
                 'id_provider': this.id_provider,
-                'id_area': this.oArea.id_area,
+                'id_area': this.selected_area,
             })
             .then( result =>  {
                 let data = result.data;
@@ -414,6 +442,43 @@ var app = new Vue({
             for(let check of lCheckProvider){
                 check.checked = false;
             }
+        },
+
+        getProvidersByArea(area_id) {
+            //SGui.showWaitingUnlimit();
+        
+            let route = this.oData.getProviderToVoboRoute;
+        
+            axios.get(route, {
+                params: {
+                    area_id: area_id
+                }
+            })
+            .then(result => {
+                let data = result.data;
+                if (data.success) {
+                    
+                    drawTableJson('table_providers', data.lProviders, 
+                        'id_provider',
+                        'status_provider_id',
+                        'provider_short_name',
+                        'provider_name',
+                        'provider_rfc',
+                        'fiscal_regime_name',
+                        'provider_email',
+                        'username',
+                        'status',
+                        'created',
+                        'updated'
+                    );
+                } else {
+                    SGui.showMessage('', data.message, data.icon);
+                }
+            })
+            .catch(error => {
+                console.log(error);
+                SGui.showError(error);
+            });
         }
     }
 })

@@ -96,6 +96,7 @@ Route::middleware(['auth', 'menu', 'app.sprovider', 'app.companie'])->group( fun
         
         Route::post('/sproviders/getProviderToDocuments', [SProvidersController::class, 'getProviderToDocuments'])->name('getProviderToDocuments');
         Route::post('/sproviders/updateArea', [SProvidersController::class, 'updateAreaProvider'])->name('updateArea');
+        Route::get('/getProvidersToVobo', [SProvidersController::class, 'getProvidersToVobo'])->name('getProvidersToVobo');
     });
     
     /** Usuarios */

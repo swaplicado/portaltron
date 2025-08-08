@@ -66,7 +66,7 @@ class ordersVobosUtils {
      */
     public static function getDpsChildArea($type_dps_id, $area_id){
         $config = \App\Utils\Configuration::getConfigurations();
-        if(!in_array($config->fatherArea, $area_id)){
+        if($area_id != $config->fatherArea){
             $lOrders = collect(ordersVobosUtils::getDpsOrder($type_dps_id, $area_id));
             $myOrder = $lOrders->where('area', $area_id)->first();
             $oOrder = $lOrders->where('order', ($myOrder->order + 1))->first();
