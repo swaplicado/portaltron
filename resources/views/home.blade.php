@@ -1,44 +1,48 @@
 @extends('layouts.principal')
 
 @section('content')
-<div class="card shadow mb-4">
-    <div class="card-header">
-    
-    </div>
-    <div class="card-body">
-        <div class="row">
-            <div class="col-md-1">
-            </div>
-            <div class="col-md-10" style="text-align: center">
-                <figure>
-                    <blockquote class="blockquote">
-                    <!-- <h1>Bienvenid@</h1>
-                    @if(!\Auth::user()->is_provider())
-                        <h1>{{\Auth::user()->names}}</h1>
-                    @else
-                        <h1>{{\Auth::user()->getProviderData()->provider_short_name}}</h1>
-                    @endif
-                    <h1> a PP</h1>
-                    </blockquote>
-                    <figcaption class="blockquote-footer" style="padding-left: 7%">
+    <div class="card shadow mb-4">
+        <div class="card-header">
+
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-1">
+                </div>
+                <div class="col-md-10" style="text-align: center">
+                    <figure>
+                        <blockquote class="blockquote">
+                            <!-- <h1>Bienvenid@</h1>
                         @if(!\Auth::user()->is_provider())
-                            Bienvenido {{\Auth::user()->full_name}} a Portal proveedores
+                            <h1>{{\Auth::user()->names}}</h1>
                         @else
-                            Bienvenido {{\Auth::user()->getProviderData()->provider_name}} a Portal proveedores
+                            <h1>{{\Auth::user()->getProviderData()->provider_short_name}}</h1>
                         @endif
-                    </figcaption> -->
-                    <h4>Nos mudamos de plataforma, por favor presiona el botón para ir al nuevo portal: <br><a href="https://aeth.swaplicado.com/">https://aeth.swaplicado.com/</a></h4>
-              <h6 class="font-weight-light">
-                <b>Proveedores: </b> Debes activar tu cuenta en el nuevo portal presionando "Activar cuenta de proveedor" en el nuevo portal
-              </h6>
-              <div class="mt-3">
-                  <a href="https://aeth.swaplicado.com/" class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">Ir al nuevo portal</a>
-              </div>
-                </figure>
-            </div>
-            <div class="col-md-1">
+                        <h1> a PP</h1>
+                        </blockquote>
+                        <figcaption class="blockquote-footer" style="padding-left: 7%">
+                            @if(!\Auth::user()->is_provider())
+                                Bienvenido {{\Auth::user()->full_name}} a Portal proveedores
+                            @else
+                                Bienvenido {{\Auth::user()->getProviderData()->provider_name}} a Portal proveedores
+                            @endif
+                        </figcaption> -->
+                            <h4>Nos mudamos de plataforma, por favor presiona el botón para ir al nuevo portal: <br><a
+                                    href="https://aeth.swaplicado.com/">https://aeth.swaplicado.com/</a></h4>
+                            <h4 class="font-weight-light">
+                                <b>Para ingresar deberás establecer tu nueva contraseña. <br>PROVEEDORES: Ingresa a "Activar cuenta de proveedor" 
+                                    <br>USUARIOS: Ingresa a "¿Olvidaste tu contraseña?"</b>
+                            </h4>
+                            <div class="mt-3">
+                                <a href="https://aeth.swaplicado.com/"
+                                    class="btn btn-block btn-primary btn-lg font-weight-medium auth-form-btn">Ir al nuevo
+                                    portal</a>
+                            </div>
+                    </figure>
+                </div>
+                <div class="col-md-1">
+                </div>
             </div>
         </div>
     </div>
-</div>  
 @endsection
