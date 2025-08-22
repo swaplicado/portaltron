@@ -21,6 +21,6 @@
             </div>
           </li> -->
           
-          {!! session()->has('menu') ? session('menu') : "" !!}
+          <!-- {!! session()->has('menu') ? session('menu') : "" !!} -->
         </ul>
 </nav>
